@@ -174,10 +174,29 @@ const SEED_GIGS = [
   }
 ];
 
+const HISTORY = [
+  { title: "Painted 2 bedrooms in Nyambadwe", pay: "MK 38,000", when: "Aug 2026", rating: 5 },
+  { title: "Office cleaning, Ginnery Corner", pay: "MK 8,000", when: "Jul 2026", rating: 5 },
+  { title: "Furniture moving, Zingwangwa", pay: "MK 10,000", when: "Jul 2026", rating: 4 },
+];
+
+const WORKERS = [
+  { id: 'w1', name: 'James M.', rating: 4.9, skills: ['Plumbing'] },
+  { id: 'w2', name: 'Alice K.', rating: 4.8, skills: ['Cleaning'] },
+  { id: 'w3', name: 'John B.', rating: 4.7, skills: ['Construction'] }
+];
+
 const LS = {
   getGigs()    { return JSON.parse(localStorage.getItem('pg_gigs'))    ?? [...SEED_GIGS]; },
   setGigs(v)   { localStorage.setItem('pg_gigs',    JSON.stringify(v)); },
-  getProfile() { return JSON.parse(localStorage.getItem('pg_profile')) ?? {}; },
+  getProfile() { 
+    return JSON.parse(localStorage.getItem('pg_profile')) ?? {
+      name: 'Thoko Phiri', headline: 'Professional painter and cleaner',
+      phone: '0991234567', location: 'Ndirande', rating: '4.8', jobsDone: 14, rateMK: 'MK 12,000/day',
+      credentials: ['TEVETA Grade 1 Painter'], skills: ['Painting', 'Cleaning'],
+      smsAlerts: true, pushAlerts: true, dataSaver: true
+    }; 
+  },
   setProfile(v){ localStorage.setItem('pg_profile', JSON.stringify(v)); },
   getChats()   { return JSON.parse(localStorage.getItem('pg_chats'))   ?? []; },
   setChats(v)  { localStorage.setItem('pg_chats',   JSON.stringify(v)); },
@@ -572,55 +591,115 @@ function openProfile() {
   const profile = LS.getProfile();
   const initial = (profile.name || '?').charAt(0).toUpperCase();
 
-  const nameInput     = el('input', { id: 'pf-name',     type: 'text', placeholder: t('nameLabel'),     value: profile.name     || '' });
-  const phoneInput    = el('input', { id: 'pf-phone',    type: 'tel',  placeholder: t('phoneLabel'),    value: profile.phone    || '' });
-  const skillsInput   = el('input', { id: 'pf-skills',   type: 'text', placeholder: t('skillsLabel'),   value: profile.skills   || '' });
-  const locationInput = el('input', { id: 'pf-location', type: 'text', placeholder: t('areaLabel'),     value: profile.location || '' });
-
-  const avatarWrap = el('div', { class: 'profile-avatar-wrap' },
-    el('div',  { class: 'profile-avatar',         text: initial }),
-    el('div',  { class: 'profile-name-display',   text: profile.name   || t('nameLabel') }),
-    el('div',  { class: 'profile-skills-display', text: profile.skills || '' })
-  );
-
-  const form = el('div', { class: 'form' },
-    el('label', { text: t('nameLabel')   }, nameInput),
-    el('label', { text: t('phoneLabel')  }, phoneInput),
-    el('label', { text: t('skillsLabel') }, skillsInput),
-    el('label', { text: t('areaLabel')   }, locationInput),
-    el('div', { style: 'margin-top:10px; border-top:1px solid var(--line); padding-top:14px;' },
-      el('h3', { text: t('settingsTitle'), style: 'font-size:15px; margin:0 0 10px; color:var(--navy);' }),
-      el('label', { style: 'display:flex; flex-direction:row; align-items:center; gap:8px; margin-bottom:8px; font-weight:500;' }, 
-        el('input', { type: 'checkbox', id: 'set-sms', checked: profile.smsAlerts !== false, style: 'width:18px;height:18px;' }), 
-        document.createTextNode(t('smsAlertsLbl'))
-      ),
-      el('label', { style: 'display:flex; flex-direction:row; align-items:center; gap:8px; margin-bottom:16px; font-weight:500;' }, 
-        el('input', { type: 'checkbox', id: 'set-push', checked: profile.pushAlerts !== false, style: 'width:18px;height:18px;' }), 
-        document.createTextNode(t('pushAlertsLbl'))
+  const header = el('div', { class: 'pf-header' },
+    el('div', { class: 'pf-header-top' },
+      el('div', { class: 'pf-avatar' }, initial),
+      el('div', { class: 'pf-info' },
+        el('div', { class: 'pf-name-row' },
+          el('span', { class: 'pf-name', text: profile.name }),
+          el('span', { class: 'pf-verified', html: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--green)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>' })
+        ),
+        el('div', { class: 'pf-headline', text: profile.headline || '' }),
+        el('div', { class: 'pf-meta' },
+          el('span', { text: '📍 ' + (profile.location || '') }),
+          el('span', { text: '📞 ' + (profile.phone || '') })
+        )
       )
     ),
-    el('button', {
-      class: 'primary',
-      text:  t('saveBtn'),
-      onclick() {
-        LS.setProfile({
-          name:     document.getElementById('pf-name').value.trim(),
-          phone:    document.getElementById('pf-phone').value.trim(),
-          skills:   document.getElementById('pf-skills').value.trim(),
-          location: document.getElementById('pf-location').value.trim(),
-          smsAlerts:  document.getElementById('set-sms').checked,
-          pushAlerts: document.getElementById('set-push').checked,
-        });
-        toast(t('profileSaved'));
-        closeModal();
-      },
-    })
+    el('div', { class: 'pf-stats' },
+      el('div', { class: 'pf-stat' }, el('div', { class: 'pf-stat-val', text: '★ ' + profile.rating }), el('div', { class: 'pf-stat-lbl', text: t('rating') || 'Rating' })),
+      el('div', { class: 'pf-stat' }, el('div', { class: 'pf-stat-val', text: profile.jobsDone }), el('div', { class: 'pf-stat-lbl', text: t('gigsDone') || 'Gigs Done' })),
+      el('div', { class: 'pf-stat' }, el('div', { class: 'pf-stat-val', text: profile.rateMK }), el('div', { class: 'pf-stat-lbl', text: 'Daily Rate' }))
+    )
   );
 
-  openModal(el('div', {},
-    el('h2', { text: t('profileTitle') }),
-    avatarWrap,
-    form
+  const skillsBox = el('div', { class: 'pf-card' },
+    el('h3', { text: t('skillsLabel') || 'Skills' }),
+    el('div', { class: 'pf-skills-list' },
+      ...Object.keys(CAT_ICONS).slice(1).map(cat => {
+        const has = profile.skills.includes(cat);
+        return el('span', { class: 'pf-skill-pill' + (has ? ' active' : ''), onclick: function() { this.classList.toggle('active'); } }, CAT_ICONS[cat] + ' ' + tCat(cat));
+      })
+    )
+  );
+
+  const credBox = el('div', { class: 'pf-card' },
+    el('h3', { text: 'Credentials' }),
+    el('ul', { class: 'pf-cred-list' },
+      ...profile.credentials.map(c => el('li', { text: '🛡️ ' + c }))
+    ),
+    el('button', { class: 'pf-upload-btn', text: '+ Upload certificate or National ID' })
+  );
+
+  const histBox = el('div', { class: 'pf-card' },
+    el('h3', { text: 'History' }),
+    el('div', { class: 'pf-hist-list' },
+      ...HISTORY.map(h => el('div', { class: 'pf-hist-item' },
+        el('div', {},
+          el('div', { class: 'pf-hist-title', text: h.title }),
+          el('div', { class: 'pf-hist-when', text: h.when })
+        ),
+        el('div', { class: 'pf-hist-right' },
+          el('div', { class: 'pf-hist-pay', text: h.pay }),
+          el('div', { class: 'pf-hist-rating', text: '★ ' + h.rating + '.0' })
+        )
+      ))
+    )
+  );
+
+  const premiumBox = el('div', { class: 'pf-premium' },
+    el('div', { class: 'pf-prem-title', text: '👑 Premium — MK 1,500 / week' }),
+    el('ul', { class: 'pf-prem-list' },
+      el('li', { text: '• Boosted profile at the top of employer searches' }),
+      el('li', { text: '• Priority gig alerts by SMS, even offline' }),
+      el('li', { text: '• Hand-picked high-paying gigs' }),
+      el('li', { text: '• Lower transaction fee on escrow payouts' })
+    ),
+    el('button', { class: 'pf-prem-btn', text: 'Subscribe with Airtel Money' })
+  );
+
+  const leaderboardBox = el('div', { class: 'pf-card' },
+    el('h3', { text: 'Community leaderboard' }),
+    el('div', { class: 'pf-lb-list' },
+      ...WORKERS.map((w, i) => el('div', { class: 'pf-lb-item' },
+        el('div', { class: 'pf-lb-rank' + (i === 0 ? ' top' : ''), text: i + 1 }),
+        el('div', { class: 'pf-lb-name', text: w.name }),
+        el('div', { class: 'pf-lb-meta', text: '★ ' + w.rating + ' · ' + tCat(w.skills[0]) })
+      ))
+    ),
+    el('div', { class: 'pf-lb-footer', text: '🏆 Top workers featured every week' })
+  );
+
+  const settingsBox = el('div', { class: 'pf-card' },
+    el('h3', { text: 'Settings' }),
+    el('label', { class: 'pf-toggle' },
+      el('div', {}, el('strong', { text: 'SMS Alerts' }), el('div', { class: 'pf-toggle-hint', text: 'Get gig alerts by SMS when data is off' })),
+      el('input', { type: 'checkbox', checked: profile.smsAlerts })
+    ),
+    el('label', { class: 'pf-toggle' },
+      el('div', {}, el('strong', { text: 'Data Saver' }), el('div', { class: 'pf-toggle-hint', text: 'Cache gigs and sync later' })),
+      el('input', { type: 'checkbox', checked: profile.dataSaver })
+    )
+  );
+
+  const refBox = el('div', { class: 'pf-card' },
+    el('h3', { text: 'Referrals' }),
+    el('p', { class: 'pf-ref-p', text: '🎁 Refer a friend and earn MK 500 when they complete their first gig.' }),
+    el('div', { class: 'pf-ref-box' },
+      el('span', { class: 'pf-ref-code', text: 'THOKO500' }),
+      el('button', { class: 'pf-ref-btn', text: 'Share code' })
+    )
+  );
+
+  openModal(el('div', { class: 'pf-container' },
+    header,
+    skillsBox,
+    credBox,
+    histBox,
+    premiumBox,
+    leaderboardBox,
+    settingsBox,
+    refBox
   ));
 }
 

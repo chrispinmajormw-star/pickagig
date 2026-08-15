@@ -873,3 +873,63 @@ button, input, select, textarea { font: inherit; }
 @media (max-width: 360px) {
   .lang-pill { padding: 4px 9px; font-size: 12px; }
 }
+
+/* ── New Profile Design ────────────────────────────────────── */
+.pf-container { display: flex; flex-direction: column; gap: 14px; margin: -24px -22px 0; padding: 0 0 20px 0; }
+.pf-header { background: linear-gradient(150deg, var(--grad-a) 0%, var(--grad-b) 55%, var(--grad-c) 100%); color: white; padding: 24px 22px 20px; border-radius: 24px 24px 24px 24px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); margin-bottom: 6px; }
+.pf-header-top { display: flex; gap: 14px; align-items: center; margin-bottom: 18px; }
+.pf-avatar { width: 64px; height: 64px; border-radius: 50%; background: var(--orange); font-size: 24px; font-weight: 800; display: grid; place-items: center; flex-shrink: 0; box-shadow: 0 4px 12px rgba(0,0,0,0.2); }
+.pf-info { flex: 1; }
+.pf-name-row { display: flex; align-items: center; gap: 6px; }
+.pf-name { font-size: 18px; font-weight: 700; letter-spacing: -0.3px; }
+.pf-verified { display: flex; align-items: center; }
+.pf-headline { font-size: 12px; opacity: 0.85; margin: 2px 0 6px; }
+.pf-meta { display: flex; gap: 12px; font-size: 12px; opacity: 0.85; }
+.pf-stats { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; text-align: center; }
+.pf-stat { background: rgba(255,255,255,0.15); border-radius: 12px; padding: 10px 4px; }
+.pf-stat-val { font-size: 14px; font-weight: 800; }
+.pf-stat-lbl { font-size: 10px; opacity: 0.85; margin-top: 2px; }
+
+.pf-card { background: var(--card); border: 1px solid var(--line); border-radius: 18px; padding: 16px; margin: 0 16px; box-shadow: var(--shadow-card); }
+.pf-card h3 { margin: 0 0 12px; font-size: 16px; font-weight: 700; color: var(--navy); }
+
+.pf-skills-list { display: flex; flex-wrap: wrap; gap: 8px; }
+.pf-skill-pill { border: 1px solid var(--line); padding: 6px 12px; border-radius: var(--radius-pill); font-size: 12px; font-weight: 600; cursor: pointer; transition: var(--transition); }
+.pf-skill-pill.active { background: var(--orange-bg); border-color: var(--orange); color: var(--orange-dk); }
+
+.pf-cred-list { list-style: none; padding: 0; margin: 0 0 12px; display: flex; flex-direction: column; gap: 8px; font-size: 14px; }
+.pf-upload-btn { width: 100%; border: 1px dashed var(--line); background: transparent; padding: 10px; border-radius: 12px; color: var(--muted); font-size: 12px; font-weight: 700; cursor: pointer; transition: var(--transition); }
+.pf-upload-btn:hover { border-color: var(--orange); color: var(--orange); }
+
+.pf-hist-list { display: flex; flex-direction: column; gap: 12px; }
+.pf-hist-item { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; }
+.pf-hist-title { font-size: 14px; font-weight: 600; color: var(--navy); margin-bottom: 2px; }
+.pf-hist-when { font-size: 12px; color: var(--muted); }
+.pf-hist-right { text-align: right; }
+.pf-hist-pay { font-size: 14px; font-weight: 700; color: var(--navy); }
+.pf-hist-rating { font-size: 12px; color: var(--orange); font-weight: 600; }
+
+.pf-premium { background: var(--navy); color: white; border-radius: 18px; padding: 16px; margin: 0 16px; box-shadow: 0 8px 24px rgba(26,37,80,0.15); }
+.pf-prem-title { font-size: 16px; font-weight: 800; display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+.pf-prem-list { list-style: none; padding: 0; margin: 0 0 14px; font-size: 12px; opacity: 0.95; line-height: 1.6; }
+.pf-prem-btn { width: 100%; background: white; color: var(--navy); border: 0; padding: 12px; border-radius: 12px; font-weight: 800; cursor: pointer; transition: var(--transition); }
+.pf-prem-btn:hover { background: #f0ece8; }
+
+.pf-lb-list { display: flex; flex-direction: column; gap: 10px; }
+.pf-lb-item { display: flex; align-items: center; gap: 12px; }
+.pf-lb-rank { width: 28px; height: 28px; border-radius: 50%; background: #e8edf8; color: var(--navy); display: grid; place-items: center; font-size: 12px; font-weight: 800; }
+.pf-lb-rank.top { background: var(--orange); color: white; }
+.pf-lb-name { flex: 1; font-size: 14px; font-weight: 600; }
+.pf-lb-meta { font-size: 12px; color: var(--muted); }
+.pf-lb-footer { font-size: 12px; color: var(--muted); margin-top: 12px; display: flex; align-items: center; gap: 6px; }
+
+.pf-toggle { display: flex; justify-content: space-between; align-items: center; padding-bottom: 12px; margin-bottom: 12px; border-bottom: 1px solid var(--line); }
+.pf-toggle:last-child { border: 0; margin: 0; padding: 0; }
+.pf-toggle strong { font-size: 14px; color: var(--navy); }
+.pf-toggle-hint { font-size: 12px; color: var(--muted); margin-top: 2px; }
+.pf-toggle input { width: 18px; height: 18px; accent-color: var(--green); }
+
+.pf-ref-p { font-size: 13px; color: var(--muted); margin: 0 0 12px; line-height: 1.5; }
+.pf-ref-box { display: flex; justify-content: space-between; align-items: center; border: 1px dashed var(--line); padding: 10px 14px; border-radius: 12px; }
+.pf-ref-code { font-size: 14px; font-weight: 800; letter-spacing: 1px; color: var(--navy); }
+.pf-ref-btn { background: transparent; border: 0; color: var(--orange); font-weight: 700; cursor: pointer; font-size: 12px; }
