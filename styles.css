@@ -452,23 +452,6 @@ button, input, select, textarea { font: inherit; }
   z-index: 10;
 }
 
-.map-hint {
-  position: absolute;
-  bottom: 12px;
-  left: 20px;
-  right: 20px;
-  background: var(--card);
-  padding: 12px;
-  border-radius: 12px;
-  box-shadow: 0 4px 16px rgba(0,0,0,0.15);
-  color: var(--muted);
-  font-size: 13px;
-  text-align: center;
-  line-height: 1.6;
-  z-index: 20;
-  margin: 0;
-}
-
 /* ══════════════════════════════════════════════════════════
    CHAT LIST
 ══════════════════════════════════════════════════════════ */
