@@ -36,6 +36,9 @@ const STRINGS = {
     saveBtn:             'Save profile',
     profileSaved:        'Profile saved!',
     profileRequired:     'Fill in your profile before applying.',
+    settingsTitle:       'Settings',
+    smsAlertsLbl:        'SMS Alerts (New Gigs)',
+    pushAlertsLbl:       'Push Notifications',
     chatsTitle:          'Messages',
     chatsSub:            'Confirm the details before you travel',
     noChats:             'No active chats yet.',
@@ -94,6 +97,9 @@ const STRINGS = {
     saveBtn:             'Sungani mbiri',
     profileSaved:        'Mbiri yasungidwa!',
     profileRequired:     'Chonde mdzaze mbiri yanu musanapemphe ntchito.',
+    settingsTitle:       'Zokonda',
+    smsAlertsLbl:        'Mauthenga a SMS (Ntchito Zatsopano)',
+    pushAlertsLbl:       'Zidziwitso za Push',
     chatsTitle:          'Mauthenga',
     chatsSub:            'Thibitsani zambiri musanayende',
     noChats:             'Palibe zokambirana.',
@@ -582,6 +588,17 @@ function openProfile() {
     el('label', { text: t('phoneLabel')  }, phoneInput),
     el('label', { text: t('skillsLabel') }, skillsInput),
     el('label', { text: t('areaLabel')   }, locationInput),
+    el('div', { style: 'margin-top:10px; border-top:1px solid var(--line); padding-top:14px;' },
+      el('h3', { text: t('settingsTitle'), style: 'font-size:15px; margin:0 0 10px; color:var(--navy);' }),
+      el('label', { style: 'display:flex; flex-direction:row; align-items:center; gap:8px; margin-bottom:8px; font-weight:500;' }, 
+        el('input', { type: 'checkbox', id: 'set-sms', checked: profile.smsAlerts !== false, style: 'width:18px;height:18px;' }), 
+        document.createTextNode(t('smsAlertsLbl'))
+      ),
+      el('label', { style: 'display:flex; flex-direction:row; align-items:center; gap:8px; margin-bottom:16px; font-weight:500;' }, 
+        el('input', { type: 'checkbox', id: 'set-push', checked: profile.pushAlerts !== false, style: 'width:18px;height:18px;' }), 
+        document.createTextNode(t('pushAlertsLbl'))
+      )
+    ),
     el('button', {
       class: 'primary',
       text:  t('saveBtn'),
@@ -591,6 +608,8 @@ function openProfile() {
           phone:    document.getElementById('pf-phone').value.trim(),
           skills:   document.getElementById('pf-skills').value.trim(),
           location: document.getElementById('pf-location').value.trim(),
+          smsAlerts:  document.getElementById('set-sms').checked,
+          pushAlerts: document.getElementById('set-push').checked,
         });
         toast(t('profileSaved'));
         closeModal();
