@@ -1,100 +1,150 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>PickAGig — Find work nearby</title>
-<style>
-:root{--green:#18a957;--green2:#0d8f49;--ink:#17231c;--muted:#6b776f;--bg:#f5f7f5;--card:#fff;--line:#e5ebe6;--orange:#f59e0b;--red:#ef4444}
-*{box-sizing:border-box}body{margin:0;font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:var(--bg);color:var(--ink)}
-button,input{font:inherit}.app{min-height:100vh;max-width:1100px;margin:auto;background:#fff}
-header{position:sticky;top:0;z-index:20;background:#fff;border-bottom:1px solid var(--line);padding:16px 22px;display:flex;align-items:center;justify-content:space-between}
-.brand{display:flex;align-items:center;gap:10px;font-weight:900;font-size:21px;letter-spacing:-.6px}.logo{width:38px;height:38px;border-radius:12px;background:var(--green);color:white;display:grid;place-items:center;font-weight:900}
-.top-actions{display:flex;gap:8px}.pill{border:1px solid var(--line);background:white;padding:8px 12px;border-radius:999px;cursor:pointer}.pill.active{background:#eaf8f0;color:var(--green2);border-color:#bde7cc}
-.hero{background:linear-gradient(135deg,#eaf9f0,#f8fbf9);padding:28px 22px 24px}.hero h1{font-size:32px;line-height:1.08;margin:0 0 8px;letter-spacing:-1.3px}.hero p{color:var(--muted);margin:0 0 20px}.location{font-size:14px;font-weight:700;margin-bottom:10px;color:#46534b}
-.search{display:flex;gap:8px}.search input{flex:1;border:1px solid #dce5de;border-radius:14px;padding:14px 15px;outline:none;background:white}.search input:focus{border-color:var(--green);box-shadow:0 0 0 3px #dff5e8}.search button,.primary{border:0;background:var(--green);color:white;border-radius:14px;padding:0 18px;font-weight:800;cursor:pointer}
-.filters{padding:14px 22px;display:flex;gap:8px;overflow:auto;border-bottom:1px solid var(--line)}.filter{white-space:nowrap;border:1px solid var(--line);background:white;border-radius:999px;padding:9px 13px;cursor:pointer}.filter.active{background:var(--ink);color:#fff;border-color:var(--ink)}
-.content{padding:20px 22px 90px}.section-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}.section-head h2{font-size:19px;margin:0}.map-link{color:var(--green2);font-weight:800;cursor:pointer}
-.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}.gig{border:1px solid var(--line);border-radius:17px;padding:16px;background:#fff;transition:.18s;box-shadow:0 3px 12px rgba(18,45,28,.04)}.gig:hover{transform:translateY(-2px);box-shadow:0 8px 22px rgba(18,45,28,.08)}.tag{display:inline-flex;background:#edf8f1;color:var(--green2);font-size:12px;font-weight:800;padding:5px 8px;border-radius:7px}.urgent{background:#fff1f0;color:#d92d20}.gig h3{margin:11px 0 7px;font-size:17px}.meta{color:var(--muted);font-size:13px;line-height:1.65}.pay{margin-top:12px;font-size:17px;font-weight:900}.details{display:flex;justify-content:space-between;align-items:end;margin-top:7px;color:var(--muted);font-size:12px}.apply{margin-top:14px;width:100%;padding:10px;border-radius:11px;border:1px solid #cfe8d7;background:#f5fcf7;color:var(--green2);font-weight:800;cursor:pointer}.apply.applied{background:var(--green);color:#fff}
-.empty{padding:40px 10px;text-align:center;color:var(--muted);display:none}.bottom{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:min(1100px,100%);background:#fff;border-top:1px solid var(--line);display:grid;grid-template-columns:repeat(5,1fr);padding:8px 10px 9px;z-index:30}.nav{border:0;background:transparent;color:#718078;font-size:11px;cursor:pointer;padding:5px}.nav strong{display:block;font-size:19px;margin-bottom:2px}.nav.active{color:var(--green2)}
-.modal{display:none;position:fixed;inset:0;background:rgba(10,20,14,.45);z-index:50;align-items:end;justify-content:center}.modal.show{display:flex}.sheet{background:#fff;width:min(620px,100%);border-radius:22px 22px 0 0;padding:22px;max-height:90vh;overflow:auto}.sheet h2{margin-top:0}.close{float:right;border:0;background:#f0f3f1;border-radius:50%;width:34px;height:34px;cursor:pointer}.form{display:grid;gap:12px}.form input,.form select,.form textarea{width:100%;padding:12px;border:1px solid var(--line);border-radius:11px;outline:none}.form textarea{min-height:100px}.form label{font-size:13px;font-weight:800}.toast{position:fixed;left:50%;bottom:85px;transform:translateX(-50%) translateY(20px);background:var(--ink);color:white;padding:11px 15px;border-radius:999px;opacity:0;pointer-events:none;transition:.25s;z-index:70;font-size:13px}.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
-@media(max-width:700px){header{padding:12px 15px}.hero{padding:24px 15px}.hero h1{font-size:28px}.filters,.content{padding-left:15px;padding-right:15px}.grid{grid-template-columns:1fr}.top-actions .pill:first-child{display:none}.search button{padding:0 14px}}
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="PickAGig — Find temporary work, side jobs and local people who need your skills in Blantyre, Malawi.">
+  <title>PickAGig — Find work nearby</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="">
+  <link rel="stylesheet" href="styles.css">
 </head>
 <body>
 <div class="app">
-<header>
-  <div class="brand"><div class="logo">P</div>PickAGig</div>
-  <div class="top-actions"><button class="pill" onclick="setLang('EN')">EN</button><button class="pill" onclick="setLang('NY')">NY</button></div>
-</header>
 
-<section class="hero">
-  <div class="location">📍 Within 5km of Sunnyside, Blantyre</div>
-  <h1>Pick your next gig.<br>Nearby.</h1>
-  <p>Find temporary work, side jobs and local people who need your skills.</p>
-  <div class="search"><input id="search" placeholder="Search gigs, e.g. plumbing" oninput="render()"><button onclick="render()">Search</button></div>
-</section>
+  <!-- ═══════════════════════════════════════════════════════
+       GRADIENT PANEL — morphs content per page
+  ════════════════════════════════════════════════════════════ -->
+  <div class="panel" id="panel">
 
-<div class="filters" id="filters"></div>
+    <!-- Top bar: brand OR page title, always has lang + bell -->
+    <div class="panel-top">
 
-<main class="content">
-  <div class="section-head"><h2>Gigs near you</h2><span class="map-link" onclick="showMap()">Map →</span></div>
-  <div class="grid" id="gigs"></div>
-  <div class="empty" id="empty">No gigs match your search.<br>Try another keyword or category.</div>
-</main>
+      <!-- Gigs brand (shown on gigs page) -->
+      <div id="panelBrand">
+        <div class="brand-name">PickAGig</div>
+        <div class="brand-tagline" id="heroSubtitle"></div>
+      </div>
 
-<nav class="bottom">
-  <button class="nav active" onclick="home(this)"><strong>⌂</strong>Gigs</button>
-  <button class="nav" onclick="showMap()"><strong>⌖</strong>Map</button>
-  <button class="nav" onclick="openPost()"><strong>＋</strong>Post</button>
-  <button class="nav" onclick="toast('Chats will appear here.')"><strong>◌</strong>Chats</button>
-  <button class="nav" onclick="toast('Profile opened.')"><strong>◯</strong>Profile</button>
-</nav>
+      <!-- Page header (shown on non-gigs pages) -->
+      <div id="panelPageHeader" style="display:none">
+        <h1 class="panel-page-title" id="panelPageTitle"></h1>
+        <p  class="panel-page-sub"   id="panelPageSub"></p>
+      </div>
+
+      <!-- Always-visible: lang switcher + bell -->
+      <div class="panel-actions">
+        <button class="lang-pill" data-lang="EN" onclick="setLang('EN')">EN</button>
+        <button class="lang-pill" data-lang="NY" onclick="setLang('NY')">NY</button>
+        <button class="bell-btn" aria-label="Notifications" onclick="toast('Notifications coming soon.')">
+          <!-- Bell SVG -->
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- Gigs-only extra: location + search (hidden on other pages) -->
+    <div id="panelGigsBody">
+      <div class="location-row" id="locationText"></div>
+      <div class="search-wrap">
+        <!-- Search icon -->
+        <svg class="search-icon-svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <input id="searchInput" type="search" autocomplete="off" oninput="onSearch(this.value)">
+        <!-- Filter icon -->
+        <svg class="filter-icon-svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" onclick="toast('Advanced filters coming soon.')" style="cursor:pointer" aria-label="Filters"><line x1="4" y1="6" x2="20" y2="6"/><line x1="8" y1="12" x2="16" y2="12"/><line x1="11" y1="18" x2="13" y2="18"/></svg>
+      </div>
+    </div>
+
+  </div><!-- /.panel -->
+
+  <!-- ── Category Filters (gigs page only) ─────────────────── -->
+  <div class="filters" id="filtersBar"></div>
+
+  <!-- ═══════════════════════════════════════════════════════
+       PAGE: GIGS
+  ════════════════════════════════════════════════════════════ -->
+  <div id="pageGigs">
+    <main class="content">
+      <div class="section-head">
+        <h2 id="gigsHeading"></h2>
+        <span class="map-link" id="mapLinkBtn" onclick="navigate('map')"></span>
+      </div>
+      <div id="gigsGrid"></div>
+      <div class="empty" id="gigsEmpty"></div>
+    </main>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════
+       PAGE: MAP
+  ════════════════════════════════════════════════════════════ -->
+  <div id="pageMap" style="display:none">
+    <div class="map-content">
+      <div id="map"></div>
+      <p id="mapSubtitleEl" class="map-hint"></p>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════
+       PAGE: CHATS
+  ════════════════════════════════════════════════════════════ -->
+  <div id="pageChats" style="display:none">
+    <main class="content">
+      <div id="chatsList"></div>
+    </main>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════
+       BOTTOM NAVIGATION
+  ════════════════════════════════════════════════════════════ -->
+  <nav class="bottom" aria-label="Main navigation">
+
+    <button class="nav active" data-page="gigs" id="nav-gigs" onclick="navigate('gigs')">
+      <svg class="nav-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/></svg>
+      <span data-nav-label="navGigs"></span>
+    </button>
+
+    <button class="nav" data-page="map" id="nav-map" onclick="navigate('map')">
+      <svg class="nav-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+      <span data-nav-label="navMap"></span>
+    </button>
+
+    <button class="nav nav-post" data-page="post" id="nav-post" onclick="navigate('post')">
+      <div class="post-fab" aria-hidden="true">
+        <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      </div>
+      <span data-nav-label="navPost"></span>
+    </button>
+
+    <button class="nav" data-page="chats" id="nav-chats" onclick="navigate('chats')">
+      <svg class="nav-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+      <span data-nav-label="navChats"></span>
+    </button>
+
+    <button class="nav" data-page="profile" id="nav-profile" onclick="navigate('profile')">
+      <svg class="nav-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+      <span data-nav-label="navProfile"></span>
+    </button>
+
+  </nav>
+
+</div><!-- /.app -->
+
+<!-- ═══════════════════════════════════════════════════════════
+     MODAL BOTTOM SHEET
+════════════════════════════════════════════════════════════════ -->
+<div class="modal" id="modal" role="dialog" aria-modal="true">
+  <div class="sheet">
+    <button class="close" onclick="closeModal()" aria-label="Close">×</button>
+    <div id="modalContent"></div>
+  </div>
 </div>
 
-<div class="modal" id="modal"><div class="sheet"><button class="close" onclick="closeModal()">×</button><div id="modalContent"></div></div></div>
-<div class="toast" id="toast"></div>
+<!-- Toast -->
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
 
-<script>
-const cats=["All","Construction","Gardening","Cleaning","Plumbing","Electrical","Painting","Moving","Farm Labour","Catering","Domestic"];
-let selected="All";
-let gigs=[
- {cat:"Plumbing",title:"Urgent toilet leaking — plumber needed",place:"Namiwawa, Blantyre",time:"Today, 14:00",duration:"3 hours",pay:"MK 20,000 total",people:"1 person needed",applied:3,km:.8,urgent:true},
- {cat:"Farm Labour",title:"Need 2 people to clear a field tomorrow",place:"Chilomoni, Blantyre",time:"Tomorrow, 06:30",duration:"1 day",pay:"MK 12,000 per person",people:"2 people needed",applied:5,km:1.2},
- {cat:"Gardening",title:"Lawn mowing and hedge trimming",place:"Sunnyside",time:"Today, 15:30",duration:"3 hours",pay:"MK 7,000 total",people:"1 person needed",applied:6,km:1.9},
- {cat:"Cleaning",title:"Office cleaning every Saturday morning",place:"Ginnery Corner",time:"Sat, 07:00",duration:"4 hours",pay:"MK 8,000 per person",people:"2 people needed",applied:9,km:2.3},
- {cat:"Painting",title:"Paint 3 bedroom house — interior",place:"Nyambadwe",time:"Mon 18 Aug",duration:"3 days",pay:"MK 45,000 per person",people:"3 people needed",applied:7,km:3.1},
- {cat:"Electrical",title:"Solar panel wiring on small shop",place:"Chirimba",time:"Wed, 09:00",duration:"1 day",pay:"MK 35,000 total",people:"1 person needed",applied:2,km:3.7},
- {cat:"Moving",title:"Help moving furniture to new house",place:"Zingwangwa",time:"Sun, 08:00",duration:"6 hours",pay:"MK 10,000 per person",people:"4 people needed",applied:12,km:4.4},
- {cat:"Catering",title:"Cook for a wedding of 150 guests",place:"Limbe",time:"Sat 29 Aug",duration:"1 day",pay:"MK 60,000 total",people:"1 person needed",applied:4,km:4.9}
-];
-const filters=document.getElementById("filters");
-cats.forEach(c=>{let b=document.createElement("button");b.className="filter"+(c==="All"?" active":"");b.textContent=c;b.onclick=()=>{selected=c;document.querySelectorAll(".filter").forEach(x=>x.classList.remove("active"));b.classList.add("active");render()};filters.appendChild(b)});
-
-function render(){
- const q=document.getElementById("search").value.toLowerCase();
- const list=gigs.filter(g=>(selected==="All"||g.cat===selected)&&(g.title+" "+g.cat+" "+g.place).toLowerCase().includes(q));
- document.getElementById("gigs").innerHTML=list.map((g,i)=>`
- <article class="gig">
-  <span class="tag ${g.urgent?"urgent":""}">${g.cat}${g.urgent?" · Urgent":""}</span>
-  <h3>${g.title}</h3>
-  <div class="meta">📍 ${g.km} km · ${g.place}<br>🕒 ${g.time} · ${g.duration}</div>
-  <div class="pay">${g.pay}</div>
-  <div class="details"><span>${g.people}</span><span>${g.applied} applied</span></div>
-  <button class="apply" onclick="applyGig(${gigs.indexOf(g)},this)">Pick this gig</button>
- </article>`).join("");
- document.getElementById("empty").style.display=list.length?"none":"block";
-}
-function applyGig(i,btn){btn.classList.add("applied");btn.textContent="✓ Application sent";gigs[i].applied++;toast("Application sent successfully!")}
-function showMap(){openModal(`<h2>Gig Map</h2><div style="height:330px;border-radius:18px;background:linear-gradient(145deg,#dfeee3,#eef5ef);position:relative;overflow:hidden;border:1px solid #dce7df"><div style="position:absolute;inset:20px;background:repeating-linear-gradient(45deg,transparent 0 35px,#d2e2d6 36px 38px);opacity:.8"></div>${gigs.map((g,i)=>`<button onclick="toast('${g.title.replace(/'/g,"\\'")}')" style="position:absolute;left:${12+(i*11)%78}%;top:${18+(i*17)%65}%;border:0;background:#18a957;color:#fff;width:34px;height:34px;border-radius:50%;font-weight:900;cursor:pointer">P</button>`).join("")}</div><p style="color:#6b776f">Showing gigs within 5km. Tap a marker to preview a gig.</p>`)}
-function openPost(){openModal(`<h2>Post a Gig</h2><p style="color:#6b776f">Tell nearby workers what you need help with.</p><div class="form"><label>Gig title<input id="ptitle" placeholder="e.g. Need a plumber"></label><label>Category<select id="pcat">${cats.slice(1).map(c=>`<option>${c}</option>`).join("")}</select></label><label>Location<input id="pplace" placeholder="Area / town"></label><label>Pay<input id="ppay" placeholder="e.g. MK 15,000"></label><label>Details<textarea id="pdetails" placeholder="Describe the work, time and requirements"></textarea></label><button class="primary" style="padding:13px" onclick="publish()">Publish gig</button></div>`)}
-function publish(){let title=document.getElementById("ptitle").value.trim();if(!title){toast("Add a gig title first.");return}gigs.unshift({cat:document.getElementById("pcat").value,title,place:document.getElementById("pplace").value||"Blantyre",time:"New gig",duration:"Flexible",pay:document.getElementById("ppay").value||"Negotiable",people:"1 person needed",applied:0,km:0});closeModal();render();toast("Your gig has been posted!")}
-function openModal(html){document.getElementById("modalContent").innerHTML=html;document.getElementById("modal").classList.add("show")}
-function closeModal(){document.getElementById("modal").classList.remove("show")}
-function toast(msg){let t=document.getElementById("toast");t.textContent=msg;t.classList.add("show");clearTimeout(window.tt);window.tt=setTimeout(()=>t.classList.remove("show"),2200)}
-function setLang(l){toast(l==="NY"?"Chichewa language selected.":"English selected.")}
-function home(el){document.querySelectorAll(".nav").forEach(x=>x.classList.remove("active"));el.classList.add("active");window.scrollTo({top:0,behavior:"smooth"})}
-render();
-</script>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
+<script src="app.js"></script>
 </body>
 </html>
