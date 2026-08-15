@@ -587,11 +587,22 @@ function openChatThread(gigId) {
   ));
 }
 
-function openProfile() {
+function renderProfilePage() {
   const profile = LS.getProfile();
   const initial = (profile.name || '?').charAt(0).toUpperCase();
 
+  const profileContainer = document.getElementById('pageProfile');
+  if (!profileContainer) return;
+  profileContainer.textContent = '';
+
   const header = el('div', { class: 'pf-header' },
+    el('div', { style: 'display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;' },
+      el('h1', { style: 'font-size:22px; font-weight:800; margin:0;', text: t('profileTitle') || 'Profile' }),
+      el('div', { class: 'panel-actions' },
+        el('button', { class: 'lang-pill' + (lang==='EN'?' active':''), text: 'EN', onclick: () => setLang('EN') }),
+        el('button', { class: 'lang-pill' + (lang==='NY'?' active':''), text: 'NY', onclick: () => setLang('NY') })
+      )
+    ),
     el('div', { class: 'pf-header-top' },
       el('div', { class: 'pf-avatar' }, initial),
       el('div', { class: 'pf-info' },
@@ -691,7 +702,7 @@ function openProfile() {
     )
   );
 
-  openModal(el('div', { class: 'pf-container' },
+  profileContainer.appendChild(el('div', { class: 'pf-container' },
     header,
     skillsBox,
     credBox,
@@ -714,10 +725,6 @@ function navigate(page) {
     openPost();
     return;
   }
-  if (page === 'profile') {
-    openProfile();
-    return;
-  }
 
   state.page = page;
 
@@ -725,6 +732,7 @@ function navigate(page) {
   const activeBtn = document.querySelector(`.nav[data-page="${page}"]`);
   if (activeBtn) activeBtn.classList.add('active');
 
+  const panel = document.getElementById('panel');
   const panelBrand = document.getElementById('panelBrand');
   const panelPageHeader = document.getElementById('panelPageHeader');
   const panelGigsBody = document.getElementById('panelGigsBody');
@@ -732,6 +740,7 @@ function navigate(page) {
   const pageGigs = document.getElementById('pageGigs');
   const pageMap = document.getElementById('pageMap');
   const pageChats = document.getElementById('pageChats');
+  const pageProfile = document.getElementById('pageProfile');
 
   panelBrand.style.display = 'none';
   panelPageHeader.style.display = 'none';
@@ -740,6 +749,8 @@ function navigate(page) {
   pageGigs.style.display = 'none';
   pageMap.style.display = 'none';
   pageChats.style.display = 'none';
+  if(pageProfile) pageProfile.style.display = 'none';
+  panel.style.display = 'block';
 
   if (page === 'gigs') {
     panelBrand.style.display = 'block';
@@ -760,6 +771,10 @@ function navigate(page) {
     document.getElementById('panelPageSub').textContent = t('chatsSub');
     pageChats.style.display = 'block';
     renderChatsList();
+  } else if (page === 'profile') {
+    panel.style.display = 'none';
+    if(pageProfile) pageProfile.style.display = 'block';
+    renderProfilePage();
   }
 }
 

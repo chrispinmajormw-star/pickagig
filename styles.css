@@ -875,8 +875,8 @@ button, input, select, textarea { font: inherit; }
 }
 
 /* ── New Profile Design ────────────────────────────────────── */
-.pf-container { display: flex; flex-direction: column; gap: 14px; margin: -24px -22px 0; padding: 0 0 20px 0; }
-.pf-header { background: linear-gradient(150deg, var(--grad-a) 0%, var(--grad-b) 55%, var(--grad-c) 100%); color: white; padding: 24px 22px 20px; border-radius: 24px 24px 24px 24px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); margin-bottom: 6px; }
+.pf-container { display: flex; flex-direction: column; gap: 14px; margin: 0; padding: 0 0 100px 0; }
+.pf-header { background: linear-gradient(150deg, var(--grad-a) 0%, var(--grad-b) 55%, var(--grad-c) 100%); color: white; padding: 24px 22px 20px; border-radius: 0 0 24px 24px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); margin-bottom: 6px; }
 .pf-header-top { display: flex; gap: 14px; align-items: center; margin-bottom: 18px; }
 .pf-avatar { width: 64px; height: 64px; border-radius: 50%; background: var(--orange); font-size: 24px; font-weight: 800; display: grid; place-items: center; flex-shrink: 0; box-shadow: 0 4px 12px rgba(0,0,0,0.2); }
 .pf-info { flex: 1; }
