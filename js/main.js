@@ -15,6 +15,7 @@ import { initMap } from './map.js';
 import { renderChatsList } from './chats.js';
 import { renderProfilePage } from './profile.js';
 import { initAuth, getCurrentUser, openAuthModal, signOut } from './auth.js';
+import { requestUserLocation } from './geo.js';
 
 export function setLang(l) {
   setLangValue(l);
@@ -115,6 +116,7 @@ export async function init() {
     node.textContent = t(node.dataset.navLabel);
   });
 
+  await requestUserLocation();
   await loadGigs();
   renderAuthStatus(getCurrentUser());
   navigate(state.page === 'post' || state.page === 'profile' ? 'gigs' : state.page);

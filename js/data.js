@@ -75,4 +75,5 @@ export const state = {
   mapMarkers:  [],
   gigsCache:   [],    // gigs loaded from Supabase, transformed for the UI
   gigsLoaded:  false, // true once loadGigs() has fetched at least once
+  userLocation: null, // { lat, lng, isFallback } once requestUserLocation() resolves
 };

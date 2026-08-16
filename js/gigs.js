@@ -13,18 +13,9 @@ import { getCurrentUser, openAuthModal } from './auth.js';
 import { refreshMapMarkers } from './map.js';
 import { navigate } from './main.js';
 import { createOrGetChat } from './chats.js';
+import { distanceKm, getUserLocation } from './geo.js';
 
 let appliedGigIds = new Set();
-
-function distanceKm(lat1, lng1, lat2, lng2) {
-  if (lat1 == null || lng1 == null || lat2 == null || lng2 == null) return null;
-  const R = 6371;
-  const dLat = (lat2 - lat1) * Math.PI / 180;
-  const dLng = (lng2 - lng1) * Math.PI / 180;
-  const a = Math.sin(dLat / 2) ** 2 +
-            Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * Math.sin(dLng / 2) ** 2;
-  return Math.round(R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a)) * 10) / 10;
-}
 
 async function loadAppliedGigIds() {
   const user = getCurrentUser();
@@ -74,7 +65,6 @@ export async function loadGigs(force = false) {
     urgent: g.urgent,
     lat: g.location_lat,
     lng: g.location_lng,
-    km: distanceKm(BLANTYRE_CENTER[0], BLANTYRE_CENTER[1], g.location_lat, g.location_lng),
     posterId: g.poster_id,
     posterName: g.profiles?.full_name || 'Unknown',
     posterInitials: (g.profiles?.full_name || '?').charAt(0).toUpperCase(),
@@ -119,6 +109,8 @@ export function getFilteredGigs() {
 function buildGigCard(gig) {
   const isApplied = appliedGigIds.has(gig.id);
   const peopleLabel = gig.people === 1 ? t('peopleSingular') : t('peoplePlural');
+  const loc = getUserLocation();
+  const km = distanceKm(loc.lat, loc.lng, gig.lat, gig.lng);
 
   return el('article', {
     class: 'gig-card',
@@ -138,7 +130,7 @@ function buildGigCard(gig) {
         el('div', { class: 'gig-meta' },
           el('div', { class: 'gig-meta-item' },
             el('svg', { html: '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>' }),
-            document.createTextNode((gig.km != null ? gig.km + ' km · ' : '') + gig.place)
+            document.createTextNode((km != null ? km + ' km · ' : '') + gig.place)
           ),
           el('div', { class: 'gig-meta-item' },
             el('svg', { html: '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>' }),
@@ -165,6 +157,8 @@ function buildGigCard(gig) {
 
 export function openGigDetail(gig) {
   const isApplied = appliedGigIds.has(gig.id);
+  const loc = getUserLocation();
+  const km = distanceKm(loc.lat, loc.lng, gig.lat, gig.lng);
   const btn = el('button', {
     class: 'detail-apply' + (isApplied ? ' applied' : ''),
     text: isApplied ? t('applicationSent') : t('pickThisGig'),
@@ -188,7 +182,7 @@ export function openGigDetail(gig) {
     el('div', { class: 'detail-pay', text: gig.pay }),
     el('div', { class: 'detail-pay-type', text: gig.payType || 'total' }),
     el('div', { class: 'detail-meta' },
-      document.createTextNode('📍 ' + (gig.km != null ? gig.km + ' km · ' : '') + gig.place), el('br'),
+      document.createTextNode('📍 ' + (km != null ? km + ' km · ' : '') + gig.place), el('br'),
       document.createTextNode('🕒 ' + gig.time + ' · ' + gig.duration), el('br'),
       document.createTextNode('👥 ' + gig.people + ' ' + (gig.people === 1 ? t('peopleSingular') : t('peoplePlural')) + ' · ' + gig.applied + ' ' + t('applied')), el('br'),
       document.createTextNode('👤 Posted by ' + gig.posterName)

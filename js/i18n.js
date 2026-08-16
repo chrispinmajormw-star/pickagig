@@ -7,7 +7,7 @@ export const STRINGS = {
   EN: {
     tagline:             'Pick your next gig. Nearby.',
     searchPlaceholder:   'Search gigs, e.g. plumbing',
-    withinRadius:        'Within 5km of Sunnyside, Blantyre',
+    withinRadius:        'Within 5km of you',
     gigsNearYou:         'Gigs near you',
     mapLink:             'Map →',
     urgent:              'Urgent',
@@ -68,7 +68,7 @@ export const STRINGS = {
   NY: {
     tagline:             'Sankhani ntchito yanu. Pafupi.',
     searchPlaceholder:   'Sakani ntchito, mwachitsanzo mapaipi',
-    withinRadius:        'Mkati mwa 5km wa Sunnyside, Blantyre',
+    withinRadius:        'Mkati mwa 5km kuchokera pamene muli',
     gigsNearYou:         'Ntchito pafupi ndi inu',
     mapLink:             'Mapu →',
     urgent:              'Mwachangu',
