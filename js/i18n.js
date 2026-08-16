@@ -1,0 +1,160 @@
+/* ============================================================
+   PickAGig — i18n.js
+   Translation strings, category icons, and language helpers.
+   ============================================================ */
+
+export const STRINGS = {
+  EN: {
+    tagline:             'Pick your next gig. Nearby.',
+    searchPlaceholder:   'Search gigs, e.g. plumbing',
+    withinRadius:        'Within 5km of Sunnyside, Blantyre',
+    gigsNearYou:         'Gigs near you',
+    mapLink:             'Map →',
+    urgent:              'Urgent',
+    applied:             'applied',
+    pickThisGig:         'Pick this gig',
+    applicationSent:     '✓ Application sent',
+    noGigs:              'No gigs match your search.',
+    peopleSingular:      'person needed',
+    peoplePlural:        'people needed',
+    postTitle:           'Post a Gig',
+    gigTitleLabel:       'Gig title',
+    categoryLabel:       'Category',
+    locationLabel:       'Location',
+    payLabel:            'Pay',
+    detailsLabel:        'Details',
+    publishBtn:          'Publish gig',
+    gigPosted:           'Your gig has been posted!',
+    noTitle:             'Add a gig title first.',
+    profileTitle:        'Profile',
+    nameLabel:           'Full name',
+    phoneLabel:          'Phone number',
+    skillsLabel:         'Your skills',
+    areaLabel:           'Your area',
+    saveBtn:             'Save profile',
+    profileSaved:        'Profile saved!',
+    profileRequired:     'Fill in your profile before applying.',
+    settingsTitle:       'Settings',
+    smsAlertsLbl:        'SMS Alerts (New Gigs)',
+    pushAlertsLbl:       'Push Notifications',
+    chatsTitle:          'Messages',
+    chatsSub:            'Confirm the details before you travel',
+    noChats:             'No active chats yet.',
+    sendPlaceholder:     'Type a message…',
+    sendBtn:             'Send',
+    navGigs:             'Gigs',
+    navMap:              'Map',
+    navPost:             'Post',
+    navChats:            'Chats',
+    navProfile:          'Profile',
+    mapTitle:            'Gig Map',
+    mapSubtitle:         'Gigs within 5km · Tap a pin to view.',
+    All:                 'All',
+    Construction:        'Construction',
+    Gardening:           'Gardening',
+    Cleaning:            'Cleaning',
+    Plumbing:            'Plumbing',
+    Electrical:          'Electrical',
+    Painting:            'Painting',
+    Moving:              'Moving',
+    'Farm Labour':       'Farm Labour',
+    Catering:            'Catering',
+    Domestic:            'Domestic',
+    autoReply1:          'Thanks for your interest! We\'ll be in touch shortly.',
+    autoReply2:          'Great — can you confirm your availability?',
+    autoReply3:          'Please bring your own tools if you have them.',
+    autoReply4:          'We\'ll send you the full address on the day.',
+  },
+  NY: {
+    tagline:             'Sankhani ntchito yanu. Pafupi.',
+    searchPlaceholder:   'Sakani ntchito, mwachitsanzo mapaipi',
+    withinRadius:        'Mkati mwa 5km wa Sunnyside, Blantyre',
+    gigsNearYou:         'Ntchito pafupi ndi inu',
+    mapLink:             'Mapu →',
+    urgent:              'Mwachangu',
+    applied:             'apempho',
+    pickThisGig:         'Sankhani ntchito iyi',
+    applicationSent:     '✓ Pempho lapita',
+    noGigs:              'Palibe ntchito yomwe ikugwirizana.',
+    peopleSingular:      'munthu akufunika',
+    peoplePlural:        'anthu akufunika',
+    postTitle:           'Ikani Ntchito',
+    gigTitleLabel:       'Dzina la ntchito',
+    categoryLabel:       'Mtundu',
+    locationLabel:       'Malo',
+    payLabel:            'Ndalama',
+    detailsLabel:        'Mfundo',
+    publishBtn:          'Tumizirani ntchito',
+    gigPosted:           'Ntchito yanu yatumiziridwa!',
+    noTitle:             'Onjezerani dzina la ntchito kaye.',
+    profileTitle:        'Mbiri',
+    nameLabel:           'Dzina lonse',
+    phoneLabel:          'Nambala ya foni',
+    skillsLabel:         'Luso lanu',
+    areaLabel:           'Dera lanu',
+    saveBtn:             'Sungani mbiri',
+    profileSaved:        'Mbiri yasungidwa!',
+    profileRequired:     'Chonde mdzaze mbiri yanu musanapemphe ntchito.',
+    settingsTitle:       'Zokonda',
+    smsAlertsLbl:        'Mauthenga a SMS (Ntchito Zatsopano)',
+    pushAlertsLbl:       'Zidziwitso za Push',
+    chatsTitle:          'Mauthenga',
+    chatsSub:            'Thibitsani zambiri musanayende',
+    noChats:             'Palibe zokambirana.',
+    sendPlaceholder:     'Lembani uthenga…',
+    sendBtn:             'Tumizani',
+    navGigs:             'Ntchito',
+    navMap:              'Mapu',
+    navPost:             'Ikani',
+    navChats:            'Kukambirana',
+    navProfile:          'Mbiri',
+    mapTitle:            'Mapu a Ntchito',
+    mapSubtitle:         'Ntchito mkati mwa 5km · Dotani chizindikiro.',
+    All:                 'Zonse',
+    Construction:        'Zimbutu',
+    Gardening:           'Ulimi wa Munda',
+    Cleaning:            'Kusakaniza',
+    Plumbing:            'Mapaipi',
+    Electrical:          'Magetsi',
+    Painting:            'Kuphaka',
+    Moving:              'Kuthuthumutsa',
+    'Farm Labour':       'Ntchito ya Ulimi',
+    Catering:            'Zokonzera Chakudya',
+    Domestic:            'Ntchito ya Pakhomo',
+    autoReply1:          'Zikomo chifukwa cha chidwi chanu!',
+    autoReply2:          'Zabwino — mungathibitisire kuti muli nawo nthawi?',
+    autoReply3:          'Chonde bweletsani zida zanu ngati mulina.',
+    autoReply4:          'Tidzakutumizani adilesi yonse pa tsiku la ntchito.',
+  }
+};
+
+export const CAT_ICONS = {
+  'All': '',
+  'Construction': '⛑️',
+  'Gardening': '🌱',
+  'Cleaning': '✨',
+  'Plumbing': '🔧',
+  'Electrical': '⚡',
+  'Painting': '🎨',
+  'Moving': '📦',
+  'Farm Labour': '🌾',
+  'Catering': '🍲',
+  'Domestic': '🧹'
+};
+
+// `lang` is a live-binding export: any module that imports it will
+// automatically see updates made here via setLangValue().
+export let lang = localStorage.getItem('pg_lang') || 'EN';
+
+export function setLangValue(l) {
+  lang = l;
+  localStorage.setItem('pg_lang', l);
+}
+
+export function t(key) {
+  return STRINGS[lang]?.[key] ?? STRINGS.EN[key] ?? key;
+}
+
+export function tCat(cat) {
+  return t(cat);
+}
