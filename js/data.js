@@ -73,4 +73,6 @@ export const state = {
   page:        'gigs',
   leafletMap:  null,
   mapMarkers:  [],
+  gigsCache:   [],    // gigs loaded from Supabase, transformed for the UI
+  gigsLoaded:  false, // true once loadGigs() has fetched at least once
 };

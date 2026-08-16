@@ -10,7 +10,7 @@ import './supabaseClient.js'; // establishes the Supabase connection on load
 import { t, lang, setLangValue } from './i18n.js';
 import { state } from './data.js';
 import { el, toast, closeModal } from './ui-helpers.js';
-import { renderFilters, renderGigs, openPost } from './gigs.js';
+import { renderFilters, renderGigs, openPost, loadGigs, refreshAppliedStatus } from './gigs.js';
 import { initMap } from './map.js';
 import { renderChatsList } from './chats.js';
 import { renderProfilePage } from './profile.js';
@@ -100,7 +100,7 @@ export function navigate(page) {
   }
 }
 
-export function init() {
+export async function init() {
   document.querySelectorAll('.lang-pill[data-lang]').forEach(btn => {
     btn.classList.toggle('active', btn.dataset.lang === lang);
   });
@@ -115,6 +115,7 @@ export function init() {
     node.textContent = t(node.dataset.navLabel);
   });
 
+  await loadGigs();
   renderAuthStatus(getCurrentUser());
   navigate(state.page === 'post' || state.page === 'profile' ? 'gigs' : state.page);
 }
@@ -134,6 +135,9 @@ window.toast      = toast;
 window.closeModal = closeModal;
 window.onSearch   = onSearch;
 
-initAuth((user) => renderAuthStatus(user));
+initAuth((user) => {
+  renderAuthStatus(user);
+  refreshAppliedStatus();
+});
 
 window.addEventListener('DOMContentLoaded', init);

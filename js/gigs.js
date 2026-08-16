@@ -1,15 +1,87 @@
 /* ============================================================
    PickAGig — gigs.js
    Gig list rendering, filtering, gig detail modal, applying,
-   and the "post a gig" flow.
+   and posting — all backed by the real Supabase `gigs` and
+   `gig_applications` tables.
    ============================================================ */
 
 import { el, toast, openModal, closeModal } from './ui-helpers.js';
 import { t, tCat, CAT_ICONS } from './i18n.js';
 import { LS, state, BLANTYRE_CENTER } from './data.js';
+import { supabase } from './supabaseClient.js';
+import { getCurrentUser, openAuthModal } from './auth.js';
 import { refreshMapMarkers } from './map.js';
 import { navigate } from './main.js';
-import { getCurrentUser, openAuthModal } from './auth.js';
+
+let appliedGigIds = new Set();
+
+function distanceKm(lat1, lng1, lat2, lng2) {
+  if (lat1 == null || lng1 == null || lat2 == null || lng2 == null) return null;
+  const R = 6371;
+  const dLat = (lat2 - lat1) * Math.PI / 180;
+  const dLng = (lng2 - lng1) * Math.PI / 180;
+  const a = Math.sin(dLat / 2) ** 2 +
+            Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * Math.sin(dLng / 2) ** 2;
+  return Math.round(R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a)) * 10) / 10;
+}
+
+async function loadAppliedGigIds() {
+  const user = getCurrentUser();
+  if (!user) { appliedGigIds = new Set(); return; }
+  const { data, error } = await supabase
+    .from('gig_applications')
+    .select('gig_id')
+    .eq('applicant_id', user.id);
+  if (!error && data) appliedGigIds = new Set(data.map(r => r.gig_id));
+}
+
+// Re-checks which gigs the current user has applied to (call after
+// sign-in/sign-out) and re-renders the gigs page if it's showing.
+export async function refreshAppliedStatus() {
+  await loadAppliedGigIds();
+  if (state.page === 'gigs') renderGigs();
+}
+
+// Fetches gigs from Supabase into state.gigsCache. Cheap to call
+// repeatedly — skips the network round-trip unless `force` is set.
+export async function loadGigs(force = false) {
+  if (state.gigsLoaded && !force) return;
+
+  const { data, error } = await supabase
+    .from('gigs')
+    .select('*, profiles(full_name)')
+    .eq('status', 'open')
+    .order('created_at', { ascending: false });
+
+  if (error) {
+    toast('Could not load gigs: ' + error.message);
+    state.gigsCache = [];
+    return;
+  }
+
+  state.gigsCache = data.map(g => ({
+    id: g.id,
+    cat: g.category,
+    title: g.title,
+    place: g.place,
+    time: g.time_label,
+    duration: g.duration,
+    pay: g.pay,
+    payType: g.pay_type,
+    people: g.people,
+    applied: g.applied_count,
+    urgent: g.urgent,
+    lat: g.location_lat,
+    lng: g.location_lng,
+    km: distanceKm(BLANTYRE_CENTER[0], BLANTYRE_CENTER[1], g.location_lat, g.location_lng),
+    posterId: g.poster_id,
+    posterName: g.profiles?.full_name || 'Unknown',
+    posterInitials: (g.profiles?.full_name || '?').charAt(0).toUpperCase(),
+  }));
+
+  state.gigsLoaded = true;
+  await loadAppliedGigIds();
+}
 
 export function renderFilters() {
   const wrap = document.getElementById('filtersBar');
@@ -33,9 +105,8 @@ export function renderFilters() {
 }
 
 export function getFilteredGigs() {
-  const gigs = LS.getGigs();
-  const q    = state.query.toLowerCase();
-  return gigs
+  const q = state.query.toLowerCase();
+  return state.gigsCache
     .filter(g => {
       const catMatch    = state.selectedCat === 'All' || g.cat === state.selectedCat;
       const searchMatch = !q || (g.title + ' ' + g.cat + ' ' + g.place).toLowerCase().includes(q);
@@ -45,7 +116,7 @@ export function getFilteredGigs() {
 }
 
 function buildGigCard(gig) {
-  const isApplied = LS.getApplied().includes(gig.id);
+  const isApplied = appliedGigIds.has(gig.id);
   const peopleLabel = gig.people === 1 ? t('peopleSingular') : t('peoplePlural');
 
   return el('article', {
@@ -66,7 +137,7 @@ function buildGigCard(gig) {
         el('div', { class: 'gig-meta' },
           el('div', { class: 'gig-meta-item' },
             el('svg', { html: '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>' }),
-            document.createTextNode(gig.km + ' km · ' + gig.place)
+            document.createTextNode((gig.km != null ? gig.km + ' km · ' : '') + gig.place)
           ),
           el('div', { class: 'gig-meta-item' },
             el('svg', { html: '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>' }),
@@ -92,26 +163,19 @@ function buildGigCard(gig) {
 }
 
 export function openGigDetail(gig) {
-  const isApplied = LS.getApplied().includes(gig.id);
+  const isApplied = appliedGigIds.has(gig.id);
   const btn = el('button', {
     class: 'detail-apply' + (isApplied ? ' applied' : ''),
     text: isApplied ? t('applicationSent') : t('pickThisGig'),
-    onclick: () => {
-      if (isApplied) return;
-      if (!getCurrentUser()) {
-        toast('Please sign in to apply for a gig.');
-        openAuthModal('signin');
-        return;
+    onclick: async () => {
+      if (appliedGigIds.has(gig.id)) return;
+      btn.disabled = true;
+      await applyToGig(gig);
+      btn.disabled = false;
+      if (appliedGigIds.has(gig.id)) {
+        btn.classList.add('applied');
+        btn.textContent = t('applicationSent');
       }
-      const profile = LS.getProfile();
-      if (!profile.name) {
-        toast(t('profileRequired'));
-        navigate('profile'); // NOTE: original code called an undefined openProfile() here — fixed to use navigate('profile')
-        return;
-      }
-      applyToGig(gig);
-      btn.classList.add('applied');
-      btn.textContent = t('applicationSent');
     }
   });
 
@@ -123,9 +187,10 @@ export function openGigDetail(gig) {
     el('div', { class: 'detail-pay', text: gig.pay }),
     el('div', { class: 'detail-pay-type', text: gig.payType || 'total' }),
     el('div', { class: 'detail-meta' },
-      document.createTextNode('📍 ' + gig.km + ' km · ' + gig.place), el('br'),
+      document.createTextNode('📍 ' + (gig.km != null ? gig.km + ' km · ' : '') + gig.place), el('br'),
       document.createTextNode('🕒 ' + gig.time + ' · ' + gig.duration), el('br'),
-      document.createTextNode('👥 ' + gig.people + ' ' + (gig.people === 1 ? t('peopleSingular') : t('peoplePlural')) + ' · ' + gig.applied + ' ' + t('applied'))
+      document.createTextNode('👥 ' + gig.people + ' ' + (gig.people === 1 ? t('peopleSingular') : t('peoplePlural')) + ' · ' + gig.applied + ' ' + t('applied')), el('br'),
+      document.createTextNode('👤 Posted by ' + gig.posterName)
     ),
     btn
   ));
@@ -142,16 +207,34 @@ export function renderGigs() {
   empty.textContent     = t('noGigs');
 }
 
-export function applyToGig(gig) {
-  const applied = LS.getApplied();
-  if (!applied.includes(gig.id)) {
-    applied.push(gig.id);
-    LS.setApplied(applied);
+export async function applyToGig(gig) {
+  const user = getCurrentUser();
+  if (!user) {
+    toast('Please sign in to apply for a gig.');
+    openAuthModal('signin');
+    return;
   }
-  const gigs  = LS.getGigs();
-  const found = gigs.find(g => g.id === gig.id);
-  if (found) { found.applied++; LS.setGigs(gigs); }
+  if (appliedGigIds.has(gig.id)) return;
 
+  const { error } = await supabase
+    .from('gig_applications')
+    .insert({ gig_id: gig.id, applicant_id: user.id });
+
+  if (error) {
+    if (error.code === '23505') {
+      // Unique constraint hit — they'd already applied, just sync state.
+      appliedGigIds.add(gig.id);
+    } else {
+      toast('Could not apply: ' + error.message);
+      return;
+    }
+  } else {
+    appliedGigIds.add(gig.id);
+    gig.applied = (gig.applied || 0) + 1;
+  }
+
+  // Chats still live in localStorage for now — real chat storage is
+  // a separate step. This keeps the messaging demo working meanwhile.
   const chats = LS.getChats();
   if (!chats.find(c => c.gigId === gig.id)) {
     chats.push({
@@ -164,6 +247,7 @@ export function applyToGig(gig) {
     });
     LS.setChats(chats);
   }
+
   toast(t('applicationSent'));
   renderGigs();
 }
@@ -174,6 +258,7 @@ export function openPost() {
     openAuthModal('signin');
     return;
   }
+
   const titleInput   = el('input', { id: 'pt', type: 'text', placeholder: t('gigTitleLabel') });
   const catSelect    = el('select', { id: 'pc' });
   const placeInput   = el('input', { id: 'pp', type: 'text', placeholder: t('locationLabel') });
@@ -182,13 +267,15 @@ export function openPost() {
 
   Object.keys(CAT_ICONS).slice(1).forEach(cat => catSelect.appendChild(el('option', { value: cat, text: tCat(cat) })));
 
+  const publishBtn = el('button', { class: 'primary', text: t('publishBtn'), onclick: () => publishGig(publishBtn) });
+
   const form = el('div', { class: 'form' },
     el('label', { text: t('gigTitleLabel') }, titleInput),
     el('label', { text: t('categoryLabel') }, catSelect),
     el('label', { text: t('locationLabel') }, placeInput),
     el('label', { text: t('payLabel') }, payInput),
     el('label', { text: t('detailsLabel') }, detailsInput),
-    el('button', { class: 'primary', text: t('publishBtn'), onclick: publishGig })
+    publishBtn
   );
 
   openModal(el('div', {},
@@ -197,30 +284,46 @@ export function openPost() {
   ));
 }
 
-export function publishGig() {
+async function publishGig(publishBtn) {
+  const user = getCurrentUser();
+  if (!user) {
+    toast('Please sign in to post a gig.');
+    openAuthModal('signin');
+    return;
+  }
+
   const title = document.getElementById('pt')?.value.trim();
   if (!title) { toast(t('noTitle')); return; }
 
-  const gigs = LS.getGigs();
-  gigs.unshift({
-    id:       'u_' + Date.now(),
-    cat:      document.getElementById('pc').value,
+  publishBtn.disabled = true;
+  publishBtn.textContent = 'Publishing…';
+
+  const { error } = await supabase.from('gigs').insert({
+    poster_id:     user.id,
+    category:      document.getElementById('pc').value,
     title,
-    place:    document.getElementById('pp').value.trim() || 'Blantyre',
-    time:     'New gig',
-    duration: 'Flexible',
-    pay:      document.getElementById('pw').value.trim() || 'Negotiable',
-    payType:  'total',
-    people:   1,
-    applied:  0,
-    km:       0,
-    lat:      BLANTYRE_CENTER[0] + (Math.random() - 0.5) * 0.04,
-    lng:      BLANTYRE_CENTER[1] + (Math.random() - 0.5) * 0.04,
-    posterInitials: 'ME',
-    posterName: LS.getProfile().name || 'Me'
+    place:         document.getElementById('pp').value.trim() || 'Blantyre',
+    time_label:    'New gig',
+    duration:      'Flexible',
+    pay:           document.getElementById('pw').value.trim() || 'Negotiable',
+    pay_type:      'total',
+    people:        1,
+    urgent:        false,
+    description:   document.getElementById('pd')?.value.trim() || '',
+    location_lat:  BLANTYRE_CENTER[0] + (Math.random() - 0.5) * 0.04,
+    location_lng:  BLANTYRE_CENTER[1] + (Math.random() - 0.5) * 0.04,
   });
-  LS.setGigs(gigs);
+
+  publishBtn.disabled = false;
+  publishBtn.textContent = t('publishBtn');
+
+  if (error) {
+    toast('Could not publish gig: ' + error.message);
+    return;
+  }
+
   closeModal();
+  await loadGigs(true);
   renderGigs();
   toast(t('gigPosted'));
 }
