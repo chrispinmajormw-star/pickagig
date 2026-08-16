@@ -7,11 +7,12 @@
 
 import { el, toast, openModal, closeModal } from './ui-helpers.js';
 import { t, tCat, CAT_ICONS } from './i18n.js';
-import { LS, state, BLANTYRE_CENTER } from './data.js';
+import { state, BLANTYRE_CENTER } from './data.js';
 import { supabase } from './supabaseClient.js';
 import { getCurrentUser, openAuthModal } from './auth.js';
 import { refreshMapMarkers } from './map.js';
 import { navigate } from './main.js';
+import { createOrGetChat } from './chats.js';
 
 let appliedGigIds = new Set();
 
@@ -233,20 +234,8 @@ export async function applyToGig(gig) {
     gig.applied = (gig.applied || 0) + 1;
   }
 
-  // Chats still live in localStorage for now — real chat storage is
-  // a separate step. This keeps the messaging demo working meanwhile.
-  const chats = LS.getChats();
-  if (!chats.find(c => c.gigId === gig.id)) {
-    chats.push({
-      gigId:    gig.id,
-      gigTitle: gig.title,
-      gigCat:   gig.cat,
-      posterInitials: gig.posterInitials || 'X',
-      posterName: gig.posterName || 'Unknown',
-      messages: [{ sender: 'them', text: t('autoReply1'), ts: Date.now() }],
-    });
-    LS.setChats(chats);
-  }
+  // Creates (or reuses) a real Supabase chat thread with the gig's poster.
+  await createOrGetChat(gig.id, gig.posterId, user.id);
 
   toast(t('applicationSent'));
   renderGigs();

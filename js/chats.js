@@ -1,83 +1,162 @@
 /* ============================================================
    PickAGig — chats.js
-   Chat list rendering and the individual message thread modal.
+   Real chat threads backed by Supabase `chats` and `messages`
+   tables, with live message updates via Supabase Realtime.
    ============================================================ */
 
-import { el, openModal } from './ui-helpers.js';
+import { el, openModal, toast } from './ui-helpers.js';
 import { t } from './i18n.js';
-import { LS } from './data.js';
+import { supabase } from './supabaseClient.js';
+import { getCurrentUser, openAuthModal } from './auth.js';
 
-export function renderChatsList() {
-  const chats = LS.getChats();
+let activeChannel = null;
+
+// Creates a chat between a gig's poster and an applicant, or
+// returns the existing one (one thread per gig+applicant pair).
+export async function createOrGetChat(gigId, posterId, applicantId) {
+  if (!posterId || posterId === applicantId) return null;
+
+  const { data: existing, error: findErr } = await supabase
+    .from('chats')
+    .select('id')
+    .eq('gig_id', gigId)
+    .eq('user2_id', applicantId)
+    .maybeSingle();
+
+  if (findErr) { console.error('createOrGetChat find error:', findErr); return null; }
+  if (existing) return existing.id;
+
+  const { data: created, error: createErr } = await supabase
+    .from('chats')
+    .insert({ gig_id: gigId, user1_id: posterId, user2_id: applicantId })
+    .select('id')
+    .single();
+
+  if (createErr) { console.error('createOrGetChat insert error:', createErr); return null; }
+  return created.id;
+}
+
+async function fetchChatsWithPreview(userId) {
+  const { data: chats, error } = await supabase
+    .from('chats')
+    .select('id, gig_id, user1_id, user2_id, created_at, gigs(title)')
+    .or(`user1_id.eq.${userId},user2_id.eq.${userId}`)
+    .order('created_at', { ascending: false });
+
+  if (error) { console.error('fetchChats error:', error); return []; }
+  if (!chats.length) return [];
+
+  const otherIds = [...new Set(chats.map(c => (c.user1_id === userId ? c.user2_id : c.user1_id)))];
+  const { data: profiles } = await supabase.from('profiles').select('id, full_name').in('id', otherIds);
+  const nameById = Object.fromEntries((profiles || []).map(p => [p.id, p.full_name]));
+
+  const chatIds = chats.map(c => c.id);
+  const { data: msgs } = await supabase
+    .from('messages')
+    .select('chat_id, content, created_at')
+    .in('chat_id', chatIds)
+    .order('created_at', { ascending: false });
+
+  const lastByChat = {};
+  (msgs || []).forEach(m => { if (!lastByChat[m.chat_id]) lastByChat[m.chat_id] = m; });
+
+  return chats.map(c => {
+    const otherId = c.user1_id === userId ? c.user2_id : c.user1_id;
+    const otherName = nameById[otherId] || 'Unknown';
+    return {
+      id: c.id,
+      gigTitle: c.gigs?.title || 'Gig',
+      otherName,
+      otherInitials: (otherName || '?').charAt(0).toUpperCase(),
+      lastMessage: lastByChat[c.id]?.content || '',
+    };
+  });
+}
+
+export async function renderChatsList() {
   const chatsList = document.getElementById('chatsList');
   if (!chatsList) return;
   chatsList.textContent = '';
+
+  const user = getCurrentUser();
+  if (!user) {
+    chatsList.appendChild(el('div', { class: 'chats-empty' },
+      el('p', { text: 'Sign in to see your messages.' }),
+      el('button', { class: 'primary', text: 'Sign in', onclick: () => openAuthModal('signin') })
+    ));
+    return;
+  }
+
+  chatsList.appendChild(el('div', { class: 'chats-empty', text: 'Loading…' }));
+  const chats = await fetchChatsWithPreview(user.id);
+  chatsList.textContent = '';
+
   if (chats.length === 0) {
     chatsList.appendChild(el('div', { class: 'chats-empty', text: t('noChats') }));
     return;
   }
+
   const list = el('div', { class: 'chat-list' });
   chats.forEach(chat => {
-    const lastMsg = chat.messages[chat.messages.length - 1];
-
-    list.appendChild(el('div', { class: 'chat-item', onclick: () => openChatThread(chat.gigId) },
-      el('div', { class: 'chat-avatar', text: chat.posterInitials }),
+    list.appendChild(el('div', { class: 'chat-item', onclick: () => openChatThread(chat.id, chat.otherName) },
+      el('div', { class: 'chat-avatar', text: chat.otherInitials }),
       el('div', { class: 'chat-item-middle' },
         el('div', { class: 'chat-name-row' },
-          el('div', { class: 'chat-name', text: chat.posterName }),
-          el('div', { class: 'chat-verified', html: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>'})
+          el('div', { class: 'chat-name', text: chat.otherName })
         ),
-        el('div', { class: 'chat-preview', text: lastMsg?.text ?? '' })
-      ),
-      el('div', { class: 'chat-item-right' },
-        el('div', { class: 'chat-time', text: '12:41' }), // Mock time
-        chat.messages.length > 1 ? el('div', { class: 'unread-badge', text: chat.messages.length - 1 }) : null
+        el('div', { class: 'chat-preview', text: chat.lastMessage || chat.gigTitle })
       )
     ));
   });
   chatsList.appendChild(list);
 }
 
-export function openChatThread(gigId) {
-  const chat = LS.getChats().find(c => c.gigId === gigId);
-  if (!chat) return;
+export async function openChatThread(chatId, otherName) {
+  const user = getCurrentUser();
+  if (!user) { openAuthModal('signin'); return; }
 
   const threadEl = el('div', { class: 'chat-thread' });
-  const renderMessages = () => {
-    threadEl.textContent = '';
-    const fresh = LS.getChats().find(c => c.gigId === gigId);
-    fresh.messages.forEach(msg => {
-      const cls = msg.sender === 'me' ? 'bubble-wrap me' : 'bubble-wrap them';
-      threadEl.appendChild(el('div', { class: cls },
-        el('div', { class: 'bubble', text: msg.text })
-      ));
-    });
-    threadEl.scrollTop = threadEl.scrollHeight;
-  };
 
-  renderMessages();
+  function addBubble(msg) {
+    const cls = msg.sender_id === user.id ? 'bubble-wrap me' : 'bubble-wrap them';
+    threadEl.appendChild(el('div', { class: cls }, el('div', { class: 'bubble', text: msg.content })));
+    threadEl.scrollTop = threadEl.scrollHeight;
+  }
+
+  const { data: messages, error } = await supabase
+    .from('messages')
+    .select('*')
+    .eq('chat_id', chatId)
+    .order('created_at', { ascending: true });
+
+  if (error) toast('Could not load messages: ' + error.message);
+  else messages.forEach(addBubble);
+
   const msgInput = el('input', { type: 'text', placeholder: t('sendPlaceholder') });
-  const sendMsg = () => {
+  const sendMsg = async () => {
     const text = msgInput.value.trim();
     if (!text) return;
-    const chats = LS.getChats();
-    const c = chats.find(x => x.gigId === gigId);
-    c.messages.push({ sender: 'me', text, ts: Date.now() });
-    LS.setChats(chats);
     msgInput.value = '';
-    renderMessages();
-    setTimeout(() => {
-      const chats2 = LS.getChats();
-      const c2 = chats2.find(x => x.gigId === gigId);
-      c2.messages.push({ sender: 'them', text: 'Okay.', ts: Date.now() });
-      LS.setChats(chats2);
-      renderMessages();
-    }, 1500);
+    const { error: sendErr } = await supabase
+      .from('messages')
+      .insert({ chat_id: chatId, sender_id: user.id, content: text });
+    if (sendErr) toast('Could not send: ' + sendErr.message);
   };
   msgInput.addEventListener('keydown', e => { if (e.key === 'Enter') sendMsg(); });
 
+  // Live updates: replaces any previous thread's subscription so we
+  // only ever listen to the chat that's currently open.
+  if (activeChannel) supabase.removeChannel(activeChannel);
+  activeChannel = supabase
+    .channel('chat-' + chatId)
+    .on('postgres_changes',
+      { event: 'INSERT', schema: 'public', table: 'messages', filter: `chat_id=eq.${chatId}` },
+      (payload) => addBubble(payload.new)
+    )
+    .subscribe();
+
   openModal(el('div', {},
-    el('h2', { text: chat.posterName }),
+    el('h2', { text: otherName }),
     threadEl,
     el('div', { class: 'chat-input-row' },
       msgInput,
