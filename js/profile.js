@@ -36,6 +36,91 @@ async function saveProfile(userId, patch) {
   return true;
 }
 
+async function fetchCredentials(userId) {
+  const { data, error } = await supabase
+    .from('credentials')
+    .select('*')
+    .eq('user_id', userId)
+    .order('created_at', { ascending: false });
+  if (error) { console.error('fetchCredentials error:', error); return []; }
+  return data;
+}
+
+async function uploadCredentialFile(userId, file) {
+  const path = `${userId}/${Date.now()}_${file.name}`;
+  const { error } = await supabase.storage.from('credentials').upload(path, file);
+  if (error) throw error;
+  return path;
+}
+
+async function getCredentialSignedUrl(path) {
+  const { data, error } = await supabase.storage.from('credentials').createSignedUrl(path, 60);
+  if (error) { toast('Could not open file: ' + error.message); return null; }
+  return data.signedUrl;
+}
+
+function buildCredBox(userId, credentials) {
+  const listItems = credentials.length
+    ? credentials.map(c => el('li', { style: 'display:flex;justify-content:space-between;align-items:center;padding:4px 0;' },
+        el('span', {
+          text: '🛡️ ' + c.label,
+          style: 'cursor:pointer;text-decoration:underline;',
+          onclick: async () => {
+            const url = await getCredentialSignedUrl(c.file_path);
+            if (url) window.open(url, '_blank');
+          }
+        }),
+        el('button', {
+          text: '✕',
+          style: 'border:0;background:none;color:#dc2626;cursor:pointer;font-size:14px;',
+          onclick: async () => {
+            if (!confirm('Remove this credential?')) return;
+            await supabase.storage.from('credentials').remove([c.file_path]);
+            await supabase.from('credentials').delete().eq('id', c.id);
+            renderProfilePage();
+          }
+        })
+      ))
+    : [el('li', { text: 'No credentials added yet.' })];
+
+  const labelInput = el('input', { type: 'text', placeholder: 'e.g. TEVETA Grade 1 Painter' });
+  const fileInput  = el('input', { type: 'file', accept: '.pdf,.jpg,.jpeg,.png' });
+
+  const uploadBtn = el('button', {
+    class: 'pf-upload-btn',
+    text: '+ Upload certificate or National ID',
+    onclick: async () => {
+      const file = fileInput.files[0];
+      const label = labelInput.value.trim();
+      if (!file || !label) { toast('Add a label and choose a file first.'); return; }
+
+      uploadBtn.disabled = true;
+      uploadBtn.textContent = 'Uploading…';
+      try {
+        const path = await uploadCredentialFile(userId, file);
+        const { error } = await supabase.from('credentials').insert({ user_id: userId, label, file_path: path });
+        if (error) throw error;
+        toast('Credential added!');
+        renderProfilePage();
+      } catch (err) {
+        toast('Upload failed: ' + err.message);
+        uploadBtn.disabled = false;
+        uploadBtn.textContent = '+ Upload certificate or National ID';
+      }
+    }
+  });
+
+  return el('div', { class: 'pf-card' },
+    el('h3', { text: 'Credentials' }),
+    el('ul', { class: 'pf-cred-list' }, ...listItems),
+    el('div', { class: 'form', style: 'margin-top:10px;' },
+      el('label', { text: 'Label' }, labelInput),
+      el('label', { text: 'File (PDF, JPG, or PNG)' }, fileInput),
+      uploadBtn
+    )
+  );
+}
+
 function renderSignedOut(container) {
   container.appendChild(el('div', { class: 'pf-container' },
     el('div', { class: 'pf-card', style: 'text-align:center;' },
@@ -58,7 +143,10 @@ export async function renderProfilePage() {
   }
 
   profileContainer.appendChild(el('div', { class: 'pf-card', text: 'Loading profile…' }));
-  const profile = await fetchProfile(user.id);
+  const [profile, credentials] = await Promise.all([
+    fetchProfile(user.id),
+    fetchCredentials(user.id),
+  ]);
   profileContainer.textContent = '';
 
   if (!profile) {
@@ -137,15 +225,7 @@ export async function renderProfilePage() {
     )
   );
 
-  const credBox = el('div', { class: 'pf-card' },
-    el('h3', { text: 'Credentials' }),
-    el('ul', { class: 'pf-cred-list' },
-      ...(profile.credentials && profile.credentials.length
-        ? profile.credentials.map(c => el('li', { text: '🛡️ ' + c }))
-        : [el('li', { text: 'No credentials added yet.' })])
-    ),
-    el('button', { class: 'pf-upload-btn', text: '+ Upload certificate or National ID', onclick: () => toast('Uploads coming soon.') })
-  );
+  const credBox = buildCredBox(user.id, credentials);
 
   // History and leaderboard stay as demo content — not yet backed
   // by real tables (would need a `completed_gigs` table etc.)
