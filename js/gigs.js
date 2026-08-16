@@ -9,6 +9,7 @@ import { t, tCat, CAT_ICONS } from './i18n.js';
 import { LS, state, BLANTYRE_CENTER } from './data.js';
 import { refreshMapMarkers } from './map.js';
 import { navigate } from './main.js';
+import { getCurrentUser, openAuthModal } from './auth.js';
 
 export function renderFilters() {
   const wrap = document.getElementById('filtersBar');
@@ -97,6 +98,11 @@ export function openGigDetail(gig) {
     text: isApplied ? t('applicationSent') : t('pickThisGig'),
     onclick: () => {
       if (isApplied) return;
+      if (!getCurrentUser()) {
+        toast('Please sign in to apply for a gig.');
+        openAuthModal('signin');
+        return;
+      }
       const profile = LS.getProfile();
       if (!profile.name) {
         toast(t('profileRequired'));
@@ -163,6 +169,11 @@ export function applyToGig(gig) {
 }
 
 export function openPost() {
+  if (!getCurrentUser()) {
+    toast('Please sign in to post a gig.');
+    openAuthModal('signin');
+    return;
+  }
   const titleInput   = el('input', { id: 'pt', type: 'text', placeholder: t('gigTitleLabel') });
   const catSelect    = el('select', { id: 'pc' });
   const placeInput   = el('input', { id: 'pp', type: 'text', placeholder: t('locationLabel') });

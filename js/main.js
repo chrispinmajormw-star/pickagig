@@ -9,15 +9,37 @@
 import './supabaseClient.js'; // establishes the Supabase connection on load
 import { t, lang, setLangValue } from './i18n.js';
 import { state } from './data.js';
-import { toast, closeModal } from './ui-helpers.js';
+import { el, toast, closeModal } from './ui-helpers.js';
 import { renderFilters, renderGigs, openPost } from './gigs.js';
 import { initMap } from './map.js';
 import { renderChatsList } from './chats.js';
 import { renderProfilePage } from './profile.js';
+import { initAuth, getCurrentUser, openAuthModal, signOut } from './auth.js';
 
 export function setLang(l) {
   setLangValue(l);
   init();
+}
+
+function renderAuthStatus(user) {
+  const wrap = document.getElementById('authStatus');
+  if (!wrap) return;
+  wrap.textContent = '';
+  if (user) {
+    wrap.appendChild(el('button', {
+      class: 'lang-pill',
+      text: (user.user_metadata?.full_name || user.email).split(' ')[0].split('@')[0],
+      onclick: () => {
+        if (confirm('Sign out of PickAGig?')) signOut();
+      }
+    }));
+  } else {
+    wrap.appendChild(el('button', {
+      class: 'lang-pill',
+      text: 'Sign in',
+      onclick: () => openAuthModal('signin')
+    }));
+  }
 }
 
 export function navigate(page) {
@@ -93,6 +115,7 @@ export function init() {
     node.textContent = t(node.dataset.navLabel);
   });
 
+  renderAuthStatus(getCurrentUser());
   navigate(state.page === 'post' || state.page === 'profile' ? 'gigs' : state.page);
 }
 
@@ -110,5 +133,7 @@ window.setLang    = setLang;
 window.toast      = toast;
 window.closeModal = closeModal;
 window.onSearch   = onSearch;
+
+initAuth((user) => renderAuthStatus(user));
 
 window.addEventListener('DOMContentLoaded', init);
