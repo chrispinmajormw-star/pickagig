@@ -2,6 +2,11 @@
    PickAGig — app.js (Redesigned)
    ============================================================ */
 
+const supabaseUrl = 'https://gcrpoibvgfgnsqcitmof.supabase.co'
+const supabaseKey = 'sb_publishable_nyGAPrUgP9ZYX-Z-8MI_sA_Z_gKzp5P'
+
+const supabase = window.supabase.createClient(supabaseUrl, supabaseKey)
+
 // ─────────────────────────────────────────────────────────────
 // SECTION 1 · i18n — Translation Strings
 // ─────────────────────────────────────────────────────────────
