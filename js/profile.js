@@ -194,7 +194,72 @@ function buildCredBox(userId, credentials) {
   );
 }
 
-function renderSignedOut(container) {
+// TODO: replace with your real Airtel Money number
+const AIRTEL_NUMBER = '099 727 8800';
+
+async function fetchLatestPaymentRequest(userId) {
+  const { data, error } = await supabase
+    .from('payment_requests')
+    .select('*')
+    .eq('user_id', userId)
+    .order('created_at', { ascending: false })
+    .limit(1)
+    .maybeSingle();
+  if (error) { console.error('fetchLatestPaymentRequest error:', error); return null; }
+  return data;
+}
+
+function buildPremiumBox(user, profile, latestRequest) {
+  const isPremium = profile.is_premium && profile.premium_expires_at && new Date(profile.premium_expires_at) > new Date();
+
+  if (isPremium) {
+    return el('div', { class: 'pf-premium' },
+      el('div', { class: 'pf-prem-title', text: '👑 You’re Premium' }),
+      el('p', { style: 'color:white;opacity:.9;font-size:13px;margin-top:6px;',
+        text: 'Active until ' + new Date(profile.premium_expires_at).toLocaleDateString() })
+    );
+  }
+
+  if (latestRequest && latestRequest.status === 'pending') {
+    return el('div', { class: 'pf-premium' },
+      el('div', { class: 'pf-prem-title', text: '⏳ Payment under review' }),
+      el('p', { style: 'color:white;opacity:.9;font-size:13px;margin-top:6px;',
+        text: 'Reference: ' + latestRequest.reference + '. We’ll activate Premium once it’s confirmed.' })
+    );
+  }
+
+  const refInput = el('input', { type: 'text', placeholder: 'Transaction reference or the phone number you paid from' });
+  const submitBtn = el('button', {
+    class: 'pf-prem-btn',
+    text: "I've sent the payment",
+    onclick: async () => {
+      const reference = refInput.value.trim();
+      if (!reference) { toast('Enter the transaction reference or phone number you paid from.'); return; }
+      submitBtn.disabled = true;
+      const { error } = await supabase.from('payment_requests').insert({ user_id: user.id, reference });
+      submitBtn.disabled = false;
+      if (error) { toast('Could not submit: ' + error.message); return; }
+      toast('Submitted! Premium activates once your payment is confirmed.');
+      renderProfilePage();
+    }
+  });
+
+  return el('div', { class: 'pf-premium' },
+    el('div', { class: 'pf-prem-title', text: '👑 Premium — MK 1,500 / week' }),
+    el('ul', { class: 'pf-prem-list' },
+      el('li', { text: '• Boosted profile at the top of employer searches' }),
+      el('li', { text: '• Priority gig alerts by SMS, even offline' }),
+      el('li', { text: '• Hand-picked high-paying gigs' }),
+      el('li', { text: '• Lower transaction fee on escrow payouts' })
+    ),
+    el('div', { style: 'background:rgba(255,255,255,.15);border-radius:10px;padding:10px;margin:10px 0;color:white;font-size:13px;' },
+      el('div', { text: 'Send MK 1,500 via Airtel Money to:' }),
+      el('div', { style: 'font-weight:800;font-size:16px;margin-top:4px;', text: AIRTEL_NUMBER })
+    ),
+    el('label', { style: 'color:white;display:block;margin-top:8px;' }, refInput),
+    submitBtn
+  );
+}
   container.appendChild(el('div', { class: 'pf-container' },
     el('div', { class: 'pf-card', style: 'text-align:center;' },
       el('h3', { text: 'Sign in to view your profile' }),
@@ -216,11 +281,12 @@ export async function renderProfilePage() {
   }
 
   profileContainer.appendChild(el('div', { class: 'pf-card', text: 'Loading profile…' }));
-  const [profile, credentials, history, pendingRatings] = await Promise.all([
+  const [profile, credentials, history, pendingRatings, latestPaymentRequest] = await Promise.all([
     fetchProfile(user.id),
     fetchCredentials(user.id),
     fetchHistory(user.id),
     fetchPendingPosterRatings(user.id),
+    fetchLatestPaymentRequest(user.id),
   ]);
   profileContainer.textContent = '';
 
@@ -322,16 +388,7 @@ export async function renderProfilePage() {
     )
   );
 
-  const premiumBox = el('div', { class: 'pf-premium' },
-    el('div', { class: 'pf-prem-title', text: '👑 Premium — MK 1,500 / week' }),
-    el('ul', { class: 'pf-prem-list' },
-      el('li', { text: '• Boosted profile at the top of employer searches' }),
-      el('li', { text: '• Priority gig alerts by SMS, even offline' }),
-      el('li', { text: '• Hand-picked high-paying gigs' }),
-      el('li', { text: '• Lower transaction fee on escrow payouts' })
-    ),
-    el('button', { class: 'pf-prem-btn', text: 'Subscribe with Airtel Money', onclick: () => toast('Payments coming soon.') })
-  );
+  const premiumBox = buildPremiumBox(user, profile, latestPaymentRequest);
 
   const leaderboardBox = el('div', { class: 'pf-card' },
     el('h3', { text: 'Community leaderboard' }),
