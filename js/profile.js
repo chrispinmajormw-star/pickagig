@@ -12,6 +12,7 @@ import { WORKERS } from './data.js';
 import { setLang } from './main.js';
 import { supabase } from './supabaseClient.js';
 import { getCurrentUser, openAuthModal } from './auth.js';
+import { openRatingModal } from './gigs.js';
 
 async function fetchProfile(userId) {
   const { data, error } = await supabase
@@ -59,7 +60,52 @@ async function getCredentialSignedUrl(path) {
   return data.signedUrl;
 }
 
-async function fetchHistory(userId) {
+async function fetchPendingPosterRatings(userId) {
+  const { data, error } = await supabase
+    .from('gig_applications')
+    .select('gig_id, gigs(id, title, poster_id, status, profiles(full_name))')
+    .eq('applicant_id', userId)
+    .eq('accepted', true);
+  if (error) { console.error('fetchPendingPosterRatings error:', error); return []; }
+
+  const completed = (data || []).filter(r => r.gigs && r.gigs.status === 'completed');
+  if (!completed.length) return [];
+
+  const gigIds = completed.map(r => r.gig_id);
+  const { data: myRatings } = await supabase
+    .from('ratings')
+    .select('gig_id')
+    .eq('rater_id', userId)
+    .in('gig_id', gigIds);
+  const alreadyRated = new Set((myRatings || []).map(r => r.gig_id));
+
+  return completed
+    .filter(r => !alreadyRated.has(r.gig_id))
+    .map(r => ({
+      gigId:      r.gig_id,
+      gigTitle:   r.gigs.title,
+      posterId:   r.gigs.poster_id,
+      posterName: r.gigs.profiles?.full_name || 'Unknown',
+    }));
+}
+
+function buildPendingRatingsBox(pending) {
+  if (!pending.length) return null;
+  return el('div', { class: 'pf-card' },
+    el('h3', { text: 'Rate your recent gigs' }),
+    ...pending.map(p => el('div', { class: 'pf-hist-item' },
+      el('div', {},
+        el('div', { class: 'pf-hist-title', text: p.gigTitle }),
+        el('div', { class: 'pf-hist-when', text: 'Hired by ' + p.posterName })
+      ),
+      el('button', {
+        class: 'primary',
+        text: 'Rate',
+        onclick: () => openRatingModal(p.gigId, p.posterId, p.posterName, renderProfilePage)
+      })
+    ))
+  );
+}
   const { data, error } = await supabase
     .from('gig_applications')
     .select('gig_id, accepted, gigs(id, title, pay, created_at, status)')
@@ -170,10 +216,11 @@ export async function renderProfilePage() {
   }
 
   profileContainer.appendChild(el('div', { class: 'pf-card', text: 'Loading profile…' }));
-  const [profile, credentials, history] = await Promise.all([
+  const [profile, credentials, history, pendingRatings] = await Promise.all([
     fetchProfile(user.id),
     fetchCredentials(user.id),
     fetchHistory(user.id),
+    fetchPendingPosterRatings(user.id),
   ]);
   profileContainer.textContent = '';
 
@@ -326,8 +373,11 @@ export async function renderProfilePage() {
     )
   );
 
+  const pendingRatingsBox = buildPendingRatingsBox(pendingRatings);
+
   profileContainer.appendChild(el('div', { class: 'pf-container' },
     header,
+    pendingRatingsBox,
     skillsBox,
     credBox,
     histBox,

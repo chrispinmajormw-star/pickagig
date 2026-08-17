@@ -183,7 +183,7 @@ async function markGigComplete(gigId, applicantId) {
   return true;
 }
 
-function openRatingModal(gigId, workerId, workerName) {
+export function openRatingModal(gigId, workerId, workerName, onSuccess) {
   let selected = 0;
   const stars = [1, 2, 3, 4, 5].map(n => {
     const star = el('span', {
@@ -210,8 +210,9 @@ function openRatingModal(gigId, workerId, workerName) {
       });
       submitBtn.disabled = false;
       if (error) { toast('Could not submit rating: ' + error.message); return; }
-      toast('Gig marked complete and rating submitted!');
+      toast('Rating submitted!');
       closeModal();
+      if (onSuccess) onSuccess();
     }
   });
 
