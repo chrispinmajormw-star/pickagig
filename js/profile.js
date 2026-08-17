@@ -157,8 +157,11 @@ function buildCredBox(userId, credentials) {
       ))
     : [el('li', { text: 'No credentials added yet.' })];
 
-  const labelInput = el('input', { type: 'text', placeholder: 'e.g. TEVETA Grade 1 Painter' });
-  const fileInput  = el('input', { type: 'file', accept: '.pdf,.jpg,.jpeg,.png' });
+  const fieldStyle = 'display:block;width:100%;box-sizing:border-box;padding:9px 11px;margin-top:4px;border-radius:8px;border:1px solid #ddd;font-size:14px;';
+  const labelStyle = 'display:block;margin-bottom:12px;font-size:12px;font-weight:700;color:#444;';
+
+  const labelInput = el('input', { type: 'text', placeholder: 'e.g. TEVETA Grade 1 Painter', style: fieldStyle });
+  const fileInput  = el('input', { type: 'file', accept: '.pdf,.jpg,.jpeg,.png', style: 'display:block;margin-top:4px;' });
 
   const uploadBtn = el('button', {
     class: 'pf-upload-btn',
@@ -188,8 +191,8 @@ function buildCredBox(userId, credentials) {
     el('h3', { text: 'Credentials' }),
     el('ul', { class: 'pf-cred-list' }, ...listItems),
     el('div', { class: 'form', style: 'margin-top:10px;' },
-      el('label', { text: 'Label' }, labelInput),
-      el('label', { text: 'File (PDF, JPG, or PNG)' }, fileInput),
+      el('label', { style: labelStyle, text: 'Label' }, labelInput),
+      el('label', { style: labelStyle, text: 'File (PDF, JPG, or PNG)' }, fileInput),
       uploadBtn
     )
   );
@@ -229,7 +232,8 @@ function buildPremiumBox(user, profile, latestRequest) {
     );
   }
 
-  const refInput = el('input', { type: 'text', placeholder: 'Transaction reference or the phone number you paid from' });
+  const refInput = el('input', { type: 'text', placeholder: 'Transaction reference or the phone number you paid from',
+    style: 'display:block;width:100%;box-sizing:border-box;padding:9px 11px;border-radius:8px;border:1px solid rgba(255,255,255,.4);font-size:14px;background:rgba(255,255,255,.95);' });
   const submitBtn = el('button', {
     class: 'pf-prem-btn',
     text: "I've sent the payment",
@@ -257,7 +261,7 @@ function buildPremiumBox(user, profile, latestRequest) {
       el('div', { text: 'Send MK 1,500 via Airtel Money to:' }),
       el('div', { style: 'font-weight:800;font-size:16px;margin-top:4px;', text: AIRTEL_NUMBER })
     ),
-    el('label', { style: 'color:white;display:block;margin-top:8px;' }, refInput),
+    el('label', { style: 'color:white;display:block;margin-top:10px;margin-bottom:6px;font-size:12px;font-weight:700;' }, refInput),
     submitBtn
   );
 }
@@ -303,10 +307,13 @@ export async function renderProfilePage() {
   const initial = (profile.full_name || user.email || '?').charAt(0).toUpperCase();
 
   // ── Editable header fields ──────────────────────────────────
-  const nameInput     = el('input', { type: 'text', value: profile.full_name || '', placeholder: t('nameLabel') || 'Full name' });
-  const headlineInput = el('input', { type: 'text', value: profile.headline  || '', placeholder: 'Headline (e.g. Professional painter)' });
-  const phoneInput    = el('input', { type: 'text', value: profile.phone     || '', placeholder: t('phoneLabel') || 'Phone number' });
-  const locationInput = el('input', { type: 'text', value: profile.location || '', placeholder: t('areaLabel') || 'Your area' });
+  const fieldStyle = 'display:block;width:100%;box-sizing:border-box;padding:9px 11px;margin-top:4px;border-radius:8px;border:1px solid rgba(255,255,255,.4);font-size:14px;background:rgba(255,255,255,.95);';
+  const labelStyle = 'display:block;margin-bottom:12px;font-size:12px;font-weight:700;color:rgba(255,255,255,.85);';
+
+  const nameInput     = el('input', { type: 'text', value: profile.full_name || '', placeholder: t('nameLabel') || 'Full name', style: fieldStyle });
+  const headlineInput = el('input', { type: 'text', value: profile.headline  || '', placeholder: 'Headline (e.g. Professional painter)', style: fieldStyle });
+  const phoneInput    = el('input', { type: 'text', value: profile.phone     || '', placeholder: t('phoneLabel') || 'Phone number', style: fieldStyle });
+  const locationInput = el('input', { type: 'text', value: profile.location || '', placeholder: t('areaLabel') || 'Your area', style: fieldStyle });
 
   const saveHeaderBtn = el('button', {
     class: 'primary', text: t('saveBtn') || 'Save profile',
@@ -333,17 +340,17 @@ export async function renderProfilePage() {
     ),
     el('div', { class: 'pf-header-top' },
       el('div', { class: 'pf-avatar' }, initial),
-      el('div', { class: 'pf-info', style: 'flex:1;' },
-        el('label', { text: t('nameLabel') || 'Full name' }, nameInput),
-        el('label', { text: 'Headline' }, headlineInput),
-        el('label', { text: t('phoneLabel') || 'Phone number' }, phoneInput),
-        el('label', { text: t('areaLabel') || 'Your area' }, locationInput),
+      el('div', { class: 'pf-info', style: 'flex:1;min-width:0;' },
+        el('label', { style: labelStyle, text: t('nameLabel') || 'Full name' }, nameInput),
+        el('label', { style: labelStyle, text: 'Headline' }, headlineInput),
+        el('label', { style: labelStyle, text: t('phoneLabel') || 'Phone number' }, phoneInput),
+        el('label', { style: labelStyle, text: t('areaLabel') || 'Your area' }, locationInput),
         saveHeaderBtn
       )
     ),
     el('div', { class: 'pf-stats' },
-      el('div', { class: 'pf-stat' }, el('div', { class: 'pf-stat-val', text: '★ ' + (profile.rating ?? 0) }), el('div', { class: 'pf-stat-lbl', text: t('rating') || 'Rating' })),
-      el('div', { class: 'pf-stat' }, el('div', { class: 'pf-stat-val', text: profile.jobs_done ?? 0 }), el('div', { class: 'pf-stat-lbl', text: t('gigsDone') || 'Gigs Done' })),
+      el('div', { class: 'pf-stat' }, el('div', { class: 'pf-stat-val', text: '★ ' + (profile.rating ?? 0) }), el('div', { class: 'pf-stat-lbl', text: 'Rating' })),
+      el('div', { class: 'pf-stat' }, el('div', { class: 'pf-stat-val', text: profile.jobs_done ?? 0 }), el('div', { class: 'pf-stat-lbl', text: 'Gigs Done' })),
       el('div', { class: 'pf-stat' }, el('div', { class: 'pf-stat-val', text: profile.rate_mk || '—' }), el('div', { class: 'pf-stat-lbl', text: 'Daily Rate' }))
     )
   );
