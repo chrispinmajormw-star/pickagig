@@ -106,6 +106,7 @@ function buildPendingRatingsBox(pending) {
     ))
   );
 }
+async function fetchHistory(userId) {
   const { data, error } = await supabase
     .from('gig_applications')
     .select('gig_id, accepted, gigs(id, title, pay, created_at, status)')
@@ -195,7 +196,7 @@ function buildCredBox(userId, credentials) {
 }
 
 // TODO: replace with your real Airtel Money number
-const AIRTEL_NUMBER = '099 727 8800';
+const AIRTEL_NUMBER = '099 000 0000';
 
 async function fetchLatestPaymentRequest(userId) {
   const { data, error } = await supabase
