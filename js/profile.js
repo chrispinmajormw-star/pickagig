@@ -261,6 +261,7 @@ function buildPremiumBox(user, profile, latestRequest) {
     submitBtn
   );
 }
+function renderSignedOut(container) {
   container.appendChild(el('div', { class: 'pf-container' },
     el('div', { class: 'pf-card', style: 'text-align:center;' },
       el('h3', { text: 'Sign in to view your profile' }),
