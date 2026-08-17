@@ -8,7 +8,7 @@
 
 import { el, toast } from './ui-helpers.js';
 import { t, tCat, CAT_ICONS, lang } from './i18n.js';
-import { HISTORY, WORKERS } from './data.js';
+import { WORKERS } from './data.js';
 import { setLang } from './main.js';
 import { supabase } from './supabaseClient.js';
 import { getCurrentUser, openAuthModal } from './auth.js';
@@ -57,6 +57,33 @@ async function getCredentialSignedUrl(path) {
   const { data, error } = await supabase.storage.from('credentials').createSignedUrl(path, 60);
   if (error) { toast('Could not open file: ' + error.message); return null; }
   return data.signedUrl;
+}
+
+async function fetchHistory(userId) {
+  const { data, error } = await supabase
+    .from('gig_applications')
+    .select('gig_id, accepted, gigs(id, title, pay, created_at, status)')
+    .eq('applicant_id', userId)
+    .eq('accepted', true);
+  if (error) { console.error('fetchHistory error:', error); return []; }
+
+  const completed = (data || []).filter(r => r.gigs && r.gigs.status === 'completed');
+  if (!completed.length) return [];
+
+  const gigIds = completed.map(r => r.gig_id);
+  const { data: ratings } = await supabase
+    .from('ratings')
+    .select('gig_id, rating')
+    .in('gig_id', gigIds)
+    .eq('ratee_id', userId);
+  const ratingByGig = Object.fromEntries((ratings || []).map(r => [r.gig_id, r.rating]));
+
+  return completed.map(r => ({
+    title:  r.gigs.title,
+    pay:    r.gigs.pay,
+    when:   new Date(r.gigs.created_at).toLocaleDateString('en-GB', { month: 'short', year: 'numeric' }),
+    rating: ratingByGig[r.gig_id] || null,
+  }));
 }
 
 function buildCredBox(userId, credentials) {
@@ -143,9 +170,10 @@ export async function renderProfilePage() {
   }
 
   profileContainer.appendChild(el('div', { class: 'pf-card', text: 'Loading profile…' }));
-  const [profile, credentials] = await Promise.all([
+  const [profile, credentials, history] = await Promise.all([
     fetchProfile(user.id),
     fetchCredentials(user.id),
+    fetchHistory(user.id),
   ]);
   profileContainer.textContent = '';
 
@@ -232,16 +260,18 @@ export async function renderProfilePage() {
   const histBox = el('div', { class: 'pf-card' },
     el('h3', { text: 'History' }),
     el('div', { class: 'pf-hist-list' },
-      ...HISTORY.map(h => el('div', { class: 'pf-hist-item' },
-        el('div', {},
-          el('div', { class: 'pf-hist-title', text: h.title }),
-          el('div', { class: 'pf-hist-when', text: h.when })
-        ),
-        el('div', { class: 'pf-hist-right' },
-          el('div', { class: 'pf-hist-pay', text: h.pay }),
-          el('div', { class: 'pf-hist-rating', text: '★ ' + h.rating + '.0' })
-        )
-      ))
+      ...(history.length
+        ? history.map(h => el('div', { class: 'pf-hist-item' },
+            el('div', {},
+              el('div', { class: 'pf-hist-title', text: h.title }),
+              el('div', { class: 'pf-hist-when', text: h.when })
+            ),
+            el('div', { class: 'pf-hist-right' },
+              el('div', { class: 'pf-hist-pay', text: h.pay }),
+              el('div', { class: 'pf-hist-rating', text: h.rating ? '★ ' + h.rating + '.0' : 'Not rated yet' })
+            )
+          ))
+        : [el('p', { style: 'color:#666;font-size:13px;', text: 'No completed gigs yet.' })])
     )
   );
 

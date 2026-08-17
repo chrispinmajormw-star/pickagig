@@ -155,24 +155,122 @@ function buildGigCard(gig) {
   );
 }
 
+async function fetchApplicants(gigId) {
+  const { data, error } = await supabase
+    .from('gig_applications')
+    .select('applicant_id, profiles(full_name)')
+    .eq('gig_id', gigId);
+  if (error) { console.error('fetchApplicants error:', error); return []; }
+  return data.map(r => ({ applicantId: r.applicant_id, name: r.profiles?.full_name || 'Unknown' }));
+}
+
+async function markGigComplete(gigId, applicantId) {
+  const { error: acceptErr } = await supabase
+    .from('gig_applications')
+    .update({ accepted: true })
+    .eq('gig_id', gigId)
+    .eq('applicant_id', applicantId);
+  if (acceptErr) { toast('Could not mark hire: ' + acceptErr.message); return false; }
+
+  const { error: statusErr } = await supabase
+    .from('gigs')
+    .update({ status: 'completed' })
+    .eq('id', gigId);
+  if (statusErr) { toast('Could not complete gig: ' + statusErr.message); return false; }
+
+  await loadGigs(true);
+  renderGigs();
+  return true;
+}
+
+function openRatingModal(gigId, workerId, workerName) {
+  let selected = 0;
+  const stars = [1, 2, 3, 4, 5].map(n => {
+    const star = el('span', {
+      text: '★',
+      style: 'font-size:28px;cursor:pointer;color:#ccc;margin-right:4px;',
+      onclick: () => {
+        selected = n;
+        stars.forEach((s, i) => { s.style.color = i < selected ? '#f97316' : '#ccc'; });
+      }
+    });
+    return star;
+  });
+
+  const reviewInput = el('textarea', { placeholder: 'Optional review…' });
+  const submitBtn = el('button', {
+    class: 'primary', text: 'Submit rating',
+    onclick: async () => {
+      if (!selected) { toast('Pick a star rating first.'); return; }
+      const user = getCurrentUser();
+      submitBtn.disabled = true;
+      const { error } = await supabase.from('ratings').insert({
+        gig_id: gigId, rater_id: user.id, ratee_id: workerId,
+        rating: selected, review: reviewInput.value.trim()
+      });
+      submitBtn.disabled = false;
+      if (error) { toast('Could not submit rating: ' + error.message); return; }
+      toast('Gig marked complete and rating submitted!');
+      closeModal();
+    }
+  });
+
+  openModal(el('div', {},
+    el('h2', { text: 'Rate ' + workerName }),
+    el('div', { style: 'margin:12px 0;' }, ...stars),
+    el('label', { text: 'Review' }, reviewInput),
+    submitBtn
+  ));
+}
+
+async function openCompleteGigModal(gig) {
+  const applicants = await fetchApplicants(gig.id);
+  if (!applicants.length) {
+    toast('No applicants yet to mark as hired.');
+    return;
+  }
+  const list = el('div', { class: 'form' },
+    ...applicants.map(a => el('button', {
+      class: 'primary',
+      style: 'display:block;width:100%;margin-bottom:8px;',
+      text: a.name,
+      onclick: async () => {
+        closeModal();
+        const ok = await markGigComplete(gig.id, a.applicantId);
+        if (ok) openRatingModal(gig.id, a.applicantId, a.name);
+      }
+    }))
+  );
+  openModal(el('div', {},
+    el('h2', { text: 'Who did this gig?' }),
+    el('p', { style: 'color:#666;font-size:13px;margin-bottom:10px;', text: 'Pick the person you hired to mark this gig complete and leave them a rating.' }),
+    list
+  ));
+}
+
 export function openGigDetail(gig) {
+  const user = getCurrentUser();
+  const isOwner = user && gig.posterId === user.id;
   const isApplied = appliedGigIds.has(gig.id);
   const loc = getUserLocation();
   const km = distanceKm(loc.lat, loc.lng, gig.lat, gig.lng);
-  const btn = el('button', {
-    class: 'detail-apply' + (isApplied ? ' applied' : ''),
-    text: isApplied ? t('applicationSent') : t('pickThisGig'),
-    onclick: async () => {
-      if (appliedGigIds.has(gig.id)) return;
-      btn.disabled = true;
-      await applyToGig(gig);
-      btn.disabled = false;
-      if (appliedGigIds.has(gig.id)) {
-        btn.classList.add('applied');
-        btn.textContent = t('applicationSent');
-      }
-    }
-  });
+
+  const actionBtn = isOwner
+    ? el('button', { class: 'detail-apply', text: 'Mark gig as complete', onclick: () => openCompleteGigModal(gig) })
+    : el('button', {
+        class: 'detail-apply' + (isApplied ? ' applied' : ''),
+        text: isApplied ? t('applicationSent') : t('pickThisGig'),
+        onclick: async function () {
+          if (appliedGigIds.has(gig.id)) return;
+          this.disabled = true;
+          await applyToGig(gig);
+          this.disabled = false;
+          if (appliedGigIds.has(gig.id)) {
+            this.classList.add('applied');
+            this.textContent = t('applicationSent');
+          }
+        }
+      });
 
   openModal(el('div', {},
     el('div', { style: 'font-size:11px;font-weight:800;color:var(--orange);margin-bottom:8px;text-transform:uppercase;letter-spacing:0.05em;' },
@@ -187,7 +285,7 @@ export function openGigDetail(gig) {
       document.createTextNode('👥 ' + gig.people + ' ' + (gig.people === 1 ? t('peopleSingular') : t('peoplePlural')) + ' · ' + gig.applied + ' ' + t('applied')), el('br'),
       document.createTextNode('👤 Posted by ' + gig.posterName)
     ),
-    btn
+    actionBtn
   ));
 }
 
