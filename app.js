@@ -25,10 +25,20 @@
       categoryLabel: "Category",
       locationLabel: "Location",
       payLabel: "Pay",
+      timeLabel: "When",
+      timeLabelPlaceholder: "e.g. Today, 2pm",
+      timeLabelFallback: "Flexible time",
+      durationLabel: "Duration",
+      durationLabelPlaceholder: "e.g. 3 hours",
+      durationLabelFallback: "Flexible",
       detailsLabel: "Details",
       publishBtn: "Publish gig",
       gigPosted: "Your gig has been posted!",
       noTitle: "Add a gig title first.",
+      markCompleteBtn: "Mark gig as complete",
+      cancelGigBtn: "Cancel this gig",
+      cancelGigConfirm: "Cancel this gig? It will no longer be visible to workers.",
+      gigCancelled: "Gig cancelled.",
       profileTitle: "Profile",
       nameLabel: "Full name",
       phoneLabel: "Phone number",
@@ -128,10 +138,20 @@
       categoryLabel: "Mtundu",
       locationLabel: "Malo",
       payLabel: "Ndalama",
+      timeLabel: "Nthawi",
+      timeLabelPlaceholder: "mwachitsanzo, Lero, 2pm",
+      timeLabelFallback: "Nthawi yosinthasintha",
+      durationLabel: "Nthawi yogwira",
+      durationLabelPlaceholder: "mwachitsanzo, maola 3",
+      durationLabelFallback: "Yosinthasintha",
       detailsLabel: "Mfundo",
       publishBtn: "Tumizirani ntchito",
       gigPosted: "Ntchito yanu yatumiziridwa!",
       noTitle: "Onjezerani dzina la ntchito kaye.",
+      markCompleteBtn: "Malizani ntchito",
+      cancelGigBtn: "Letsani ntchito iyi",
+      cancelGigConfirm: "Letsani ntchito iyi? Anthu sadzaionanso.",
+      gigCancelled: "Ntchito yaletsedwa.",
       profileTitle: "Mbiri",
       nameLabel: "Dzina lonse",
       phoneLabel: "Nambala ya foni",
@@ -1041,29 +1061,51 @@
   }
 
   // js/gigs.js
-  var appliedGigIds = /* @__PURE__ */ new Set();
+  /* ============================================================
+     PickAGig — gigs.js
+     Gig list rendering, filtering, gig detail modal, applying,
+     and posting — all backed by the real Supabase `gigs` and
+     `gig_applications` tables.
+     ============================================================ */
+
+
+  let appliedGigIds = new Set();
+
   async function loadAppliedGigIds() {
     const user = getCurrentUser();
-    if (!user) {
-      appliedGigIds = /* @__PURE__ */ new Set();
-      return;
-    }
-    const { data, error } = await supabase.from("gig_applications").select("gig_id").eq("applicant_id", user.id);
-    if (!error && data) appliedGigIds = new Set(data.map((r) => r.gig_id));
+    if (!user) { appliedGigIds = new Set(); return; }
+    const { data, error } = await supabase
+      .from('gig_applications')
+      .select('gig_id')
+      .eq('applicant_id', user.id);
+    if (!error && data) appliedGigIds = new Set(data.map(r => r.gig_id));
   }
+
+  // Re-checks which gigs the current user has applied to (call after
+  // sign-in/sign-out) and re-renders the gigs page if it's showing.
   async function refreshAppliedStatus() {
     await loadAppliedGigIds();
-    if (state.page === "gigs") renderGigs();
+    if (state.page === 'gigs') renderGigs();
   }
+
+  // Fetches gigs from Supabase into state.gigsCache. Cheap to call
+  // repeatedly — skips the network round-trip unless `force` is set.
   async function loadGigs(force = false) {
     if (state.gigsLoaded && !force) return;
-    const { data, error } = await supabase.from("gigs").select("*, profiles(full_name)").eq("status", "open").order("created_at", { ascending: false });
+
+    const { data, error } = await supabase
+      .from('gigs')
+      .select('*, profiles(full_name)')
+      .eq('status', 'open')
+      .order('created_at', { ascending: false });
+
     if (error) {
-      toast("Could not load gigs: " + error.message);
+      toast('Could not load gigs: ' + error.message);
       state.gigsCache = [];
       return;
     }
-    state.gigsCache = data.map((g) => ({
+
+    state.gigsCache = data.map(g => ({
       id: g.id,
       cat: g.category,
       title: g.title,
@@ -1078,211 +1120,193 @@
       lat: g.location_lat,
       lng: g.location_lng,
       posterId: g.poster_id,
-      posterName: g.profiles?.full_name || "Unknown",
-      posterInitials: (g.profiles?.full_name || "?").charAt(0).toUpperCase()
+      posterName: g.profiles?.full_name || 'Unknown',
+      posterInitials: (g.profiles?.full_name || '?').charAt(0).toUpperCase(),
     }));
+
     state.gigsLoaded = true;
     await loadAppliedGigIds();
   }
+
   function renderFilters() {
-    const wrap = document.getElementById("filtersBar");
-    wrap.textContent = "";
-    Object.keys(CAT_ICONS).forEach((cat) => {
+    const wrap = document.getElementById('filtersBar');
+    wrap.textContent = '';
+    Object.keys(CAT_ICONS).forEach(cat => {
       const icon = CAT_ICONS[cat];
-      const btn = el(
-        "button",
-        {
-          class: "filter" + (cat === state.selectedCat ? " active" : ""),
-          onclick() {
-            state.selectedCat = cat;
-            renderFilters();
-            renderGigs();
-            if (state.page === "map") refreshMapMarkers();
-          }
+      const btn = el('button', {
+        class: 'filter' + (cat === state.selectedCat ? ' active' : ''),
+        onclick() {
+          state.selectedCat = cat;
+          renderFilters();
+          renderGigs();
+          if (state.page === 'map') refreshMapMarkers();
         },
-        icon ? el("span", { class: "filter-emoji", text: icon }) : null,
-        document.createTextNode(tCat(cat))
+      },
+      icon ? el('span', { class: 'filter-emoji', text: icon }) : null,
+      document.createTextNode(tCat(cat))
       );
       wrap.appendChild(btn);
     });
   }
+
+  // Filters by category, search text and the user's chosen radius.
+  // When no location is known every gig is shown (sorted by urgency
+  // only) — hiding them all would leave a brand-new user staring at
+  // an empty screen. Gigs with no coordinates can't be ranged, so
+  // they are kept but sorted last.
   function getFilteredGigs() {
     const q = state.query.toLowerCase();
     const loc = getUserLocation();
     const known = locationIsKnown(loc);
     const radius = getRadiusKm();
-    return state.gigsCache.map((g) => ({ g, km: known ? distanceKm(loc.lat, loc.lng, g.lat, g.lng) : null })).filter(({ g, km }) => {
-      const catMatch = state.selectedCat === "All" || g.cat === state.selectedCat;
-      const searchMatch = !q || (g.title + " " + g.cat + " " + g.place).toLowerCase().includes(q);
-      const inRange = !known || km == null || km <= radius;
-      return catMatch && searchMatch && inRange;
-    }).sort((a, b) => {
-      const byUrgent = (b.g.urgent ? 1 : 0) - (a.g.urgent ? 1 : 0);
-      if (byUrgent) return byUrgent;
-      if (a.km == null && b.km == null) return 0;
-      if (a.km == null) return 1;
-      if (b.km == null) return -1;
-      return a.km - b.km;
-    }).map(({ g }) => g);
+
+    return state.gigsCache
+      .map(g => ({ g, km: known ? distanceKm(loc.lat, loc.lng, g.lat, g.lng) : null }))
+      .filter(({ g, km }) => {
+        const catMatch    = state.selectedCat === 'All' || g.cat === state.selectedCat;
+        const searchMatch = !q || (g.title + ' ' + g.cat + ' ' + g.place).toLowerCase().includes(q);
+        const inRange     = !known || km == null || km <= radius;
+        return catMatch && searchMatch && inRange;
+      })
+      .sort((a, b) => {
+        const byUrgent = (b.g.urgent ? 1 : 0) - (a.g.urgent ? 1 : 0);
+        if (byUrgent) return byUrgent;
+        if (a.km == null && b.km == null) return 0;
+        if (a.km == null) return 1;
+        if (b.km == null) return -1;
+        return a.km - b.km;
+      })
+      .map(({ g }) => g);
   }
+
   function buildGigCard(gig) {
     const isApplied = appliedGigIds.has(gig.id);
-    const peopleLabel = gig.people === 1 ? t("peopleSingular") : t("peoplePlural");
+    const peopleLabel = gig.people === 1 ? t('peopleSingular') : t('peoplePlural');
     const loc = getUserLocation();
     const km = distanceKm(loc.lat, loc.lng, gig.lat, gig.lng);
-    return el(
-      "article",
-      {
-        class: "gig-card",
-        onclick: () => openGigDetail(gig)
-      },
-      el(
-        "div",
-        { class: "gig-body" },
-        el("div", { class: "cat-icon", text: CAT_ICONS[gig.cat] || "\u{1F4BC}" }),
-        el(
-          "div",
-          { class: "gig-info" },
-          el(
-            "div",
-            { class: "gig-tag-row" },
-            el("span", { class: "gig-cat-label", text: tCat(gig.cat) }),
-            gig.urgent ? el(
-              "span",
-              { class: "urgent-badge" },
-              el("span", { class: "urgent-dot" }),
-              document.createTextNode(t("urgent"))
+
+    return el('article', {
+      class: 'gig-card',
+      onclick: () => openGigDetail(gig)
+    },
+      el('div', { class: 'gig-body' },
+        el('div', { class: 'cat-icon', text: CAT_ICONS[gig.cat] || '💼' }),
+        el('div', { class: 'gig-info' },
+          el('div', { class: 'gig-tag-row' },
+            el('span', { class: 'gig-cat-label', text: tCat(gig.cat) }),
+            gig.urgent ? el('span', { class: 'urgent-badge' },
+              el('span', { class: 'urgent-dot' }),
+              document.createTextNode(t('urgent'))
             ) : null
           ),
-          el("h3", { class: "gig-title", text: gig.title }),
-          el(
-            "div",
-            { class: "gig-meta" },
-            el(
-              "div",
-              { class: "gig-meta-item" },
-              el("svg", { html: '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>' }),
-              document.createTextNode((km != null ? km + " km \xB7 " : "") + gig.place)
+          el('h3', { class: 'gig-title', text: gig.title }),
+          el('div', { class: 'gig-meta' },
+            el('div', { class: 'gig-meta-item' },
+              el('svg', { html: '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>' }),
+              document.createTextNode((km != null ? km + ' km · ' : '') + gig.place)
             ),
-            el(
-              "div",
-              { class: "gig-meta-item" },
-              el("svg", { html: '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>' }),
-              document.createTextNode(gig.time + " \xB7 " + gig.duration)
+            el('div', { class: 'gig-meta-item' },
+              el('svg', { html: '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>' }),
+              document.createTextNode(gig.time + ' · ' + gig.duration)
             )
           )
         )
       ),
-      el(
-        "div",
-        { class: "gig-footer" },
-        el(
-          "div",
-          {},
-          el("div", { class: "gig-pay-amount", text: gig.pay }),
-          el("div", { class: "gig-pay-type", text: gig.payType || "total" })
+      el('div', { class: 'gig-footer' },
+        el('div', {},
+          el('div', { class: 'gig-pay-amount', text: gig.pay }),
+          el('div', { class: 'gig-pay-type', text: gig.payType || 'total' })
         ),
-        el(
-          "div",
-          { class: "gig-stats" },
-          el(
-            "div",
-            { class: "gig-people" },
-            el("svg", { html: '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>' }),
-            document.createTextNode(gig.people + " " + peopleLabel)
+        el('div', { class: 'gig-stats' },
+          el('div', { class: 'gig-people' },
+            el('svg', { html: '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>' }),
+              document.createTextNode(gig.people + ' ' + peopleLabel)
           ),
-          el("div", { class: "applied-badge", text: gig.applied + " " + t("applied") })
+          el('div', { class: 'applied-badge', text: gig.applied + ' ' + t('applied') })
         )
       )
     );
   }
+
   async function fetchApplicants(gigId) {
-    const { data, error } = await supabase.from("gig_applications").select("applicant_id, profiles(full_name)").eq("gig_id", gigId);
-    if (error) {
-      console.error("fetchApplicants error:", error);
-      return [];
-    }
-    return data.map((r) => ({ applicantId: r.applicant_id, name: r.profiles?.full_name || "Unknown" }));
+    const { data, error } = await supabase
+      .from('gig_applications')
+      .select('applicant_id, profiles(full_name)')
+      .eq('gig_id', gigId);
+    if (error) { console.error('fetchApplicants error:', error); return []; }
+    return data.map(r => ({ applicantId: r.applicant_id, name: r.profiles?.full_name || 'Unknown' }));
   }
+
   async function markGigComplete(gigId, applicantId) {
-    const { error: acceptErr } = await supabase.from("gig_applications").update({ accepted: true }).eq("gig_id", gigId).eq("applicant_id", applicantId);
-    if (acceptErr) {
-      toast("Could not mark hire: " + acceptErr.message);
-      return false;
-    }
-    const { error: statusErr } = await supabase.from("gigs").update({ status: "completed" }).eq("id", gigId);
-    if (statusErr) {
-      toast("Could not complete gig: " + statusErr.message);
-      return false;
-    }
+    const { error: acceptErr } = await supabase
+      .from('gig_applications')
+      .update({ accepted: true })
+      .eq('gig_id', gigId)
+      .eq('applicant_id', applicantId);
+    if (acceptErr) { toast('Could not mark hire: ' + acceptErr.message); return false; }
+
+    const { error: statusErr } = await supabase
+      .from('gigs')
+      .update({ status: 'completed' })
+      .eq('id', gigId);
+    if (statusErr) { toast('Could not complete gig: ' + statusErr.message); return false; }
+
     await loadGigs(true);
     renderGigs();
     return true;
   }
+
   function openRatingModal(gigId, workerId, workerName, onSuccess) {
     let selected = 0;
-    const stars = [1, 2, 3, 4, 5].map((n) => {
-      const star = el("span", {
-        text: "\u2605",
-        style: "font-size:28px;cursor:pointer;color:#ccc;margin-right:4px;",
+    const stars = [1, 2, 3, 4, 5].map(n => {
+      const star = el('span', {
+        text: '★',
+        style: 'font-size:28px;cursor:pointer;color:#ccc;margin-right:4px;',
         onclick: () => {
           selected = n;
-          stars.forEach((s, i) => {
-            s.style.color = i < selected ? "#f97316" : "#ccc";
-          });
+          stars.forEach((s, i) => { s.style.color = i < selected ? '#f97316' : '#ccc'; });
         }
       });
       return star;
     });
-    const reviewInput = el("textarea", { placeholder: "Optional review\u2026" });
-    const submitBtn = el("button", {
-      class: "primary",
-      text: "Submit rating",
+
+    const reviewInput = el('textarea', { placeholder: 'Optional review…' });
+    const submitBtn = el('button', {
+      class: 'primary', text: 'Submit rating',
       onclick: async () => {
-        if (!selected) {
-          toast("Pick a star rating first.");
-          return;
-        }
+        if (!selected) { toast('Pick a star rating first.'); return; }
         const user = getCurrentUser();
         submitBtn.disabled = true;
-        const { error } = await supabase.from("ratings").insert({
-          gig_id: gigId,
-          rater_id: user.id,
-          ratee_id: workerId,
-          rating: selected,
-          review: reviewInput.value.trim()
+        const { error } = await supabase.from('ratings').insert({
+          gig_id: gigId, rater_id: user.id, ratee_id: workerId,
+          rating: selected, review: reviewInput.value.trim()
         });
         submitBtn.disabled = false;
-        if (error) {
-          toast("Could not submit rating: " + error.message);
-          return;
-        }
-        toast("Rating submitted!");
+        if (error) { toast('Could not submit rating: ' + error.message); return; }
+        toast('Rating submitted!');
         closeModal();
         if (onSuccess) onSuccess();
       }
     });
-    openModal(el(
-      "div",
-      {},
-      el("h2", { text: "Rate " + workerName }),
-      el("div", { style: "margin:12px 0;" }, ...stars),
-      el("label", { text: "Review" }, reviewInput),
+
+    openModal(el('div', {},
+      el('h2', { text: 'Rate ' + workerName }),
+      el('div', { style: 'margin:12px 0;' }, ...stars),
+      el('label', { text: 'Review' }, reviewInput),
       submitBtn
     ));
   }
+
   async function openCompleteGigModal(gig) {
     const applicants = await fetchApplicants(gig.id);
     if (!applicants.length) {
-      toast("No applicants yet to mark as hired.");
+      toast('No applicants yet to mark as hired.');
       return;
     }
-    const list = el(
-      "div",
-      { class: "form" },
-      ...applicants.map((a) => el("button", {
-        class: "primary",
-        style: "display:block;width:100%;margin-bottom:8px;",
+    const list = el('div', { class: 'form' },
+      ...applicants.map(a => el('button', {
+        class: 'primary',
+        style: 'display:block;width:100%;margin-bottom:8px;',
         text: a.name,
         onclick: async () => {
           closeModal();
@@ -1291,227 +1315,282 @@
         }
       }))
     );
-    openModal(el(
-      "div",
-      {},
-      el("h2", { text: "Who did this gig?" }),
-      el("p", { style: "color:#666;font-size:13px;margin-bottom:10px;", text: "Pick the person you hired to mark this gig complete and leave them a rating." }),
+    openModal(el('div', {},
+      el('h2', { text: 'Who did this gig?' }),
+      el('p', { style: 'color:#666;font-size:13px;margin-bottom:10px;', text: 'Pick the person you hired to mark this gig complete and leave them a rating.' }),
       list
     ));
   }
+
+  async function cancelGig(gigId) {
+    const { error } = await supabase
+      .from('gigs')
+      .update({ status: 'cancelled' })
+      .eq('id', gigId);
+    if (error) { toast('Could not cancel gig: ' + error.message); return false; }
+    await loadGigs(true);
+    renderGigs();
+    if (state.page === 'map') refreshMapMarkers();
+    return true;
+  }
+
   function openGigDetail(gig) {
     const user = getCurrentUser();
     const isOwner = user && gig.posterId === user.id;
     const isApplied = appliedGigIds.has(gig.id);
     const loc = getUserLocation();
     const km = distanceKm(loc.lat, loc.lng, gig.lat, gig.lng);
-    const actionBtn = isOwner ? el("button", { class: "detail-apply", text: "Mark gig as complete", onclick: () => openCompleteGigModal(gig) }) : el("button", {
-      class: "detail-apply" + (isApplied ? " applied" : ""),
-      text: isApplied ? t("applicationSent") : t("pickThisGig"),
-      onclick: async function() {
-        if (appliedGigIds.has(gig.id)) return;
-        this.disabled = true;
-        await applyToGig(gig);
-        this.disabled = false;
-        if (appliedGigIds.has(gig.id)) {
-          this.classList.add("applied");
-          this.textContent = t("applicationSent");
-        }
-      }
-    });
-    openModal(el(
-      "div",
-      {},
-      el(
-        "div",
-        { style: "font-size:11px;font-weight:800;color:var(--orange);margin-bottom:8px;text-transform:uppercase;letter-spacing:0.05em;" },
-        document.createTextNode(tCat(gig.cat) + (gig.urgent ? " \xB7 " + t("urgent") : ""))
+
+    const ownerActions = isOwner
+      ? el('div', { class: 'detail-owner-actions' },
+          el('button', { class: 'detail-apply', text: t('markCompleteBtn'), onclick: () => openCompleteGigModal(gig) }),
+          el('button', {
+            class: 'detail-cancel', type: 'button', text: t('cancelGigBtn'),
+            onclick: () => {
+              if (!confirm(t('cancelGigConfirm'))) return;
+              cancelGig(gig.id).then(ok => { if (ok) { closeModal(); toast(t('gigCancelled')); } });
+            }
+          })
+        )
+      : el('button', {
+          class: 'detail-apply' + (isApplied ? ' applied' : ''),
+          text: isApplied ? t('applicationSent') : t('pickThisGig'),
+          onclick: async function () {
+            if (appliedGigIds.has(gig.id)) return;
+            this.disabled = true;
+            await applyToGig(gig);
+            this.disabled = false;
+            if (appliedGigIds.has(gig.id)) {
+              this.classList.add('applied');
+              this.textContent = t('applicationSent');
+            }
+          }
+        });
+
+    openModal(el('div', {},
+      el('div', { style: 'font-size:11px;font-weight:800;color:var(--orange);margin-bottom:8px;text-transform:uppercase;letter-spacing:0.05em;' },
+        document.createTextNode(tCat(gig.cat) + (gig.urgent ? ' · ' + t('urgent') : ''))
       ),
-      el("h2", { text: gig.title, style: "margin-bottom:15px;" }),
-      el("div", { class: "detail-pay", text: gig.pay }),
-      el("div", { class: "detail-pay-type", text: gig.payType || "total" }),
-      el(
-        "div",
-        { class: "detail-meta" },
-        document.createTextNode("\u{1F4CD} " + (km != null ? km + " km \xB7 " : "") + gig.place),
-        el("br"),
-        document.createTextNode("\u{1F552} " + gig.time + " \xB7 " + gig.duration),
-        el("br"),
-        document.createTextNode("\u{1F465} " + gig.people + " " + (gig.people === 1 ? t("peopleSingular") : t("peoplePlural")) + " \xB7 " + gig.applied + " " + t("applied")),
-        el("br"),
-        document.createTextNode("\u{1F464} Posted by " + gig.posterName)
+      el('h2', { text: gig.title, style: 'margin-bottom:15px;' }),
+      el('div', { class: 'detail-pay', text: gig.pay }),
+      el('div', { class: 'detail-pay-type', text: gig.payType || 'total' }),
+      el('div', { class: 'detail-meta' },
+        document.createTextNode('📍 ' + (km != null ? km + ' km · ' : '') + gig.place), el('br'),
+        document.createTextNode('🕒 ' + gig.time + ' · ' + gig.duration), el('br'),
+        document.createTextNode('👥 ' + gig.people + ' ' + (gig.people === 1 ? t('peopleSingular') : t('peoplePlural')) + ' · ' + gig.applied + ' ' + t('applied')), el('br'),
+        document.createTextNode('👤 Posted by ' + gig.posterName)
       ),
-      actionBtn
+      ownerActions
     ));
   }
+
   function renderGigs() {
-    const grid = document.getElementById("gigsGrid");
-    const empty = document.getElementById("gigsEmpty");
+    const grid  = document.getElementById('gigsGrid');
+    const empty = document.getElementById('gigsEmpty');
     if (!grid) return;
-    grid.textContent = "";
+    grid.textContent = '';
     const list = getFilteredGigs();
-    list.forEach((g) => grid.appendChild(buildGigCard(g)));
-    empty.style.display = list.length ? "none" : "block";
-    const radiusBlocked = !list.length && state.gigsCache.length > 0 && !state.query && state.selectedCat === "All" && locationIsKnown();
-    empty.textContent = radiusBlocked ? t("noGigsInRadius", { km: getRadiusKm() }) : t("noGigs");
+    list.forEach(g => grid.appendChild(buildGigCard(g)));
+    empty.style.display = list.length ? 'none' : 'block';
+    // Distinguish "nothing is posted" from "nothing inside your radius"
+    // so the user knows which control to adjust.
+    const radiusBlocked = !list.length && state.gigsCache.length > 0 && !state.query
+                       && state.selectedCat === 'All' && locationIsKnown();
+    empty.textContent = radiusBlocked ? t('noGigsInRadius', { km: getRadiusKm() }) : t('noGigs');
   }
+
   async function applyToGig(gig) {
     const user = getCurrentUser();
     if (!user) {
-      toast("Please sign in to apply for a gig.");
-      openAuthModal("signin");
+      toast('Please sign in to apply for a gig.');
+      openAuthModal('signin');
       return;
     }
     if (appliedGigIds.has(gig.id)) return;
-    const { error } = await supabase.from("gig_applications").insert({ gig_id: gig.id, applicant_id: user.id });
+
+    const { error } = await supabase
+      .from('gig_applications')
+      .insert({ gig_id: gig.id, applicant_id: user.id });
+
     if (error) {
-      if (error.code === "23505") {
+      if (error.code === '23505') {
+        // Unique constraint hit — they'd already applied, just sync state.
         appliedGigIds.add(gig.id);
       } else {
-        toast("Could not apply: " + error.message);
+        toast('Could not apply: ' + error.message);
         return;
       }
     } else {
       appliedGigIds.add(gig.id);
       gig.applied = (gig.applied || 0) + 1;
     }
+
+    // Creates (or reuses) a real Supabase chat thread with the gig's poster.
     await createOrGetChat(gig.id, gig.posterId, user.id);
-    toast(t("applicationSent"));
+
+    toast(t('applicationSent'));
     renderGigs();
   }
+
+  // `prefill` carries the form values (and the chosen map pin) across
+  // re-renders: opening the location picker replaces the sheet, so the
+  // form is rebuilt afterwards with everything the poster had typed.
   function openPost(prefill = {}) {
     if (!getCurrentUser()) {
-      toast("Please sign in to post a gig.");
-      openAuthModal("signin");
+      toast('Please sign in to post a gig.');
+      openAuthModal('signin');
       return;
     }
-    const titleInput = el("input", { id: "pt", type: "text", placeholder: t("gigTitleLabel"), value: prefill.title || "" });
-    const catSelect = el("select", { id: "pc" });
-    const placeInput = el("input", { id: "pp", type: "text", placeholder: t("locationLabel"), value: prefill.place || "" });
-    const payInput = el("input", { id: "pw", type: "text", placeholder: t("payLabel"), value: prefill.pay || "" });
-    const detailsInput = el("textarea", { id: "pd", placeholder: t("detailsLabel"), value: prefill.details || "" });
-    Object.keys(CAT_ICONS).slice(1).forEach((cat) => catSelect.appendChild(el("option", { value: cat, text: tCat(cat) })));
+
+    const titleInput    = el('input', { id: 'pt', type: 'text', placeholder: t('gigTitleLabel'), value: prefill.title || '' });
+    const catSelect     = el('select', { id: 'pc' });
+    const placeInput    = el('input', { id: 'pp', type: 'text', placeholder: t('locationLabel'), value: prefill.place || '' });
+    const payInput      = el('input', { id: 'pw', type: 'text', placeholder: t('payLabel'), value: prefill.pay || '' });
+    const timeInput     = el('input', { id: 'ptm', type: 'text', placeholder: t('timeLabelPlaceholder'), value: prefill.time || '' });
+    const durationInput = el('input', { id: 'pdur', type: 'text', placeholder: t('durationLabelPlaceholder'), value: prefill.duration || '' });
+    const detailsInput  = el('textarea', { id: 'pd', placeholder: t('detailsLabel'), value: prefill.details || '' });
+
+    Object.keys(CAT_ICONS).slice(1).forEach(cat => catSelect.appendChild(el('option', { value: cat, text: tCat(cat) })));
     if (prefill.cat) catSelect.value = prefill.cat;
     if (!catSelect.value && catSelect.options.length) catSelect.value = catSelect.options[0].value;
+
     const readForm = () => ({
-      title: titleInput.value,
-      cat: catSelect.value,
-      place: placeInput.value,
-      pay: payInput.value,
-      details: detailsInput.value
+      title:    titleInput.value,
+      cat:      catSelect.value,
+      place:    placeInput.value,
+      pay:      payInput.value,
+      time:     timeInput.value,
+      duration: durationInput.value,
+      details:  detailsInput.value,
     });
+
     const spot = prefill.spot || null;
+
     function pickSpot() {
+      // Snapshot before the picker takes over the sheet.
       const snapshot = readForm();
       openLocationPicker({
-        title: t("postPickSpot"),
-        hint: t("mapAreaHint"),
-        confirmLabel: t("postPickSpot"),
-        initial: spot || void 0,
-        onConfirm: (picked) => openPost({ ...snapshot, spot: picked })
+        title: t('postPickSpot'),
+        hint: t('mapAreaHint'),
+        confirmLabel: t('postPickSpot'),
+        initial: spot || undefined,
+        onConfirm: (picked) => openPost({ ...snapshot, spot: picked }),
       });
     }
+
     async function useMyLocation() {
-      toast(t("mapLocating"));
+      toast(t('mapLocating'));
       await requestUserLocation();
       const loc = getUserLocation();
       if (!locationIsKnown(loc)) {
-        toast(t("mapNoGps"));
+        toast(t('mapNoGps'));
         return;
       }
+      // A raw GPS fix has no place name, so look one up for display.
       const label = loc.label || shortLabel(await reverseGeocode(loc.lat, loc.lng));
       openPost({ ...readForm(), spot: { lat: loc.lat, lng: loc.lng, label } });
     }
-    const spotLabel = spot ? shortLabel(spot.label) || `${spot.lat.toFixed(4)}, ${spot.lng.toFixed(4)}` : null;
-    const spotStatus = el("div", {
-      class: "post-spot-status" + (spot ? " set" : ""),
-      text: spot ? t("postSpotSet", { place: spotLabel }) : t("postNeedSpot")
+
+    // Never leave the status line blank: fall back to coordinates when
+    // there is no place name (e.g. a GPS fix that failed to geocode).
+    const spotLabel = spot
+      ? (shortLabel(spot.label) || `${spot.lat.toFixed(4)}, ${spot.lng.toFixed(4)}`)
+      : null;
+
+    const spotStatus = el('div', {
+      class: 'post-spot-status' + (spot ? ' set' : ''),
+      text: spot ? t('postSpotSet', { place: spotLabel }) : t('postNeedSpot'),
     });
-    const publishBtn = el("button", {
-      class: "primary",
-      text: t("publishBtn"),
-      onclick: () => publishGig(publishBtn, readForm, spot)
+
+    const publishBtn = el('button', {
+      class: 'primary', text: t('publishBtn'),
+      onclick: () => publishGig(publishBtn, readForm, spot),
     });
-    const form = el(
-      "div",
-      { class: "form" },
-      el("label", { text: t("gigTitleLabel") }, titleInput),
-      el("label", { text: t("categoryLabel") }, catSelect),
-      el("label", { text: t("payLabel") }, payInput),
-      el("label", { text: t("detailsLabel") }, detailsInput),
-      el(
-        "div",
-        { class: "post-spot" },
-        el("div", { class: "post-spot-head", text: t("locationLabel") }),
+
+    const form = el('div', { class: 'form' },
+      el('label', { text: t('gigTitleLabel') }, titleInput),
+      el('label', { text: t('categoryLabel') }, catSelect),
+      el('label', { text: t('payLabel') }, payInput),
+      el('div', { class: 'form-row' },
+        el('label', { text: t('timeLabel') }, timeInput),
+        el('label', { text: t('durationLabel') }, durationInput)
+      ),
+      el('label', { text: t('detailsLabel') }, detailsInput),
+      el('div', { class: 'post-spot' },
+        el('div', { class: 'post-spot-head', text: t('locationLabel') }),
         spotStatus,
         placeInput,
-        el(
-          "div",
-          { class: "post-spot-btns" },
-          el("button", { class: "pf-upload-btn", type: "button", text: t("postUseMyLocation"), onclick: useMyLocation }),
-          el("button", { class: "pf-upload-btn", type: "button", text: t("postPickSpot"), onclick: pickSpot })
+        el('div', { class: 'post-spot-btns' },
+          el('button', { class: 'pf-upload-btn', type: 'button', text: t('postUseMyLocation'), onclick: useMyLocation }),
+          el('button', { class: 'pf-upload-btn', type: 'button', text: t('postPickSpot'), onclick: pickSpot })
         )
       ),
       publishBtn
     );
-    openModal(el(
-      "div",
-      {},
-      el("h2", { text: t("postTitle") }),
+
+    openModal(el('div', {},
+      el('h2', { text: t('postTitle') }),
       form
     ));
   }
+
   async function publishGig(publishBtn, readForm, spot) {
     const user = getCurrentUser();
     if (!user) {
-      toast("Please sign in to post a gig.");
-      openAuthModal("signin");
+      toast('Please sign in to post a gig.');
+      openAuthModal('signin');
       return;
     }
-    const form = readForm();
-    const title = (form.title || "").trim();
-    if (!title) {
-      toast(t("noTitle"));
-      return;
-    }
+
+    const form  = readForm();
+    const title = (form.title || '').trim();
+    if (!title) { toast(t('noTitle')); return; }
+
+    // The pin the poster chose wins; otherwise use their live GPS fix.
+    // Never a hardcoded city — the gig has to appear where it is.
     const loc = spot || (locationIsKnown() ? getUserLocation() : null);
-    if (!loc || loc.lat == null || loc.lng == null) {
-      toast(t("postNeedSpot"));
-      return;
-    }
+    if (!loc || loc.lat == null || loc.lng == null) { toast(t('postNeedSpot')); return; }
+
     publishBtn.disabled = true;
-    publishBtn.textContent = "Publishing\u2026";
-    let place = (form.place || "").trim();
+    publishBtn.textContent = 'Publishing…';
+
+    let place = (form.place || '').trim();
     if (!place) {
-      place = shortLabel(await reverseGeocode(loc.lat, loc.lng)) || `${loc.lat.toFixed(4)}, ${loc.lng.toFixed(4)}`;
+      place = shortLabel(await reverseGeocode(loc.lat, loc.lng))
+           || `${loc.lat.toFixed(4)}, ${loc.lng.toFixed(4)}`;
     }
-    const { error } = await supabase.from("gigs").insert({
-      poster_id: user.id,
-      category: form.cat,
+
+    const { error } = await supabase.from('gigs').insert({
+      poster_id:     user.id,
+      category:      form.cat,
       title,
       place,
-      time_label: "New gig",
-      duration: "Flexible",
-      pay: (form.pay || "").trim() || "Negotiable",
-      pay_type: "total",
-      people: 1,
-      urgent: false,
-      description: (form.details || "").trim(),
-      location_lat: loc.lat,
-      location_lng: loc.lng
+      time_label:    (form.time || '').trim() || t('timeLabelFallback'),
+      duration:      (form.duration || '').trim() || t('durationLabelFallback'),
+      pay:           (form.pay || '').trim() || 'Negotiable',
+      pay_type:      'total',
+      people:        1,
+      urgent:        false,
+      description:   (form.details || '').trim(),
+      location_lat:  loc.lat,
+      location_lng:  loc.lng,
     });
+
     publishBtn.disabled = false;
-    publishBtn.textContent = t("publishBtn");
+    publishBtn.textContent = t('publishBtn');
+
     if (error) {
-      toast("Could not publish gig: " + error.message);
+      toast('Could not publish gig: ' + error.message);
       return;
     }
+
     closeModal();
     await loadGigs(true);
     renderGigs();
-    if (state.page === "map") refreshMapMarkers();
-    toast(t("gigPosted"));
+    if (state.page === 'map') refreshMapMarkers();
+    toast(t('gigPosted'));
   }
+
 
   // js/profile.js
   /* ============================================================
