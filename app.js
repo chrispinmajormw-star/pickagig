@@ -64,6 +64,8 @@
       mapNear: "Near {place}",
       settingsOpen: "Settings",
       settingsPageSub: "Notifications, location and account",
+      settingsOther: "Other settings",
+      settingsDarkMode: "Dark mode",
       settingsNotifications: "Notifications",
       settingsSmsHint: "Get gig alerts by SMS when data is off",
       settingsLocation: "Location & search radius",
@@ -165,6 +167,8 @@
       mapNear: "Pafupi ndi {place}",
       settingsOpen: "Zokonda",
       settingsPageSub: "Zidziwitso, malo ndi akaunti",
+      settingsOther: "Zina",
+      settingsDarkMode: "Mdima (Dark mode)",
       settingsNotifications: "Zidziwitso",
       settingsSmsHint: "Landirani uthenga wa SMS ngati data ilibe",
       settingsLocation: "Malo ndi mtunda",
@@ -2111,9 +2115,29 @@
     user:      svg('<circle cx="12" cy="8.1" r="3.7"/><path d="M4.8 20.4a7.2 7.2 0 0 1 14.4 0"/>'),
     info:      svg('<circle cx="12" cy="12" r="9"/><line x1="12" y1="11.2" x2="12" y2="16.4"/><line x1="12" y1="7.7" x2="12" y2="7.8"/>'),
     logout:    svg('<path d="M9.6 21H6.2A2.2 2.2 0 0 1 4 18.8V5.2A2.2 2.2 0 0 1 6.2 3h3.4"/><polyline points="16.2 16.4 20.6 12 16.2 7.6"/><line x1="20.6" y1="12" x2="9.8" y2="12"/>'),
+    moon:      svg('<path d="M20.4 14.7A8.5 8.5 0 1 1 9.3 3.6a7 7 0 0 0 11.1 11.1Z"/>'),
     back:      '<svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>',
     chevron:   '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="9.5 5.5 16 12 9.5 18.5"/></svg>',
   };
+
+  // ── Theme (light / dark) ────────────────────────────────────
+  // Persisted locally so it applies instantly on next load; the
+  // inline script in index.html sets the attribute before first
+  // paint so there's no flash of the wrong theme.
+  const THEME_KEY = 'pg_theme';
+
+  function getTheme() {
+    try {
+      const saved = localStorage.getItem(THEME_KEY);
+      if (saved === 'dark' || saved === 'light') return saved;
+    } catch (e) { /* ignore */ }
+    return (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) ? 'dark' : 'light';
+  }
+
+  function setTheme(theme) {
+    document.documentElement.setAttribute('data-theme', theme);
+    try { localStorage.setItem(THEME_KEY, theme); } catch (e) { /* ignore */ }
+  }
 
   async function fetchProfileRow(userId) {
     const { data, error } = await supabase
@@ -2210,12 +2234,32 @@
   function group(label, ...rows) {
     const list = rows.filter(Boolean);
     if (!list.length) return null;
-    return el('details', { class: 'set-group' },
-      el('summary', { class: 'set-summary' },
-        el('span', { class: 'set-label', text: label }),
-        el('span', { class: 'set-summary-chev', html: ICON.chevron })
-      ),
+    return el('section', { class: 'set-group' },
+      label ? el('h2', { class: 'set-label', text: label }) : null,
       el('div', { class: 'set-list' }, ...list)
+    );
+  }
+
+  function profileSummaryRow(user, profile) {
+    const initial = (profile?.full_name || user.email || '?').charAt(0).toUpperCase();
+    const avatar = profile?.avatar_url
+      ? el('div', { class: 'set-profile-avatar' }, el('img', { src: profile.avatar_url, alt: '' }))
+      : el('div', { class: 'set-profile-avatar', text: initial });
+
+    return el('section', { class: 'set-group' },
+      el('div', { class: 'set-list' },
+        el('button', {
+          class: 'row row-tap set-profile-row', type: 'button',
+          onclick: () => navigate('profile'),
+        },
+          avatar,
+          el('span', { class: 'row-text' },
+            el('strong', { text: profile?.full_name || t('settingsAccount') }),
+            el('span', { class: 'row-hint', text: profile?.headline || user.email || '' })
+          ),
+          chevron()
+        )
+      )
     );
   }
 
@@ -2296,8 +2340,8 @@
 
     const home = getHomeLocation();
 
-    // ── Location & radius ──────────────────────────────────────
-    const locationGroup = group(t('settingsLocation'),
+    // ── Other settings (location, notifications, appearance) ───
+    const otherSettingsGroup = group(t('settingsOther') || 'Other settings',
       actionRow({
         icon: 'pin', tone: 't-orange',
         title: t('settingsHomeArea'),
@@ -2322,12 +2366,8 @@
           getRadiusKm(),
           (km) => { setRadiusKm(km); onLocationPrefsChanged(); }
         )
-      )
-    );
-
-    // ── Notifications ──────────────────────────────────────────
-    const notificationsGroup = group(t('settingsNotifications'),
-      user && profile
+      ),
+      (user && profile)
         ? toggleRow({
             icon: 'bell', tone: 't-orange',
             title: t('smsAlertsLbl'),
@@ -2335,40 +2375,43 @@
             checked: profile.sms_alerts,
             onChange: (on) => saveSetting(user.id, { sms_alerts: on }),
           })
-        : signInBlock(t('settingsSignInHint'))
+        : null,
+      toggleRow({
+        icon: 'moon', tone: 't-navy',
+        title: t('settingsDarkMode') || 'Dark mode',
+        checked: getTheme() === 'dark',
+        onChange: (on) => setTheme(on ? 'dark' : 'light'),
+      })
     );
 
-    // ── Language ───────────────────────────────────────────────
-    const languageGroup = group(t('settingsLanguage'),
-      stackedRow(null, segmented(
-        [{ value: 'EN', label: 'English' }, { value: 'NY', label: 'Chichewa' }],
-        lang,
-        setLang
-      ))
-    );
+    const notSignedInGroup = !user
+      ? group(t('settingsOther') || 'Other settings', signInBlock(t('settingsSignInHint')))
+      : null;
 
-    // ── Data (needs a profile row) ─────────────────────────────
-    const dataGroup = user && profile
-      ? group(t('settingsData'),
-          toggleRow({
+    // ── More (language, data, account, about) ───────────────────
+    const moreGroup = group(null,
+      stackedRow(
+        [ico('globe', 't-blue'), rowText(t('settingsLanguage'))],
+        segmented(
+          [{ value: 'EN', label: 'English' }, { value: 'NY', label: 'Chichewa' }],
+          lang,
+          setLang
+        )
+      ),
+      (user && profile)
+        ? toggleRow({
             icon: 'data', tone: 't-green',
             title: t('dataSaverLbl'),
             hint: t('settingsDataSaverHint'),
             checked: profile.data_saver,
             onChange: (on) => saveSetting(user.id, { data_saver: on }),
           })
-        )
-      : null;
-
-    // ── Account ────────────────────────────────────────────────
-    const accountGroup = group(t('settingsAccount'),
-      user
-        ? staticRow({
-            icon: 'user', tone: 't-navy',
-            title: profile?.full_name || t('settingsAccount'),
-            value: user.email || '',
-          })
-        : signInBlock(t('settingsSignInHint')),
+        : null,
+      staticRow({
+        icon: 'info', tone: 't-navy',
+        title: 'PickAGig',
+        value: t('settingsVersion') + ' ' + APP_VERSION,
+      }),
       user
         ? dangerRow({
             icon: 'logout', title: t('settingsSignOut'),
@@ -2377,23 +2420,13 @@
         : null
     );
 
-    const aboutGroup = group(t('settingsAbout'),
-      staticRow({
-        icon: 'info', tone: 't-navy',
-        title: 'PickAGig',
-        value: t('settingsVersion') + ' ' + APP_VERSION,
-      })
-    );
-
     container.appendChild(topbar);
     container.appendChild(el('div', { class: 'set-body' },
       el('p', { class: 'set-lead', text: t('settingsPageSub') }),
-      locationGroup,
-      notificationsGroup,
-      languageGroup,
-      dataGroup,
-      accountGroup,
-      aboutGroup
+      (user && profile) ? profileSummaryRow(user, profile) : null,
+      otherSettingsGroup,
+      notSignedInGroup,
+      moreGroup
     ));
   }
 
