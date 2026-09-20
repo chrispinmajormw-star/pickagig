@@ -272,6 +272,18 @@ async function openCompleteGigModal(gig) {
   ));
 }
 
+async function cancelGig(gigId) {
+  const { error } = await supabase
+    .from('gigs')
+    .update({ status: 'cancelled' })
+    .eq('id', gigId);
+  if (error) { toast('Could not cancel gig: ' + error.message); return false; }
+  await loadGigs(true);
+  renderGigs();
+  if (state.page === 'map') refreshMapMarkers();
+  return true;
+}
+
 export function openGigDetail(gig) {
   const user = getCurrentUser();
   const isOwner = user && gig.posterId === user.id;
@@ -279,8 +291,17 @@ export function openGigDetail(gig) {
   const loc = getUserLocation();
   const km = distanceKm(loc.lat, loc.lng, gig.lat, gig.lng);
 
-  const actionBtn = isOwner
-    ? el('button', { class: 'detail-apply', text: 'Mark gig as complete', onclick: () => openCompleteGigModal(gig) })
+  const ownerActions = isOwner
+    ? el('div', { class: 'detail-owner-actions' },
+        el('button', { class: 'detail-apply', text: t('markCompleteBtn'), onclick: () => openCompleteGigModal(gig) }),
+        el('button', {
+          class: 'detail-cancel', type: 'button', text: t('cancelGigBtn'),
+          onclick: () => {
+            if (!confirm(t('cancelGigConfirm'))) return;
+            cancelGig(gig.id).then(ok => { if (ok) { closeModal(); toast(t('gigCancelled')); } });
+          }
+        })
+      )
     : el('button', {
         class: 'detail-apply' + (isApplied ? ' applied' : ''),
         text: isApplied ? t('applicationSent') : t('pickThisGig'),
@@ -309,7 +330,7 @@ export function openGigDetail(gig) {
       document.createTextNode('👥 ' + gig.people + ' ' + (gig.people === 1 ? t('peopleSingular') : t('peoplePlural')) + ' · ' + gig.applied + ' ' + t('applied')), el('br'),
       document.createTextNode('👤 Posted by ' + gig.posterName)
     ),
-    actionBtn
+    ownerActions
   ));
 }
 
@@ -371,22 +392,26 @@ export function openPost(prefill = {}) {
     return;
   }
 
-  const titleInput   = el('input', { id: 'pt', type: 'text', placeholder: t('gigTitleLabel'), value: prefill.title || '' });
-  const catSelect    = el('select', { id: 'pc' });
-  const placeInput   = el('input', { id: 'pp', type: 'text', placeholder: t('locationLabel'), value: prefill.place || '' });
-  const payInput     = el('input', { id: 'pw', type: 'text', placeholder: t('payLabel'), value: prefill.pay || '' });
-  const detailsInput = el('textarea', { id: 'pd', placeholder: t('detailsLabel'), value: prefill.details || '' });
+  const titleInput    = el('input', { id: 'pt', type: 'text', placeholder: t('gigTitleLabel'), value: prefill.title || '' });
+  const catSelect     = el('select', { id: 'pc' });
+  const placeInput    = el('input', { id: 'pp', type: 'text', placeholder: t('locationLabel'), value: prefill.place || '' });
+  const payInput      = el('input', { id: 'pw', type: 'text', placeholder: t('payLabel'), value: prefill.pay || '' });
+  const timeInput     = el('input', { id: 'ptm', type: 'text', placeholder: t('timeLabelPlaceholder'), value: prefill.time || '' });
+  const durationInput = el('input', { id: 'pdur', type: 'text', placeholder: t('durationLabelPlaceholder'), value: prefill.duration || '' });
+  const detailsInput  = el('textarea', { id: 'pd', placeholder: t('detailsLabel'), value: prefill.details || '' });
 
   Object.keys(CAT_ICONS).slice(1).forEach(cat => catSelect.appendChild(el('option', { value: cat, text: tCat(cat) })));
   if (prefill.cat) catSelect.value = prefill.cat;
   if (!catSelect.value && catSelect.options.length) catSelect.value = catSelect.options[0].value;
 
   const readForm = () => ({
-    title:   titleInput.value,
-    cat:     catSelect.value,
-    place:   placeInput.value,
-    pay:     payInput.value,
-    details: detailsInput.value,
+    title:    titleInput.value,
+    cat:      catSelect.value,
+    place:    placeInput.value,
+    pay:      payInput.value,
+    time:     timeInput.value,
+    duration: durationInput.value,
+    details:  detailsInput.value,
   });
 
   const spot = prefill.spot || null;
@@ -436,6 +461,10 @@ export function openPost(prefill = {}) {
     el('label', { text: t('gigTitleLabel') }, titleInput),
     el('label', { text: t('categoryLabel') }, catSelect),
     el('label', { text: t('payLabel') }, payInput),
+    el('div', { class: 'form-row' },
+      el('label', { text: t('timeLabel') }, timeInput),
+      el('label', { text: t('durationLabel') }, durationInput)
+    ),
     el('label', { text: t('detailsLabel') }, detailsInput),
     el('div', { class: 'post-spot' },
       el('div', { class: 'post-spot-head', text: t('locationLabel') }),
@@ -486,8 +515,8 @@ async function publishGig(publishBtn, readForm, spot) {
     category:      form.cat,
     title,
     place,
-    time_label:    'New gig',
-    duration:      'Flexible',
+    time_label:    (form.time || '').trim() || t('timeLabelFallback'),
+    duration:      (form.duration || '').trim() || t('durationLabelFallback'),
     pay:           (form.pay || '').trim() || 'Negotiable',
     pay_type:      'total',
     people:        1,
