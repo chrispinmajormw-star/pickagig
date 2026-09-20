@@ -1100,18 +1100,8 @@ button, input, select, textarea { font: inherit; }
 .set-body { display: flex; flex-direction: column; gap: 20px; padding: 14px 16px 110px; }
 .set-lead { margin: 0; padding-left: 3px; font-size: 12.5px; line-height: 1.5; color: var(--muted); }
 
-/* Group: an uppercase label above one rounded container of rows.
-   Rendered as a <details> so the whole group collapses/expands. */
+/* Group: an uppercase label above one rounded container of rows. */
 .set-group { display: flex; flex-direction: column; gap: 7px; }
-.set-summary {
-  display: flex; align-items: center; justify-content: space-between;
-  cursor: pointer; list-style: none; padding: 0 4px 8px; user-select: none;
-}
-.set-summary::-webkit-details-marker { display: none; }
-.set-summary::marker { content: ''; }
-.set-summary-chev { display: grid; place-items: center; flex-shrink: 0; color: rgba(26,37,80,0.28); transition: transform var(--transition); }
-.set-group[open] .set-summary-chev { transform: rotate(90deg); }
-.set-group:not([open]) .set-list { display: none; }
 .set-label {
   margin: 0; padding-left: 4px;
   font-size: 11px; font-weight: 800; letter-spacing: 0.09em;
