@@ -876,28 +876,98 @@ button, input, select, textarea { font: inherit; }
 
 /* ── New Profile Design ────────────────────────────────────── */
 .pf-container { display: flex; flex-direction: column; gap: 14px; margin: 0; padding: 0 0 100px 0; }
-.pf-header { background: linear-gradient(150deg, var(--grad-a) 0%, var(--grad-b) 55%, var(--grad-c) 100%); color: white; padding: 24px 22px 20px; border-radius: 0 0 24px 24px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); margin-bottom: 6px; }
-.pf-header-top { display: flex; gap: 14px; align-items: center; margin-bottom: 18px; }
-.pf-avatar { width: 64px; height: 64px; border-radius: 50%; background: var(--orange); font-size: 24px; font-weight: 800; display: grid; place-items: center; flex-shrink: 0; box-shadow: 0 4px 12px rgba(0,0,0,0.2); }
-.pf-info { flex: 1; }
-.pf-name-row { display: flex; align-items: center; gap: 6px; }
-.pf-name { font-size: 18px; font-weight: 700; letter-spacing: -0.3px; }
-.pf-verified { display: flex; align-items: center; }
-.pf-headline { font-size: 12px; opacity: 0.85; margin: 2px 0 6px; }
-.pf-meta { display: flex; gap: 12px; font-size: 12px; opacity: 0.85; }
-.pf-stats { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; text-align: center; }
-.pf-stat { background: rgba(255,255,255,0.15); border-radius: 12px; padding: 10px 4px; }
-.pf-stat-val { font-size: 14px; font-weight: 800; }
-.pf-stat-lbl { font-size: 10px; opacity: 0.85; margin-top: 2px; }
 
-.pf-card { background: var(--card); border: 1px solid var(--line); border-radius: 18px; padding: 16px; margin: 0 16px; box-shadow: var(--shadow-card); }
+/* Hero: plain (no gradient) — avatar first, details underneath,
+   matching the rest of the app's cream page background. */
+.pf-topbar { display: flex; justify-content: space-between; align-items: center; padding: 18px 16px 4px; }
+.pf-topbar h1 { font-size: 20px; font-weight: 800; letter-spacing: -0.4px; margin: 0; color: var(--navy); }
+
+.pf-hero { display: flex; flex-direction: column; align-items: center; text-align: center; padding: 8px 20px 4px; }
+
+.pf-avatar-wrap { position: relative; width: 96px; height: 96px; margin-bottom: 14px; }
+.pf-avatar {
+  width: 96px; height: 96px; border-radius: 50%; overflow: hidden;
+  background: linear-gradient(135deg, var(--grad-a), var(--grad-b));
+  color: white; display: grid; place-items: center;
+  font-size: 34px; font-weight: 800;
+  box-shadow: 0 4px 16px rgba(26,37,80,0.22);
+}
+.pf-avatar img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.pf-avatar-btn {
+  position: absolute; right: -2px; bottom: -2px; width: 32px; height: 32px;
+  border-radius: 50%; border: 3px solid var(--bg);
+  background: var(--orange); color: white; padding: 0;
+  display: grid; place-items: center; font-size: 14px; cursor: pointer;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.18); transition: var(--transition);
+}
+.pf-avatar-btn:hover { background: var(--orange-dk); }
+.pf-avatar-btn:disabled { opacity: 0.6; cursor: default; }
+
+.pf-name { font-size: 21px; font-weight: 800; letter-spacing: -0.4px; color: var(--navy); margin: 0; }
+.pf-headline { font-size: 13.5px; color: var(--muted); margin: 4px 0 0; }
+.pf-hero-meta { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; margin-top: 10px; }
+.pf-chip {
+  display: inline-flex; align-items: center; gap: 5px;
+  background: var(--orange-bg); color: var(--orange-dk);
+  border-radius: var(--radius-pill); padding: 4px 11px;
+  font-size: 12px; font-weight: 700;
+}
+.pf-chip.muted { background: rgba(26,37,80,0.06); color: var(--muted); font-weight: 600; }
+.pf-chip.gold  { background: rgba(217,95,5,0.14); color: var(--orange-dk); }
+
+.pf-edit-btn {
+  margin-top: 16px; background: transparent; color: var(--orange-dk);
+  border: 1.6px solid var(--orange); border-radius: var(--radius-pill);
+  padding: 9px 22px; font-size: 13.5px; font-weight: 700;
+  cursor: pointer; transition: var(--transition);
+}
+.pf-edit-btn:hover { background: var(--orange-bg); }
+
+/* Stats: flat cards under the hero, same visual weight as gig cards. */
+.pf-stats { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; padding: 18px 16px 0; }
+.pf-stat {
+  background: var(--card); border: 1px solid var(--line); border-radius: 14px;
+  padding: 12px 4px; text-align: center; box-shadow: var(--shadow-card);
+}
+.pf-stat-val { font-size: 15px; font-weight: 800; color: var(--navy); }
+.pf-stat-lbl { font-size: 10.5px; color: var(--muted); margin-top: 3px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; }
+
+.pf-card { background: var(--card); border: 1px solid var(--line); border-radius: var(--radius-card); padding: 16px; margin: 0 16px; box-shadow: var(--shadow-card); }
 .pf-card h3 { margin: 0 0 12px; font-size: 16px; font-weight: 700; color: var(--navy); }
+.pf-empty { color: var(--muted); font-size: 13px; margin: 0; }
+
+/* Collapsible cards: header always visible & tappable, body toggles. */
+.pf-card-acc { padding: 0; }
+.pf-card-summary {
+  display: flex; align-items: center; justify-content: space-between; gap: 8px;
+  cursor: pointer; list-style: none; padding: 16px; user-select: none;
+}
+.pf-card-summary::-webkit-details-marker { display: none; }
+.pf-card-summary::marker { content: ''; }
+.pf-card-summary h3 { margin: 0; }
+.pf-card-chev { display: grid; place-items: center; flex-shrink: 0; color: rgba(26,37,80,0.28); transition: transform var(--transition); }
+.pf-card-acc[open] .pf-card-chev { transform: rotate(90deg); }
+.pf-card-acc-body { padding: 0 16px 16px; }
+
+/* Edit-mode fields — reuses the app's existing .form + .primary look. */
+.pf-edit-actions { display: flex; gap: 10px; margin-top: 4px; }
+.pf-edit-actions .primary { flex: 1; }
+.pf-cancel-btn {
+  flex: 1; padding: 13px 14px; background: var(--bg); border: 1.5px solid var(--line);
+  border-radius: var(--radius-btn); font-size: 14px; font-weight: 700;
+  color: var(--navy); cursor: pointer; transition: var(--transition);
+}
+.pf-cancel-btn:hover { border-color: var(--muted); }
 
 .pf-skills-list { display: flex; flex-wrap: wrap; gap: 8px; }
 .pf-skill-pill { border: 1px solid var(--line); padding: 6px 12px; border-radius: var(--radius-pill); font-size: 12px; font-weight: 600; cursor: pointer; transition: var(--transition); }
 .pf-skill-pill.active { background: var(--orange-bg); border-color: var(--orange); color: var(--orange-dk); }
 
 .pf-cred-list { list-style: none; padding: 0; margin: 0 0 12px; display: flex; flex-direction: column; gap: 8px; font-size: 14px; }
+.pf-cred-row { display: flex; justify-content: space-between; align-items: center; gap: 10px; }
+.pf-cred-link { display: flex; align-items: center; gap: 7px; font-size: 14px; color: var(--navy); font-weight: 600; cursor: pointer; background: none; border: 0; padding: 0; text-align: left; }
+.pf-cred-link:hover { color: var(--orange-dk); }
+.pf-cred-del { border: 0; background: none; color: #dc2626; cursor: pointer; font-size: 16px; line-height: 1; padding: 4px; }
 .pf-upload-btn { width: 100%; border: 1px dashed var(--line); background: transparent; padding: 10px; border-radius: 12px; color: var(--muted); font-size: 12px; font-weight: 700; cursor: pointer; transition: var(--transition); }
 .pf-upload-btn:hover { border-color: var(--orange); color: var(--orange); }
 
@@ -908,12 +978,19 @@ button, input, select, textarea { font: inherit; }
 .pf-hist-right { text-align: right; }
 .pf-hist-pay { font-size: 14px; font-weight: 700; color: var(--navy); }
 .pf-hist-rating { font-size: 12px; color: var(--orange); font-weight: 600; }
+.pf-rate-btn { background: var(--orange); color: white; border: 0; border-radius: 10px; padding: 8px 16px; font-size: 13px; font-weight: 700; cursor: pointer; transition: var(--transition); }
+.pf-rate-btn:hover { background: var(--orange-dk); }
 
 .pf-premium { background: var(--navy); color: white; border-radius: 18px; padding: 16px; margin: 0 16px; box-shadow: 0 8px 24px rgba(26,37,80,0.15); }
 .pf-prem-title { font-size: 16px; font-weight: 800; display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
 .pf-prem-list { list-style: none; padding: 0; margin: 0 0 14px; font-size: 12px; opacity: 0.95; line-height: 1.6; }
 .pf-prem-btn { width: 100%; background: white; color: var(--navy); border: 0; padding: 12px; border-radius: 12px; font-weight: 800; cursor: pointer; transition: var(--transition); }
 .pf-prem-btn:hover { background: #f0ece8; }
+.pf-prem-input {
+  width: 100%; box-sizing: border-box; padding: 11px 13px; border-radius: 10px;
+  border: 1px solid rgba(255,255,255,0.3); background: rgba(255,255,255,0.95);
+  font-size: 14px; color: var(--navy); outline: none; margin-bottom: 10px;
+}
 
 .pf-lb-list { display: flex; flex-direction: column; gap: 10px; }
 .pf-lb-item { display: flex; align-items: center; gap: 12px; }
@@ -929,7 +1006,16 @@ button, input, select, textarea { font: inherit; }
 .pf-ref-btn { background: transparent; border: 0; color: var(--orange); font-weight: 700; cursor: pointer; font-size: 12px; }
 
 /* Gear button that opens the Settings page from the profile header. */
-.pf-gear { display: inline-grid; place-items: center; width: 34px; height: 34px; padding: 0; }
+.pf-gear { display: inline-grid; place-items: center; width: 34px; height: 34px; padding: 0; border-radius: 50%; background: rgba(26,37,80,0.07); color: var(--navy); border: 0; cursor: pointer; transition: var(--transition); }
+.pf-gear:hover { background: rgba(26,37,80,0.13); }
+
+.pf-skeleton {
+  height: 220px; border-radius: 20px; margin: 8px 16px 0;
+  background: linear-gradient(90deg, var(--line) 25%, #f6f2ec 50%, var(--line) 75%);
+  background-size: 200% 100%; animation: pfShimmer 1.2s linear infinite;
+}
+@keyframes pfShimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+
 
 /* ══════════════════════════════════════════════════════════
    SETTINGS PAGE — grouped inset list
@@ -959,8 +1045,18 @@ button, input, select, textarea { font: inherit; }
 .set-body { display: flex; flex-direction: column; gap: 20px; padding: 14px 16px 110px; }
 .set-lead { margin: 0; padding-left: 3px; font-size: 12.5px; line-height: 1.5; color: var(--muted); }
 
-/* Group: an uppercase label above one rounded container of rows. */
+/* Group: an uppercase label above one rounded container of rows.
+   Rendered as a <details> so the whole group collapses/expands. */
 .set-group { display: flex; flex-direction: column; gap: 7px; }
+.set-summary {
+  display: flex; align-items: center; justify-content: space-between;
+  cursor: pointer; list-style: none; padding: 0 4px 8px; user-select: none;
+}
+.set-summary::-webkit-details-marker { display: none; }
+.set-summary::marker { content: ''; }
+.set-summary-chev { display: grid; place-items: center; flex-shrink: 0; color: rgba(26,37,80,0.28); transition: transform var(--transition); }
+.set-group[open] .set-summary-chev { transform: rotate(90deg); }
+.set-group:not([open]) .set-list { display: none; }
 .set-label {
   margin: 0; padding-left: 4px;
   font-size: 11px; font-weight: 800; letter-spacing: 0.09em;
@@ -1148,4 +1244,3 @@ button, input, select, textarea { font: inherit; }
 .post-spot-status.set { color: var(--orange-dk); background: var(--orange-bg); border-color: rgba(249,115,22,0.35); border-style: solid; }
 .post-spot-btns { display: flex; gap: 8px; flex-wrap: wrap; }
 .post-spot-btns .pf-upload-btn { flex: 1; min-width: 130px; margin: 0; }
-
