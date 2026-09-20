@@ -3,8 +3,8 @@
    Opens with a hero: profile picture first, details underneath.
    Editing is hidden behind an "Edit profile" button so the page
    greets the user with information, not empty form fields.
-   All styles are injected by injectProfileStyles() below, so no
-   changes to styles.css are required.
+   All layout classes (.pf-*) live in styles.css, in the app's
+   own brand colours — nothing is styled at runtime here.
    ============================================================ */
 
 import { el, toast } from './ui-helpers.js';
@@ -14,134 +14,6 @@ import { navigate } from './main.js';
 import { supabase } from './supabaseClient.js';
 import { getCurrentUser, openAuthModal } from './auth.js';
 import { openRatingModal } from './gigs.js';
-
-/* ── Styles ──────────────────────────────────────────────── */
-
-const PROFILE_CSS = `
-.pf-container{max-width:640px;margin:0 auto;padding:0 14px 90px;}
-.pf-topbar{display:flex;justify-content:space-between;align-items:center;padding:14px 0 10px;}
-.pf-topbar h1{font-size:20px;font-weight:800;margin:0;letter-spacing:-.02em;}
-
-/* Hero */
-.pf-hero{position:relative;border-radius:20px;padding:26px 18px 20px;text-align:center;color:#fff;overflow:hidden;
-  background:linear-gradient(140deg,#1d4ed8 0%,#4f46e5 55%,#7c3aed 100%);
-  box-shadow:0 10px 26px rgba(37,58,140,.24);}
-.pf-hero::after{content:'';position:absolute;top:-70px;right:-60px;width:190px;height:190px;border-radius:50%;
-  background:rgba(255,255,255,.10);pointer-events:none;}
-.pf-avatar-wrap{position:relative;width:104px;height:104px;margin:0 auto 14px;}
-.pf-avatar{width:104px;height:104px;border-radius:50%;object-fit:cover;display:flex;align-items:center;justify-content:center;
-  font-size:40px;font-weight:800;color:#3730a3;background:#fff;border:4px solid rgba(255,255,255,.55);
-  box-shadow:0 6px 18px rgba(0,0,0,.22);overflow:hidden;}
-.pf-avatar-btn{position:absolute;right:-2px;bottom:-2px;width:34px;height:34px;border-radius:50%;border:3px solid #fff;
-  background:#111827;color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:15px;padding:0;
-  box-shadow:0 3px 8px rgba(0,0,0,.28);}
-.pf-avatar-btn:disabled{opacity:.6;cursor:default;}
-.pf-name{font-size:23px;font-weight:800;margin:0;line-height:1.2;letter-spacing:-.02em;word-break:break-word;}
-.pf-headline{font-size:14px;opacity:.92;margin:5px 0 0;}
-.pf-meta{display:flex;flex-wrap:wrap;justify-content:center;gap:8px;margin-top:12px;}
-.pf-chip{display:inline-flex;align-items:center;gap:5px;background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.26);
-  border-radius:999px;padding:5px 11px;font-size:12.5px;font-weight:600;}
-.pf-chip.muted{opacity:.65;font-weight:500;}
-.pf-chip.gold{background:#fbbf24;border-color:#fbbf24;color:#3f2a00;}
-.pf-edit-btn{margin-top:16px;background:#fff;color:#3730a3;border:0;border-radius:999px;padding:10px 24px;
-  font-size:14px;font-weight:700;cursor:pointer;box-shadow:0 3px 10px rgba(0,0,0,.16);}
-
-/* Stats */
-.pf-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:-22px;position:relative;z-index:2;padding:0 6px;}
-.pf-stat{background:#fff;border-radius:14px;padding:13px 6px;text-align:center;box-shadow:0 4px 14px rgba(17,24,39,.09);}
-.pf-stat-val{font-size:17px;font-weight:800;color:#111827;}
-.pf-stat-lbl{font-size:11px;color:#6b7280;margin-top:3px;font-weight:600;text-transform:uppercase;letter-spacing:.04em;}
-
-/* Cards */
-.pf-card{background:#fff;border:1px solid #eef0f4;border-radius:16px;padding:16px;margin-top:14px;
-  box-shadow:0 2px 10px rgba(17,24,39,.05);}
-.pf-card h3{margin:0 0 12px;font-size:15px;font-weight:800;color:#111827;display:flex;align-items:center;gap:8px;}
-.pf-card-acc{padding:0;cursor:default;}
-.pf-card-summary{display:flex;align-items:center;justify-content:space-between;gap:8px;cursor:pointer;
-  list-style:none;padding:16px;user-select:none;}
-.pf-card-summary::-webkit-details-marker{display:none;}
-.pf-card-summary::marker{content:'';}
-.pf-card-summary h3{margin:0;}
-.pf-card-chev{display:inline-flex;color:#9ca3af;transition:transform .18s ease;flex:0 0 auto;}
-.pf-card-acc[open] .pf-card-chev{transform:rotate(90deg);}
-.pf-card-acc-body{padding:0 16px 16px;}
-.pf-empty{color:#9ca3af;font-size:13px;margin:0;}
-
-/* Edit form */
-.pf-field{display:block;margin-bottom:13px;}
-.pf-field>span{display:block;font-size:12px;font-weight:700;color:#4b5563;margin-bottom:5px;}
-.pf-input{display:block;width:100%;box-sizing:border-box;padding:11px 13px;border-radius:11px;border:1px solid #dfe3ea;
-  font-size:15px;background:#fafbfc;color:#111827;outline:none;transition:border-color .15s,background .15s;}
-.pf-input:focus{border-color:#4f46e5;background:#fff;}
-.pf-btn-row{display:flex;gap:10px;margin-top:4px;}
-.pf-btn-row>button{flex:1;border-radius:11px;padding:11px;font-size:14px;font-weight:700;cursor:pointer;border:1px solid transparent;}
-.pf-save{background:#4f46e5;color:#fff;}
-.pf-save:disabled{opacity:.6;cursor:default;}
-.pf-cancel{background:#fff;color:#4b5563;border-color:#dfe3ea;}
-
-/* Skills */
-.pf-skills-list{display:flex;flex-wrap:wrap;gap:8px;}
-.pf-skill-pill{border:1px solid #e3e6ec;background:#f7f8fa;color:#4b5563;border-radius:999px;padding:8px 13px;
-  font-size:13px;font-weight:600;cursor:pointer;user-select:none;transition:.15s;}
-.pf-skill-pill.active{background:#4f46e5;border-color:#4f46e5;color:#fff;}
-
-/* Lists */
-.pf-row{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:11px 0;border-bottom:1px solid #f1f2f5;}
-.pf-row:last-child{border-bottom:0;}
-.pf-hist-item{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:11px 0;border-bottom:1px solid #f1f2f5;}
-.pf-hist-item:last-child{border-bottom:0;}
-.pf-hist-title{font-size:14px;font-weight:700;color:#111827;}
-.pf-hist-when{font-size:12px;color:#9ca3af;margin-top:2px;}
-.pf-hist-right{text-align:right;}
-.pf-hist-pay{font-size:14px;font-weight:800;color:#059669;}
-.pf-hist-rating{font-size:12px;color:#9ca3af;margin-top:2px;}
-.pf-cred-list{list-style:none;padding:0;margin:0;}
-.pf-cred-link{display:flex;align-items:center;gap:7px;font-size:14px;color:#1d4ed8;cursor:pointer;font-weight:600;
-  background:none;border:0;padding:0;text-align:left;}
-.pf-cred-del{border:0;background:none;color:#dc2626;cursor:pointer;font-size:16px;line-height:1;padding:4px;}
-.pf-upload-btn{width:100%;background:#111827;color:#fff;border:0;border-radius:11px;padding:11px;font-size:14px;
-  font-weight:700;cursor:pointer;}
-.pf-upload-btn:disabled{opacity:.6;cursor:default;}
-.pf-rate-btn{background:#4f46e5;color:#fff;border:0;border-radius:10px;padding:8px 16px;font-size:13px;font-weight:700;cursor:pointer;}
-
-/* Leaderboard */
-.pf-lb-item{display:flex;align-items:center;gap:11px;padding:9px 0;border-bottom:1px solid #f1f2f5;}
-.pf-lb-item:last-child{border-bottom:0;}
-.pf-lb-rank{width:26px;height:26px;border-radius:8px;background:#f1f2f5;color:#6b7280;font-size:12px;font-weight:800;
-  display:flex;align-items:center;justify-content:center;flex:0 0 26px;}
-.pf-lb-rank.top{background:#fbbf24;color:#3f2a00;}
-.pf-lb-name{flex:1;font-size:14px;font-weight:600;color:#111827;}
-.pf-lb-meta{font-size:12px;color:#9ca3af;}
-.pf-lb-footer{margin-top:10px;font-size:12px;color:#9ca3af;text-align:center;}
-
-/* Premium */
-.pf-premium{border-radius:16px;padding:18px;margin-top:14px;color:#fff;
-  background:linear-gradient(135deg,#111827 0%,#312e81 100%);box-shadow:0 6px 18px rgba(17,24,39,.18);}
-.pf-prem-title{font-size:16px;font-weight:800;}
-.pf-prem-list{list-style:none;padding:0;margin:10px 0 0;font-size:13px;line-height:1.85;opacity:.93;}
-.pf-prem-btn{width:100%;margin-top:10px;background:#fbbf24;color:#3f2a00;border:0;border-radius:11px;padding:12px;
-  font-size:14px;font-weight:800;cursor:pointer;}
-
-/* Referrals */
-.pf-ref-p{font-size:13px;color:#4b5563;margin:0 0 11px;line-height:1.5;}
-.pf-ref-box{display:flex;align-items:center;gap:10px;background:#f7f8fa;border:1px dashed #cbd2dd;border-radius:12px;padding:10px 12px;}
-.pf-ref-code{flex:1;font-family:ui-monospace,Menlo,monospace;font-size:15px;font-weight:800;letter-spacing:.06em;color:#111827;}
-.pf-ref-btn{background:#4f46e5;color:#fff;border:0;border-radius:9px;padding:8px 14px;font-size:13px;font-weight:700;cursor:pointer;}
-
-.pf-gear{background:#fff;border:1px solid #e3e6ec;border-radius:50%;width:38px;height:38px;display:flex;
-  align-items:center;justify-content:center;color:#4b5563;cursor:pointer;}
-.pf-skeleton{height:200px;border-radius:20px;margin-top:8px;background:linear-gradient(90deg,#eef0f4 25%,#f6f7f9 50%,#eef0f4 75%);
-  background-size:200% 100%;animation:pfShimmer 1.2s linear infinite;}
-@keyframes pfShimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
-`;
-
-function injectProfileStyles() {
-  if (document.getElementById('pf-styles')) return;
-  const style = document.createElement('style');
-  style.id = 'pf-styles';
-  style.textContent = PROFILE_CSS;
-  document.head.appendChild(style);
-}
 
 /* ── Data helpers (unchanged behaviour) ──────────────────── */
 
@@ -276,7 +148,7 @@ function buildAvatar(user, profile) {
   const initial = (profile.full_name || user.email || '?').charAt(0).toUpperCase();
 
   const avatar = profile.avatar_url
-    ? el('img', { class: 'pf-avatar', src: profile.avatar_url, alt: profile.full_name || 'Profile picture' })
+    ? el('div', { class: 'pf-avatar' }, el('img', { src: profile.avatar_url, alt: profile.full_name || 'Profile picture' }))
     : el('div', { class: 'pf-avatar', text: initial });
 
   const fileInput = el('input', {
@@ -330,9 +202,9 @@ function buildHero(user, profile, onEdit) {
   return el('div', { class: 'pf-hero' },
     buildAvatar(user, profile),
     el('h2', { class: 'pf-name', text: profile.full_name || 'Add your name' }),
-    el('p', { class: 'pf-headline', text: profile.headline || 'Add a headline, e.g. Professional painter' }),
-    el('div', { class: 'pf-meta' }, ...chips),
-    el('button', { class: 'pf-edit-btn', type: 'button', text: '✎  Edit profile', onclick: onEdit })
+    el('p', { class: 'pf-headline', text: profile.headline || user.email || 'Add a headline, e.g. Professional painter' }),
+    el('div', { class: 'pf-hero-meta' }, ...chips),
+    el('button', { class: 'pf-edit-btn', type: 'button', text: 'Edit profile', onclick: onEdit })
   );
 }
 
@@ -353,11 +225,12 @@ function buildStats(profile) {
 const CHEVRON_SVG = '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="9.5 5.5 16 12 9.5 18.5"/></svg>';
 
 // Collapsible variant of a .pf-card: header (with h3) is always
-// visible and tappable, body opens/closes on click.
-function collapsibleCard(titleHtml, ...bodyChildren) {
+// visible and tappable, body opens/closes on click — mirrors the
+// same accordion pattern used on the Settings page.
+function collapsibleCard(titleText, ...bodyChildren) {
   return el('details', { class: 'pf-card pf-card-acc' },
     el('summary', { class: 'pf-card-summary' },
-      el('h3', { text: titleHtml }),
+      el('h3', { text: titleText }),
       el('span', { class: 'pf-card-chev', html: CHEVRON_SVG })
     ),
     el('div', { class: 'pf-card-acc-body' }, ...bodyChildren)
@@ -365,17 +238,17 @@ function collapsibleCard(titleHtml, ...bodyChildren) {
 }
 
 function field(labelText, input) {
-  return el('label', { class: 'pf-field' }, el('span', { text: labelText }), input);
+  return el('label', {}, el('span', { text: labelText }), input);
 }
 
 function buildEditCard(user, profile, onCancel) {
-  const nameInput     = el('input', { class: 'pf-input', type: 'text', value: profile.full_name || '', placeholder: 'e.g. Chrispin Banda' });
-  const headlineInput = el('input', { class: 'pf-input', type: 'text', value: profile.headline || '', placeholder: 'e.g. Professional painter' });
-  const phoneInput    = el('input', { class: 'pf-input', type: 'tel',  value: profile.phone || '', placeholder: 'e.g. 0991 234 567' });
-  const locationInput = el('input', { class: 'pf-input', type: 'text', value: profile.location || '', placeholder: 'e.g. Area 25, Lilongwe' });
+  const nameInput     = el('input', { type: 'text', value: profile.full_name || '', placeholder: 'e.g. Chrispin Banda' });
+  const headlineInput = el('input', { type: 'text', value: profile.headline || '', placeholder: 'e.g. Professional painter' });
+  const phoneInput    = el('input', { type: 'tel',  value: profile.phone || '', placeholder: 'e.g. 0991 234 567' });
+  const locationInput = el('input', { type: 'text', value: profile.location || '', placeholder: 'e.g. Area 25, Lilongwe' });
 
   const saveBtn = el('button', {
-    class: 'pf-save', type: 'button', text: t('saveBtn') || 'Save profile',
+    class: 'primary', type: 'button', text: t('saveBtn') || 'Save profile',
     onclick: async () => {
       if (!nameInput.value.trim()) { toast('Please enter your full name.'); nameInput.focus(); return; }
       saveBtn.disabled = true;
@@ -393,13 +266,15 @@ function buildEditCard(user, profile, onCancel) {
   });
 
   return el('div', { class: 'pf-card' },
-    el('h3', { text: '✎  Edit your details' }),
-    field(t('nameLabel') || 'Full name', nameInput),
-    field('Headline', headlineInput),
-    field(t('phoneLabel') || 'Phone number', phoneInput),
-    field(t('areaLabel') || 'Your area', locationInput),
-    el('div', { class: 'pf-btn-row' },
-      el('button', { class: 'pf-cancel', type: 'button', text: 'Cancel', onclick: onCancel }),
+    el('h3', { text: 'Edit your details' }),
+    el('div', { class: 'form' },
+      field(t('nameLabel') || 'Full name', nameInput),
+      field('Headline', headlineInput),
+      field(t('phoneLabel') || 'Phone number', phoneInput),
+      field(t('areaLabel') || 'Your area', locationInput)
+    ),
+    el('div', { class: 'pf-edit-actions' },
+      el('button', { class: 'pf-cancel-btn', type: 'button', text: 'Cancel', onclick: onCancel }),
       saveBtn
     )
   );
@@ -446,7 +321,7 @@ function buildSkillsBox(user, profile) {
 
 function buildCredBox(userId, credentials) {
   const listItems = credentials.length
-    ? credentials.map(c => el('li', { class: 'pf-row' },
+    ? credentials.map(c => el('li', { class: 'pf-cred-row' },
         el('button', {
           class: 'pf-cred-link', type: 'button', text: '🛡️ ' + c.label,
           onclick: async () => {
@@ -466,8 +341,8 @@ function buildCredBox(userId, credentials) {
       ))
     : [el('li', { class: 'pf-empty', text: 'No credentials added yet. Employers trust verified workers more.' })];
 
-  const labelInput = el('input', { class: 'pf-input', type: 'text', placeholder: 'e.g. TEVETA Grade 1 Painter' });
-  const fileInput  = el('input', { class: 'pf-input', type: 'file', accept: '.pdf,.jpg,.jpeg,.png' });
+  const labelInput = el('input', { type: 'text', placeholder: 'e.g. TEVETA Grade 1 Painter' });
+  const fileInput  = el('input', { type: 'file', accept: '.pdf,.jpg,.jpeg,.png' });
 
   const uploadBtn = el('button', {
     class: 'pf-upload-btn', type: 'button',
@@ -495,11 +370,11 @@ function buildCredBox(userId, credentials) {
 
   return collapsibleCard('🛡️  Credentials',
     el('ul', { class: 'pf-cred-list' }, ...listItems),
-    el('div', { style: 'margin-top:14px;' },
+    el('div', { class: 'form', style: 'margin-top:14px;' },
       field('Label', labelInput),
-      field('File (PDF, JPG or PNG)', fileInput),
-      uploadBtn
-    )
+      field('File (PDF, JPG or PNG)', fileInput)
+    ),
+    uploadBtn
   );
 }
 
@@ -542,7 +417,7 @@ function buildPremiumBox(user, profile, latestRequest) {
   }
 
   const refInput = el('input', {
-    class: 'pf-input', type: 'text',
+    class: 'pf-prem-input', type: 'text',
     placeholder: 'Transaction reference or the phone number you paid from',
   });
 
@@ -603,7 +478,7 @@ function buildRefBox(profile) {
 
 function gearButton() {
   return el('button', {
-    class: 'lang-pill pf-gear',
+    class: 'pf-gear',
     type: 'button',
     'aria-label': t('settingsOpen'),
     title: t('settingsOpen'),
@@ -615,7 +490,7 @@ function gearButton() {
 function topBar() {
   return el('div', { class: 'pf-topbar' },
     el('h1', { text: t('profileTitle') || 'Profile' }),
-    el('div', { class: 'panel-actions' }, gearButton())
+    gearButton()
   );
 }
 
@@ -625,12 +500,11 @@ function renderSignedOut(container) {
     el('div', { class: 'pf-card', style: 'text-align:center;padding:30px 18px;' },
       el('div', { style: 'font-size:44px;line-height:1;', text: '👤' }),
       el('h3', { style: 'justify-content:center;margin-top:12px;', text: 'Sign in to view your profile' }),
-      el('p', { style: 'margin:6px 0 18px;color:#6b7280;font-size:14px;line-height:1.5;',
+      el('p', { style: 'margin:6px 0 18px;color:var(--muted);font-size:14px;line-height:1.5;',
         text: 'Create an account or sign in to manage your profile, skills and settings.' }),
-      el('button', { class: 'pf-upload-btn', type: 'button', text: 'Sign in', onclick: () => openAuthModal('signin') }),
+      el('button', { class: 'primary', type: 'button', text: 'Sign in', onclick: () => openAuthModal('signin') }),
       el('button', {
-        class: 'pf-cancel', type: 'button',
-        style: 'width:100%;margin-top:10px;border:1px solid #dfe3ea;border-radius:11px;padding:11px;font-size:14px;font-weight:700;background:#fff;color:#4b5563;cursor:pointer;',
+        class: 'pf-cancel-btn', type: 'button', style: 'width:100%;margin-top:10px;',
         text: t('settingsTitle'), onclick: () => navigate('settings'),
       })
     )
@@ -642,8 +516,6 @@ function renderSignedOut(container) {
 let editMode = false;
 
 export async function renderProfilePage() {
-  injectProfileStyles();
-
   const profileContainer = document.getElementById('pageProfile');
   if (!profileContainer) return;
   profileContainer.textContent = '';
@@ -673,8 +545,8 @@ export async function renderProfilePage() {
     profileContainer.appendChild(el('div', { class: 'pf-container' },
       topBar(),
       el('div', { class: 'pf-card', style: 'text-align:center;' },
-        el('p', { style: 'color:#6b7280;font-size:14px;', text: 'Could not load your profile.' }),
-        el('button', { class: 'pf-upload-btn', type: 'button', text: 'Retry', onclick: renderProfilePage })
+        el('p', { style: 'color:var(--muted);font-size:14px;', text: 'Could not load your profile.' }),
+        el('button', { class: 'primary', type: 'button', text: 'Retry', onclick: renderProfilePage })
       )
     ));
     return;
