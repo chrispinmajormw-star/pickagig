@@ -1510,516 +1510,693 @@
   }
 
   // js/profile.js
-  var PROFILE_CSS = `
-.pf-container{max-width:640px;margin:0 auto;padding:0 14px 90px;}
-.pf-topbar{display:flex;justify-content:space-between;align-items:center;padding:14px 0 10px;}
-.pf-topbar h1{font-size:20px;font-weight:800;margin:0;letter-spacing:-.02em;}
-.pf-hero{position:relative;border-radius:20px;padding:26px 18px 20px;text-align:center;color:#fff;overflow:hidden;
-  background:linear-gradient(140deg,#1d4ed8 0%,#4f46e5 55%,#7c3aed 100%);
-  box-shadow:0 10px 26px rgba(37,58,140,.24);}
-.pf-hero::after{content:'';position:absolute;top:-70px;right:-60px;width:190px;height:190px;border-radius:50%;
-  background:rgba(255,255,255,.10);pointer-events:none;}
-.pf-avatar-wrap{position:relative;width:104px;height:104px;margin:0 auto 14px;}
-.pf-avatar{width:104px;height:104px;border-radius:50%;object-fit:cover;display:flex;align-items:center;justify-content:center;
-  font-size:40px;font-weight:800;color:#3730a3;background:#fff;border:4px solid rgba(255,255,255,.55);
-  box-shadow:0 6px 18px rgba(0,0,0,.22);overflow:hidden;}
-.pf-avatar-btn{position:absolute;right:-2px;bottom:-2px;width:34px;height:34px;border-radius:50%;border:3px solid #fff;
-  background:#111827;color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:15px;padding:0;
-  box-shadow:0 3px 8px rgba(0,0,0,.28);}
-.pf-avatar-btn:disabled{opacity:.6;cursor:default;}
-.pf-name{font-size:23px;font-weight:800;margin:0;line-height:1.2;letter-spacing:-.02em;word-break:break-word;}
-.pf-headline{font-size:14px;opacity:.92;margin:5px 0 0;}
-.pf-meta{display:flex;flex-wrap:wrap;justify-content:center;gap:8px;margin-top:12px;}
-.pf-chip{display:inline-flex;align-items:center;gap:5px;background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.26);
-  border-radius:999px;padding:5px 11px;font-size:12.5px;font-weight:600;}
-.pf-chip.muted{opacity:.65;font-weight:500;}
-.pf-chip.gold{background:#fbbf24;border-color:#fbbf24;color:#3f2a00;}
-.pf-edit-btn{margin-top:16px;background:#fff;color:#3730a3;border:0;border-radius:999px;padding:10px 24px;
-  font-size:14px;font-weight:700;cursor:pointer;box-shadow:0 3px 10px rgba(0,0,0,.16);}
-.pf-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:-22px;position:relative;z-index:2;padding:0 6px;}
-.pf-stat{background:#fff;border-radius:14px;padding:13px 6px;text-align:center;box-shadow:0 4px 14px rgba(17,24,39,.09);}
-.pf-stat-val{font-size:17px;font-weight:800;color:#111827;}
-.pf-stat-lbl{font-size:11px;color:#6b7280;margin-top:3px;font-weight:600;text-transform:uppercase;letter-spacing:.04em;}
-.pf-card{background:#fff;border:1px solid #eef0f4;border-radius:16px;padding:16px;margin-top:14px;
-  box-shadow:0 2px 10px rgba(17,24,39,.05);}
-.pf-card h3{margin:0 0 12px;font-size:15px;font-weight:800;color:#111827;display:flex;align-items:center;gap:8px;}
-.pf-empty{color:#9ca3af;font-size:13px;margin:0;}
-.pf-field{display:block;margin-bottom:13px;}
-.pf-field>span{display:block;font-size:12px;font-weight:700;color:#4b5563;margin-bottom:5px;}
-.pf-input{display:block;width:100%;box-sizing:border-box;padding:11px 13px;border-radius:11px;border:1px solid #dfe3ea;
-  font-size:15px;background:#fafbfc;color:#111827;outline:none;transition:border-color .15s,background .15s;}
-.pf-input:focus{border-color:#4f46e5;background:#fff;}
-.pf-btn-row{display:flex;gap:10px;margin-top:4px;}
-.pf-btn-row>button{flex:1;border-radius:11px;padding:11px;font-size:14px;font-weight:700;cursor:pointer;border:1px solid transparent;}
-.pf-save{background:#4f46e5;color:#fff;}
-.pf-save:disabled{opacity:.6;cursor:default;}
-.pf-cancel{background:#fff;color:#4b5563;border-color:#dfe3ea;}
-.pf-skills-list{display:flex;flex-wrap:wrap;gap:8px;}
-.pf-skill-pill{border:1px solid #e3e6ec;background:#f7f8fa;color:#4b5563;border-radius:999px;padding:8px 13px;
-  font-size:13px;font-weight:600;cursor:pointer;user-select:none;transition:.15s;}
-.pf-skill-pill.active{background:#4f46e5;border-color:#4f46e5;color:#fff;}
-.pf-row{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:11px 0;border-bottom:1px solid #f1f2f5;}
-.pf-row:last-child{border-bottom:0;}
-.pf-hist-item{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:11px 0;border-bottom:1px solid #f1f2f5;}
-.pf-hist-item:last-child{border-bottom:0;}
-.pf-hist-title{font-size:14px;font-weight:700;color:#111827;}
-.pf-hist-when{font-size:12px;color:#9ca3af;margin-top:2px;}
-.pf-hist-right{text-align:right;}
-.pf-hist-pay{font-size:14px;font-weight:800;color:#059669;}
-.pf-hist-rating{font-size:12px;color:#9ca3af;margin-top:2px;}
-.pf-cred-list{list-style:none;padding:0;margin:0;}
-.pf-cred-link{display:flex;align-items:center;gap:7px;font-size:14px;color:#1d4ed8;cursor:pointer;font-weight:600;
-  background:none;border:0;padding:0;text-align:left;}
-.pf-cred-del{border:0;background:none;color:#dc2626;cursor:pointer;font-size:16px;line-height:1;padding:4px;}
-.pf-upload-btn{width:100%;background:#111827;color:#fff;border:0;border-radius:11px;padding:11px;font-size:14px;
-  font-weight:700;cursor:pointer;}
-.pf-upload-btn:disabled{opacity:.6;cursor:default;}
-.pf-rate-btn{background:#4f46e5;color:#fff;border:0;border-radius:10px;padding:8px 16px;font-size:13px;font-weight:700;cursor:pointer;}
-.pf-lb-item{display:flex;align-items:center;gap:11px;padding:9px 0;border-bottom:1px solid #f1f2f5;}
-.pf-lb-item:last-child{border-bottom:0;}
-.pf-lb-rank{width:26px;height:26px;border-radius:8px;background:#f1f2f5;color:#6b7280;font-size:12px;font-weight:800;
-  display:flex;align-items:center;justify-content:center;flex:0 0 26px;}
-.pf-lb-rank.top{background:#fbbf24;color:#3f2a00;}
-.pf-lb-name{flex:1;font-size:14px;font-weight:600;color:#111827;}
-.pf-lb-meta{font-size:12px;color:#9ca3af;}
-.pf-lb-footer{margin-top:10px;font-size:12px;color:#9ca3af;text-align:center;}
-.pf-premium{border-radius:16px;padding:18px;margin-top:14px;color:#fff;
-  background:linear-gradient(135deg,#111827 0%,#312e81 100%);box-shadow:0 6px 18px rgba(17,24,39,.18);}
-.pf-prem-title{font-size:16px;font-weight:800;}
-.pf-prem-list{list-style:none;padding:0;margin:10px 0 0;font-size:13px;line-height:1.85;opacity:.93;}
-.pf-prem-btn{width:100%;margin-top:10px;background:#fbbf24;color:#3f2a00;border:0;border-radius:11px;padding:12px;
-  font-size:14px;font-weight:800;cursor:pointer;}
-.pf-ref-p{font-size:13px;color:#4b5563;margin:0 0 11px;line-height:1.5;}
-.pf-ref-box{display:flex;align-items:center;gap:10px;background:#f7f8fa;border:1px dashed #cbd2dd;border-radius:12px;padding:10px 12px;}
-.pf-ref-code{flex:1;font-family:ui-monospace,Menlo,monospace;font-size:15px;font-weight:800;letter-spacing:.06em;color:#111827;}
-.pf-ref-btn{background:#4f46e5;color:#fff;border:0;border-radius:9px;padding:8px 14px;font-size:13px;font-weight:700;cursor:pointer;}
-.pf-gear{background:#fff;border:1px solid #e3e6ec;border-radius:50%;width:38px;height:38px;display:flex;
-  align-items:center;justify-content:center;color:#4b5563;cursor:pointer;}
-.pf-skeleton{height:200px;border-radius:20px;margin-top:8px;background:linear-gradient(90deg,#eef0f4 25%,#f6f7f9 50%,#eef0f4 75%);
-  background-size:200% 100%;animation:pfShimmer 1.2s linear infinite;}
-@keyframes pfShimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
-`;
+  /* ============================================================
+     PickAGig — profile.js  (modernised)
+     Opens with a hero: profile picture first, details underneath.
+     Editing is hidden behind an "Edit profile" button so the page
+     greets the user with information, not empty form fields.
+     All styles are injected by injectProfileStyles() below, so no
+     changes to styles.css are required.
+     ============================================================ */
+
+
+  /* ── Styles ──────────────────────────────────────────────── */
+
+  const PROFILE_CSS = `
+  .pf-container{max-width:640px;margin:0 auto;padding:0 14px 90px;}
+  .pf-topbar{display:flex;justify-content:space-between;align-items:center;padding:14px 0 10px;}
+  .pf-topbar h1{font-size:20px;font-weight:800;margin:0;letter-spacing:-.02em;}
+
+  /* Hero */
+  .pf-hero{position:relative;border-radius:20px;padding:26px 18px 20px;text-align:center;color:#fff;overflow:hidden;
+    background:linear-gradient(140deg,#1d4ed8 0%,#4f46e5 55%,#7c3aed 100%);
+    box-shadow:0 10px 26px rgba(37,58,140,.24);}
+  .pf-hero::after{content:'';position:absolute;top:-70px;right:-60px;width:190px;height:190px;border-radius:50%;
+    background:rgba(255,255,255,.10);pointer-events:none;}
+  .pf-avatar-wrap{position:relative;width:104px;height:104px;margin:0 auto 14px;}
+  .pf-avatar{width:104px;height:104px;border-radius:50%;object-fit:cover;display:flex;align-items:center;justify-content:center;
+    font-size:40px;font-weight:800;color:#3730a3;background:#fff;border:4px solid rgba(255,255,255,.55);
+    box-shadow:0 6px 18px rgba(0,0,0,.22);overflow:hidden;}
+  .pf-avatar-btn{position:absolute;right:-2px;bottom:-2px;width:34px;height:34px;border-radius:50%;border:3px solid #fff;
+    background:#111827;color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:15px;padding:0;
+    box-shadow:0 3px 8px rgba(0,0,0,.28);}
+  .pf-avatar-btn:disabled{opacity:.6;cursor:default;}
+  .pf-name{font-size:23px;font-weight:800;margin:0;line-height:1.2;letter-spacing:-.02em;word-break:break-word;}
+  .pf-headline{font-size:14px;opacity:.92;margin:5px 0 0;}
+  .pf-meta{display:flex;flex-wrap:wrap;justify-content:center;gap:8px;margin-top:12px;}
+  .pf-chip{display:inline-flex;align-items:center;gap:5px;background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.26);
+    border-radius:999px;padding:5px 11px;font-size:12.5px;font-weight:600;}
+  .pf-chip.muted{opacity:.65;font-weight:500;}
+  .pf-chip.gold{background:#fbbf24;border-color:#fbbf24;color:#3f2a00;}
+  .pf-edit-btn{margin-top:16px;background:#fff;color:#3730a3;border:0;border-radius:999px;padding:10px 24px;
+    font-size:14px;font-weight:700;cursor:pointer;box-shadow:0 3px 10px rgba(0,0,0,.16);}
+
+  /* Stats */
+  .pf-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:-22px;position:relative;z-index:2;padding:0 6px;}
+  .pf-stat{background:#fff;border-radius:14px;padding:13px 6px;text-align:center;box-shadow:0 4px 14px rgba(17,24,39,.09);}
+  .pf-stat-val{font-size:17px;font-weight:800;color:#111827;}
+  .pf-stat-lbl{font-size:11px;color:#6b7280;margin-top:3px;font-weight:600;text-transform:uppercase;letter-spacing:.04em;}
+
+  /* Cards */
+  .pf-card{background:#fff;border:1px solid #eef0f4;border-radius:16px;padding:16px;margin-top:14px;
+    box-shadow:0 2px 10px rgba(17,24,39,.05);}
+  .pf-card h3{margin:0 0 12px;font-size:15px;font-weight:800;color:#111827;display:flex;align-items:center;gap:8px;}
+  .pf-card-acc{padding:0;cursor:default;}
+  .pf-card-summary{display:flex;align-items:center;justify-content:space-between;gap:8px;cursor:pointer;
+    list-style:none;padding:16px;user-select:none;}
+  .pf-card-summary::-webkit-details-marker{display:none;}
+  .pf-card-summary::marker{content:'';}
+  .pf-card-summary h3{margin:0;}
+  .pf-card-chev{display:inline-flex;color:#9ca3af;transition:transform .18s ease;flex:0 0 auto;}
+  .pf-card-acc[open] .pf-card-chev{transform:rotate(90deg);}
+  .pf-card-acc-body{padding:0 16px 16px;}
+  .pf-empty{color:#9ca3af;font-size:13px;margin:0;}
+
+  /* Edit form */
+  .pf-field{display:block;margin-bottom:13px;}
+  .pf-field>span{display:block;font-size:12px;font-weight:700;color:#4b5563;margin-bottom:5px;}
+  .pf-input{display:block;width:100%;box-sizing:border-box;padding:11px 13px;border-radius:11px;border:1px solid #dfe3ea;
+    font-size:15px;background:#fafbfc;color:#111827;outline:none;transition:border-color .15s,background .15s;}
+  .pf-input:focus{border-color:#4f46e5;background:#fff;}
+  .pf-btn-row{display:flex;gap:10px;margin-top:4px;}
+  .pf-btn-row>button{flex:1;border-radius:11px;padding:11px;font-size:14px;font-weight:700;cursor:pointer;border:1px solid transparent;}
+  .pf-save{background:#4f46e5;color:#fff;}
+  .pf-save:disabled{opacity:.6;cursor:default;}
+  .pf-cancel{background:#fff;color:#4b5563;border-color:#dfe3ea;}
+
+  /* Skills */
+  .pf-skills-list{display:flex;flex-wrap:wrap;gap:8px;}
+  .pf-skill-pill{border:1px solid #e3e6ec;background:#f7f8fa;color:#4b5563;border-radius:999px;padding:8px 13px;
+    font-size:13px;font-weight:600;cursor:pointer;user-select:none;transition:.15s;}
+  .pf-skill-pill.active{background:#4f46e5;border-color:#4f46e5;color:#fff;}
+
+  /* Lists */
+  .pf-row{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:11px 0;border-bottom:1px solid #f1f2f5;}
+  .pf-row:last-child{border-bottom:0;}
+  .pf-hist-item{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:11px 0;border-bottom:1px solid #f1f2f5;}
+  .pf-hist-item:last-child{border-bottom:0;}
+  .pf-hist-title{font-size:14px;font-weight:700;color:#111827;}
+  .pf-hist-when{font-size:12px;color:#9ca3af;margin-top:2px;}
+  .pf-hist-right{text-align:right;}
+  .pf-hist-pay{font-size:14px;font-weight:800;color:#059669;}
+  .pf-hist-rating{font-size:12px;color:#9ca3af;margin-top:2px;}
+  .pf-cred-list{list-style:none;padding:0;margin:0;}
+  .pf-cred-link{display:flex;align-items:center;gap:7px;font-size:14px;color:#1d4ed8;cursor:pointer;font-weight:600;
+    background:none;border:0;padding:0;text-align:left;}
+  .pf-cred-del{border:0;background:none;color:#dc2626;cursor:pointer;font-size:16px;line-height:1;padding:4px;}
+  .pf-upload-btn{width:100%;background:#111827;color:#fff;border:0;border-radius:11px;padding:11px;font-size:14px;
+    font-weight:700;cursor:pointer;}
+  .pf-upload-btn:disabled{opacity:.6;cursor:default;}
+  .pf-rate-btn{background:#4f46e5;color:#fff;border:0;border-radius:10px;padding:8px 16px;font-size:13px;font-weight:700;cursor:pointer;}
+
+  /* Leaderboard */
+  .pf-lb-item{display:flex;align-items:center;gap:11px;padding:9px 0;border-bottom:1px solid #f1f2f5;}
+  .pf-lb-item:last-child{border-bottom:0;}
+  .pf-lb-rank{width:26px;height:26px;border-radius:8px;background:#f1f2f5;color:#6b7280;font-size:12px;font-weight:800;
+    display:flex;align-items:center;justify-content:center;flex:0 0 26px;}
+  .pf-lb-rank.top{background:#fbbf24;color:#3f2a00;}
+  .pf-lb-name{flex:1;font-size:14px;font-weight:600;color:#111827;}
+  .pf-lb-meta{font-size:12px;color:#9ca3af;}
+  .pf-lb-footer{margin-top:10px;font-size:12px;color:#9ca3af;text-align:center;}
+
+  /* Premium */
+  .pf-premium{border-radius:16px;padding:18px;margin-top:14px;color:#fff;
+    background:linear-gradient(135deg,#111827 0%,#312e81 100%);box-shadow:0 6px 18px rgba(17,24,39,.18);}
+  .pf-prem-title{font-size:16px;font-weight:800;}
+  .pf-prem-list{list-style:none;padding:0;margin:10px 0 0;font-size:13px;line-height:1.85;opacity:.93;}
+  .pf-prem-btn{width:100%;margin-top:10px;background:#fbbf24;color:#3f2a00;border:0;border-radius:11px;padding:12px;
+    font-size:14px;font-weight:800;cursor:pointer;}
+
+  /* Referrals */
+  .pf-ref-p{font-size:13px;color:#4b5563;margin:0 0 11px;line-height:1.5;}
+  .pf-ref-box{display:flex;align-items:center;gap:10px;background:#f7f8fa;border:1px dashed #cbd2dd;border-radius:12px;padding:10px 12px;}
+  .pf-ref-code{flex:1;font-family:ui-monospace,Menlo,monospace;font-size:15px;font-weight:800;letter-spacing:.06em;color:#111827;}
+  .pf-ref-btn{background:#4f46e5;color:#fff;border:0;border-radius:9px;padding:8px 14px;font-size:13px;font-weight:700;cursor:pointer;}
+
+  .pf-gear{background:#fff;border:1px solid #e3e6ec;border-radius:50%;width:38px;height:38px;display:flex;
+    align-items:center;justify-content:center;color:#4b5563;cursor:pointer;}
+  .pf-skeleton{height:200px;border-radius:20px;margin-top:8px;background:linear-gradient(90deg,#eef0f4 25%,#f6f7f9 50%,#eef0f4 75%);
+    background-size:200% 100%;animation:pfShimmer 1.2s linear infinite;}
+  @keyframes pfShimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
+  `;
+
   function injectProfileStyles() {
-    if (document.getElementById("pf-styles")) return;
-    var style = document.createElement("style");
-    style.id = "pf-styles";
+    if (document.getElementById('pf-styles')) return;
+    const style = document.createElement('style');
+    style.id = 'pf-styles';
     style.textContent = PROFILE_CSS;
     document.head.appendChild(style);
   }
+
+  /* ── Data helpers (unchanged behaviour) ──────────────────── */
+
   async function fetchProfile(userId) {
-    const { data, error } = await supabase.from("profiles").select("*").eq("id", userId).single();
+    const { data, error } = await supabase
+      .from('profiles')
+      .select('*')
+      .eq('id', userId)
+      .single();
     if (error) {
-      console.error("fetchProfile error:", error);
+      console.error('fetchProfile error:', error);
       return null;
     }
     return data;
   }
+
   async function saveProfile(userId, patch, silent) {
-    const { error } = await supabase.from("profiles").update(patch).eq("id", userId);
+    const { error } = await supabase.from('profiles').update(patch).eq('id', userId);
     if (error) {
-      toast("Could not save: " + error.message);
+      toast('Could not save: ' + error.message);
       return false;
     }
-    if (!silent) toast(t("profileSaved") || "Profile saved!");
+    if (!silent) toast(t('profileSaved') || 'Profile saved!');
     return true;
   }
+
   async function fetchCredentials(userId) {
-    const { data, error } = await supabase.from("credentials").select("*").eq("user_id", userId).order("created_at", { ascending: false });
-    if (error) { console.error("fetchCredentials error:", error); return []; }
+    const { data, error } = await supabase
+      .from('credentials')
+      .select('*')
+      .eq('user_id', userId)
+      .order('created_at', { ascending: false });
+    if (error) { console.error('fetchCredentials error:', error); return []; }
     return data;
   }
+
   async function uploadCredentialFile(userId, file) {
     const path = `${userId}/${Date.now()}_${file.name}`;
-    const { error } = await supabase.storage.from("credentials").upload(path, file);
+    const { error } = await supabase.storage.from('credentials').upload(path, file);
     if (error) throw error;
     return path;
   }
+
   async function getCredentialSignedUrl(path) {
-    const { data, error } = await supabase.storage.from("credentials").createSignedUrl(path, 60);
-    if (error) { toast("Could not open file: " + error.message); return null; }
+    const { data, error } = await supabase.storage.from('credentials').createSignedUrl(path, 60);
+    if (error) { toast('Could not open file: ' + error.message); return null; }
     return data.signedUrl;
   }
+
   async function uploadAvatar(userId, file) {
-    const ext = (file.name.split(".").pop() || "jpg").toLowerCase();
+    const ext = (file.name.split('.').pop() || 'jpg').toLowerCase();
     const path = `${userId}/avatar_${Date.now()}.${ext}`;
-    const { error } = await supabase.storage.from("avatars").upload(path, file, { upsert: true });
+    const { error } = await supabase.storage.from('avatars').upload(path, file, { upsert: true });
     if (error) throw error;
-    const { data } = supabase.storage.from("avatars").getPublicUrl(path);
+    const { data } = supabase.storage.from('avatars').getPublicUrl(path);
     return data.publicUrl;
   }
+
   async function fetchPendingPosterRatings(userId) {
     const { data, error } = await supabase
-      .from("gig_applications")
-      .select("gig_id, gigs(id, title, poster_id, status, profiles(full_name))")
-      .eq("applicant_id", userId)
-      .eq("accepted", true);
-    if (error) { console.error("fetchPendingPosterRatings error:", error); return []; }
-    const completed = (data || []).filter((r) => r.gigs && r.gigs.status === "completed");
+      .from('gig_applications')
+      .select('gig_id, gigs(id, title, poster_id, status, profiles(full_name))')
+      .eq('applicant_id', userId)
+      .eq('accepted', true);
+    if (error) { console.error('fetchPendingPosterRatings error:', error); return []; }
+
+    const completed = (data || []).filter(r => r.gigs && r.gigs.status === 'completed');
     if (!completed.length) return [];
-    const gigIds = completed.map((r) => r.gig_id);
-    const { data: myRatings } = await supabase.from("ratings").select("gig_id").eq("rater_id", userId).in("gig_id", gigIds);
-    const alreadyRated = new Set((myRatings || []).map((r) => r.gig_id));
+
+    const gigIds = completed.map(r => r.gig_id);
+    const { data: myRatings } = await supabase
+      .from('ratings')
+      .select('gig_id')
+      .eq('rater_id', userId)
+      .in('gig_id', gigIds);
+    const alreadyRated = new Set((myRatings || []).map(r => r.gig_id));
+
     return completed
-      .filter((r) => !alreadyRated.has(r.gig_id))
-      .map((r) => ({
-        gigId: r.gig_id,
-        gigTitle: r.gigs.title,
-        posterId: r.gigs.poster_id,
-        posterName: r.gigs.profiles?.full_name || "Unknown",
+      .filter(r => !alreadyRated.has(r.gig_id))
+      .map(r => ({
+        gigId:      r.gig_id,
+        gigTitle:   r.gigs.title,
+        posterId:   r.gigs.poster_id,
+        posterName: r.gigs.profiles?.full_name || 'Unknown',
       }));
   }
+
   async function fetchHistory(userId) {
     const { data, error } = await supabase
-      .from("gig_applications")
-      .select("gig_id, accepted, gigs(id, title, pay, created_at, status)")
-      .eq("applicant_id", userId)
-      .eq("accepted", true);
-    if (error) { console.error("fetchHistory error:", error); return []; }
-    const completed = (data || []).filter((r) => r.gigs && r.gigs.status === "completed");
+      .from('gig_applications')
+      .select('gig_id, accepted, gigs(id, title, pay, created_at, status)')
+      .eq('applicant_id', userId)
+      .eq('accepted', true);
+    if (error) { console.error('fetchHistory error:', error); return []; }
+
+    const completed = (data || []).filter(r => r.gigs && r.gigs.status === 'completed');
     if (!completed.length) return [];
-    const gigIds = completed.map((r) => r.gig_id);
-    const { data: ratings } = await supabase.from("ratings").select("gig_id, rating").in("gig_id", gigIds).eq("ratee_id", userId);
-    const ratingByGig = Object.fromEntries((ratings || []).map((r) => [r.gig_id, r.rating]));
-    return completed.map((r) => ({
-      title: r.gigs.title,
-      pay: r.gigs.pay,
-      when: new Date(r.gigs.created_at).toLocaleDateString("en-GB", { month: "short", year: "numeric" }),
+
+    const gigIds = completed.map(r => r.gig_id);
+    const { data: ratings } = await supabase
+      .from('ratings')
+      .select('gig_id, rating')
+      .in('gig_id', gigIds)
+      .eq('ratee_id', userId);
+    const ratingByGig = Object.fromEntries((ratings || []).map(r => [r.gig_id, r.rating]));
+
+    return completed.map(r => ({
+      title:  r.gigs.title,
+      pay:    r.gigs.pay,
+      when:   new Date(r.gigs.created_at).toLocaleDateString('en-GB', { month: 'short', year: 'numeric' }),
       rating: ratingByGig[r.gig_id] || null,
     }));
   }
-  var AIRTEL_NUMBER = "099 000 0000";
+
+  const AIRTEL_NUMBER = '099 000 0000'; // TODO: replace with your real Airtel Money number
+
   async function fetchLatestPaymentRequest(userId) {
     const { data, error } = await supabase
-      .from("payment_requests")
-      .select("*")
-      .eq("user_id", userId)
-      .order("created_at", { ascending: false })
+      .from('payment_requests')
+      .select('*')
+      .eq('user_id', userId)
+      .order('created_at', { ascending: false })
       .limit(1)
       .maybeSingle();
-    if (error) { console.error("fetchLatestPaymentRequest error:", error); return null; }
+    if (error) { console.error('fetchLatestPaymentRequest error:', error); return null; }
     return data;
   }
+
+  /* ── Hero ────────────────────────────────────────────────── */
+
   function buildAvatar(user, profile) {
-    const initial = (profile.full_name || user.email || "?").charAt(0).toUpperCase();
+    const initial = (profile.full_name || user.email || '?').charAt(0).toUpperCase();
+
     const avatar = profile.avatar_url
-      ? el("img", { class: "pf-avatar", src: profile.avatar_url, alt: profile.full_name || "Profile picture" })
-      : el("div", { class: "pf-avatar", text: initial });
-    const fileInput = el("input", { type: "file", accept: "image/png,image/jpeg,image/webp", style: "display:none;" });
-    const camBtn = el("button", {
-      class: "pf-avatar-btn", type: "button", title: "Change profile picture", "aria-label": "Change profile picture",
-      text: "\u{1F4F7}", onclick: () => fileInput.click(),
+      ? el('img', { class: 'pf-avatar', src: profile.avatar_url, alt: profile.full_name || 'Profile picture' })
+      : el('div', { class: 'pf-avatar', text: initial });
+
+    const fileInput = el('input', {
+      type: 'file',
+      accept: 'image/png,image/jpeg,image/webp',
+      style: 'display:none;',
     });
-    fileInput.addEventListener("change", async () => {
+
+    const camBtn = el('button', {
+      class: 'pf-avatar-btn',
+      type: 'button',
+      title: 'Change profile picture',
+      'aria-label': 'Change profile picture',
+      text: '📷',
+      onclick: () => fileInput.click(),
+    });
+
+    fileInput.addEventListener('change', async () => {
       const file = fileInput.files[0];
       if (!file) return;
-      if (file.size > 5 * 1024 * 1024) { toast("Please choose an image under 5MB."); return; }
+      if (file.size > 5 * 1024 * 1024) { toast('Please choose an image under 5MB.'); return; }
       camBtn.disabled = true;
-      camBtn.textContent = "\u2026";
+      camBtn.textContent = '…';
       try {
         const url = await uploadAvatar(user.id, file);
         const ok = await saveProfile(user.id, { avatar_url: url }, true);
-        if (ok) { toast("Profile picture updated!"); renderProfilePage(); return; }
+        if (ok) { toast('Profile picture updated!'); renderProfilePage(); return; }
       } catch (err) {
-        toast("Upload failed: " + err.message);
+        toast('Upload failed: ' + err.message);
       }
       camBtn.disabled = false;
-      camBtn.textContent = "\u{1F4F7}";
+      camBtn.textContent = '📷';
     });
-    return el("div", { class: "pf-avatar-wrap" }, avatar, camBtn, fileInput);
+
+    return el('div', { class: 'pf-avatar-wrap' }, avatar, camBtn, fileInput);
   }
+
   function buildHero(user, profile, onEdit) {
-    const isPremium = profile.is_premium && profile.premium_expires_at && new Date(profile.premium_expires_at) > /* @__PURE__ */ new Date();
+    const isPremium = profile.is_premium && profile.premium_expires_at
+      && new Date(profile.premium_expires_at) > new Date();
+
     const chips = [];
-    if (isPremium) chips.push(el("span", { class: "pf-chip gold", text: "\u{1F451} Premium" }));
+    if (isPremium) chips.push(el('span', { class: 'pf-chip gold', text: '👑 Premium' }));
     chips.push(profile.location
-      ? el("span", { class: "pf-chip", text: "\u{1F4CD} " + profile.location })
-      : el("span", { class: "pf-chip muted", text: "\u{1F4CD} Add your area" }));
+      ? el('span', { class: 'pf-chip', text: '📍 ' + profile.location })
+      : el('span', { class: 'pf-chip muted', text: '📍 Add your area' }));
     chips.push(profile.phone
-      ? el("span", { class: "pf-chip", text: "\u{1F4DE} " + profile.phone })
-      : el("span", { class: "pf-chip muted", text: "\u{1F4DE} Add your phone" }));
-    return el("div", { class: "pf-hero" },
+      ? el('span', { class: 'pf-chip', text: '📞 ' + profile.phone })
+      : el('span', { class: 'pf-chip muted', text: '📞 Add your phone' }));
+
+    return el('div', { class: 'pf-hero' },
       buildAvatar(user, profile),
-      el("h2", { class: "pf-name", text: profile.full_name || "Add your name" }),
-      el("p", { class: "pf-headline", text: profile.headline || "Add a headline, e.g. Professional painter" }),
-      el("div", { class: "pf-meta" }, ...chips),
-      el("button", { class: "pf-edit-btn", type: "button", text: "\u270E  Edit profile", onclick: onEdit })
+      el('h2', { class: 'pf-name', text: profile.full_name || 'Add your name' }),
+      el('p', { class: 'pf-headline', text: profile.headline || 'Add a headline, e.g. Professional painter' }),
+      el('div', { class: 'pf-meta' }, ...chips),
+      el('button', { class: 'pf-edit-btn', type: 'button', text: '✎  Edit profile', onclick: onEdit })
     );
   }
+
   function buildStats(profile) {
-    return el("div", { class: "pf-stats" },
-      el("div", { class: "pf-stat" }, el("div", { class: "pf-stat-val", text: "\u2605 " + (profile.rating ?? 0) }), el("div", { class: "pf-stat-lbl", text: "Rating" })),
-      el("div", { class: "pf-stat" }, el("div", { class: "pf-stat-val", text: String(profile.jobs_done ?? 0) }), el("div", { class: "pf-stat-lbl", text: "Gigs done" })),
-      el("div", { class: "pf-stat" }, el("div", { class: "pf-stat-val", text: profile.rate_mk || "\u2014" }), el("div", { class: "pf-stat-lbl", text: "Daily rate" }))
+    return el('div', { class: 'pf-stats' },
+      el('div', { class: 'pf-stat' },
+        el('div', { class: 'pf-stat-val', text: '★ ' + (profile.rating ?? 0) }),
+        el('div', { class: 'pf-stat-lbl', text: 'Rating' })),
+      el('div', { class: 'pf-stat' },
+        el('div', { class: 'pf-stat-val', text: String(profile.jobs_done ?? 0) }),
+        el('div', { class: 'pf-stat-lbl', text: 'Gigs done' })),
+      el('div', { class: 'pf-stat' },
+        el('div', { class: 'pf-stat-val', text: profile.rate_mk || '—' }),
+        el('div', { class: 'pf-stat-lbl', text: 'Daily rate' }))
     );
   }
-  function field(labelText, input) {
-    return el("label", { class: "pf-field" }, el("span", { text: labelText }), input);
+
+  const CHEVRON_SVG = '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="9.5 5.5 16 12 9.5 18.5"/></svg>';
+
+  // Collapsible variant of a .pf-card: header (with h3) is always
+  // visible and tappable, body opens/closes on click.
+  function collapsibleCard(titleHtml, ...bodyChildren) {
+    return el('details', { class: 'pf-card pf-card-acc' },
+      el('summary', { class: 'pf-card-summary' },
+        el('h3', { text: titleHtml }),
+        el('span', { class: 'pf-card-chev', html: CHEVRON_SVG })
+      ),
+      el('div', { class: 'pf-card-acc-body' }, ...bodyChildren)
+    );
   }
+
+  function field(labelText, input) {
+    return el('label', { class: 'pf-field' }, el('span', { text: labelText }), input);
+  }
+
   function buildEditCard(user, profile, onCancel) {
-    const nameInput = el("input", { class: "pf-input", type: "text", value: profile.full_name || "", placeholder: "e.g. Chrispin Banda" });
-    const headlineInput = el("input", { class: "pf-input", type: "text", value: profile.headline || "", placeholder: "e.g. Professional painter" });
-    const phoneInput = el("input", { class: "pf-input", type: "tel", value: profile.phone || "", placeholder: "e.g. 0991 234 567" });
-    const locationInput = el("input", { class: "pf-input", type: "text", value: profile.location || "", placeholder: "e.g. Area 25, Lilongwe" });
-    const saveBtn = el("button", {
-      class: "pf-save", type: "button", text: t("saveBtn") || "Save profile",
+    const nameInput     = el('input', { class: 'pf-input', type: 'text', value: profile.full_name || '', placeholder: 'e.g. Chrispin Banda' });
+    const headlineInput = el('input', { class: 'pf-input', type: 'text', value: profile.headline || '', placeholder: 'e.g. Professional painter' });
+    const phoneInput    = el('input', { class: 'pf-input', type: 'tel',  value: profile.phone || '', placeholder: 'e.g. 0991 234 567' });
+    const locationInput = el('input', { class: 'pf-input', type: 'text', value: profile.location || '', placeholder: 'e.g. Area 25, Lilongwe' });
+
+    const saveBtn = el('button', {
+      class: 'pf-save', type: 'button', text: t('saveBtn') || 'Save profile',
       onclick: async () => {
-        if (!nameInput.value.trim()) { toast("Please enter your full name."); nameInput.focus(); return; }
+        if (!nameInput.value.trim()) { toast('Please enter your full name.'); nameInput.focus(); return; }
         saveBtn.disabled = true;
-        saveBtn.textContent = "Saving\u2026";
+        saveBtn.textContent = 'Saving…';
         const ok = await saveProfile(user.id, {
           full_name: nameInput.value.trim(),
-          headline: headlineInput.value.trim(),
-          phone: phoneInput.value.trim(),
-          location: locationInput.value.trim(),
+          headline:  headlineInput.value.trim(),
+          phone:     phoneInput.value.trim(),
+          location:  locationInput.value.trim(),
         });
         saveBtn.disabled = false;
-        saveBtn.textContent = t("saveBtn") || "Save profile";
+        saveBtn.textContent = t('saveBtn') || 'Save profile';
         if (ok) renderProfilePage();
       }
     });
-    return el("div", { class: "pf-card" },
-      el("h3", { text: "\u270E  Edit your details" }),
-      field(t("nameLabel") || "Full name", nameInput),
-      field("Headline", headlineInput),
-      field(t("phoneLabel") || "Phone number", phoneInput),
-      field(t("areaLabel") || "Your area", locationInput),
-      el("div", { class: "pf-btn-row" },
-        el("button", { class: "pf-cancel", type: "button", text: "Cancel", onclick: onCancel }),
+
+    return el('div', { class: 'pf-card' },
+      el('h3', { text: '✎  Edit your details' }),
+      field(t('nameLabel') || 'Full name', nameInput),
+      field('Headline', headlineInput),
+      field(t('phoneLabel') || 'Phone number', phoneInput),
+      field(t('areaLabel') || 'Your area', locationInput),
+      el('div', { class: 'pf-btn-row' },
+        el('button', { class: 'pf-cancel', type: 'button', text: 'Cancel', onclick: onCancel }),
         saveBtn
       )
     );
   }
+
+  /* ── Sections ────────────────────────────────────────────── */
+
   function buildPendingRatingsBox(pending) {
     if (!pending.length) return null;
-    return el("div", { class: "pf-card" },
-      el("h3", { text: "\u2B50  Rate your recent gigs" }),
-      ...pending.map((p) => el("div", { class: "pf-hist-item" },
-        el("div", {},
-          el("div", { class: "pf-hist-title", text: p.gigTitle }),
-          el("div", { class: "pf-hist-when", text: "Hired by " + p.posterName })
+    return el('div', { class: 'pf-card' },
+      el('h3', { text: '⭐  Rate your recent gigs' }),
+      ...pending.map(p => el('div', { class: 'pf-hist-item' },
+        el('div', {},
+          el('div', { class: 'pf-hist-title', text: p.gigTitle }),
+          el('div', { class: 'pf-hist-when', text: 'Hired by ' + p.posterName })
         ),
-        el("button", { class: "pf-rate-btn", type: "button", text: "Rate", onclick: () => openRatingModal(p.gigId, p.posterId, p.posterName, renderProfilePage) })
+        el('button', {
+          class: 'pf-rate-btn', type: 'button', text: 'Rate',
+          onclick: () => openRatingModal(p.gigId, p.posterId, p.posterName, renderProfilePage)
+        })
       ))
     );
   }
+
   function buildSkillsBox(user, profile) {
     const currentSkills = new Set(profile.skills || []);
-    return el("div", { class: "pf-card" },
-      el("h3", { text: "\u{1F6E0}  " + (t("skillsLabel") || "Your skills") }),
-      el("div", { class: "pf-skills-list" },
-        ...Object.keys(CAT_ICONS).slice(1).map((cat) => {
-          const pill = el("span", {
-            class: "pf-skill-pill" + (currentSkills.has(cat) ? " active" : ""),
+    return collapsibleCard('🛠  ' + (t('skillsLabel') || 'Your skills'),
+      el('div', { class: 'pf-skills-list' },
+        ...Object.keys(CAT_ICONS).slice(1).map(cat => {
+          const pill = el('span', {
+            class: 'pf-skill-pill' + (currentSkills.has(cat) ? ' active' : ''),
             onclick: async () => {
               if (currentSkills.has(cat)) currentSkills.delete(cat);
               else currentSkills.add(cat);
-              pill.classList.toggle("active");
+              pill.classList.toggle('active');
               await saveProfile(user.id, { skills: Array.from(currentSkills) }, true);
             }
-          }, CAT_ICONS[cat] + " " + tCat(cat));
+          }, CAT_ICONS[cat] + ' ' + tCat(cat));
           return pill;
         })
       )
     );
   }
+
   function buildCredBox(userId, credentials) {
     const listItems = credentials.length
-      ? credentials.map((c) => el("li", { class: "pf-row" },
-          el("button", {
-            class: "pf-cred-link", type: "button", text: "\u{1F6E1}\uFE0F " + c.label,
+      ? credentials.map(c => el('li', { class: 'pf-row' },
+          el('button', {
+            class: 'pf-cred-link', type: 'button', text: '🛡️ ' + c.label,
             onclick: async () => {
               const url = await getCredentialSignedUrl(c.file_path);
-              if (url) window.open(url, "_blank");
+              if (url) window.open(url, '_blank');
             }
           }),
-          el("button", {
-            class: "pf-cred-del", type: "button", text: "\u2715", "aria-label": "Remove credential",
+          el('button', {
+            class: 'pf-cred-del', type: 'button', text: '✕', 'aria-label': 'Remove credential',
             onclick: async () => {
-              if (!confirm("Remove this credential?")) return;
-              await supabase.storage.from("credentials").remove([c.file_path]);
-              await supabase.from("credentials").delete().eq("id", c.id);
+              if (!confirm('Remove this credential?')) return;
+              await supabase.storage.from('credentials').remove([c.file_path]);
+              await supabase.from('credentials').delete().eq('id', c.id);
               renderProfilePage();
             }
           })
         ))
-      : [el("li", { class: "pf-empty", text: "No credentials added yet. Employers trust verified workers more." })];
-    const labelInput = el("input", { class: "pf-input", type: "text", placeholder: "e.g. TEVETA Grade 1 Painter" });
-    const fileInput = el("input", { class: "pf-input", type: "file", accept: ".pdf,.jpg,.jpeg,.png" });
-    const uploadBtn = el("button", {
-      class: "pf-upload-btn", type: "button", text: "+ Upload certificate or National ID",
+      : [el('li', { class: 'pf-empty', text: 'No credentials added yet. Employers trust verified workers more.' })];
+
+    const labelInput = el('input', { class: 'pf-input', type: 'text', placeholder: 'e.g. TEVETA Grade 1 Painter' });
+    const fileInput  = el('input', { class: 'pf-input', type: 'file', accept: '.pdf,.jpg,.jpeg,.png' });
+
+    const uploadBtn = el('button', {
+      class: 'pf-upload-btn', type: 'button',
+      text: '+ Upload certificate or National ID',
       onclick: async () => {
         const file = fileInput.files[0];
         const label = labelInput.value.trim();
-        if (!file || !label) { toast("Add a label and choose a file first."); return; }
+        if (!file || !label) { toast('Add a label and choose a file first.'); return; }
+
         uploadBtn.disabled = true;
-        uploadBtn.textContent = "Uploading\u2026";
+        uploadBtn.textContent = 'Uploading…';
         try {
           const path = await uploadCredentialFile(userId, file);
-          const { error } = await supabase.from("credentials").insert({ user_id: userId, label, file_path: path });
+          const { error } = await supabase.from('credentials').insert({ user_id: userId, label, file_path: path });
           if (error) throw error;
-          toast("Credential added!");
+          toast('Credential added!');
           renderProfilePage();
         } catch (err) {
-          toast("Upload failed: " + err.message);
+          toast('Upload failed: ' + err.message);
           uploadBtn.disabled = false;
-          uploadBtn.textContent = "+ Upload certificate or National ID";
+          uploadBtn.textContent = '+ Upload certificate or National ID';
         }
       }
     });
-    return el("div", { class: "pf-card" },
-      el("h3", { text: "\u{1F6E1}\uFE0F  Credentials" }),
-      el("ul", { class: "pf-cred-list" }, ...listItems),
-      el("div", { style: "margin-top:14px;" },
-        field("Label", labelInput),
-        field("File (PDF, JPG or PNG)", fileInput),
+
+    return collapsibleCard('🛡️  Credentials',
+      el('ul', { class: 'pf-cred-list' }, ...listItems),
+      el('div', { style: 'margin-top:14px;' },
+        field('Label', labelInput),
+        field('File (PDF, JPG or PNG)', fileInput),
         uploadBtn
       )
     );
   }
+
   function buildHistoryBox(history) {
-    return el("div", { class: "pf-card" },
-      el("h3", { text: "\u{1F4CB}  Work history" }),
-      el("div", { class: "pf-hist-list" },
+    return collapsibleCard('📋  Work history',
+      el('div', { class: 'pf-hist-list' },
         ...(history.length
-          ? history.map((h) => el("div", { class: "pf-hist-item" },
-              el("div", {}, el("div", { class: "pf-hist-title", text: h.title }), el("div", { class: "pf-hist-when", text: h.when })),
-              el("div", { class: "pf-hist-right" },
-                el("div", { class: "pf-hist-pay", text: h.pay }),
-                el("div", { class: "pf-hist-rating", text: h.rating ? "\u2605 " + h.rating + ".0" : "Not rated yet" })
+          ? history.map(h => el('div', { class: 'pf-hist-item' },
+              el('div', {},
+                el('div', { class: 'pf-hist-title', text: h.title }),
+                el('div', { class: 'pf-hist-when', text: h.when })
+              ),
+              el('div', { class: 'pf-hist-right' },
+                el('div', { class: 'pf-hist-pay', text: h.pay }),
+                el('div', { class: 'pf-hist-rating', text: h.rating ? '★ ' + h.rating + '.0' : 'Not rated yet' })
               )
             ))
-          : [el("p", { class: "pf-empty", text: "No completed gigs yet. Your finished work will show up here." })])
+          : [el('p', { class: 'pf-empty', text: 'No completed gigs yet. Your finished work will show up here.' })])
       )
     );
   }
+
   function buildPremiumBox(user, profile, latestRequest) {
-    const isPremium = profile.is_premium && profile.premium_expires_at && new Date(profile.premium_expires_at) > /* @__PURE__ */ new Date();
+    const isPremium = profile.is_premium && profile.premium_expires_at && new Date(profile.premium_expires_at) > new Date();
+
     if (isPremium) {
-      return el("div", { class: "pf-premium" },
-        el("div", { class: "pf-prem-title", text: "\u{1F451} You\u2019re Premium" }),
-        el("p", { style: "color:#fff;opacity:.9;font-size:13px;margin-top:6px;", text: "Active until " + new Date(profile.premium_expires_at).toLocaleDateString() })
+      return el('div', { class: 'pf-premium' },
+        el('div', { class: 'pf-prem-title', text: '👑 You’re Premium' }),
+        el('p', { style: 'color:#fff;opacity:.9;font-size:13px;margin-top:6px;',
+          text: 'Active until ' + new Date(profile.premium_expires_at).toLocaleDateString() })
       );
     }
-    if (latestRequest && latestRequest.status === "pending") {
-      return el("div", { class: "pf-premium" },
-        el("div", { class: "pf-prem-title", text: "\u23F3 Payment under review" }),
-        el("p", { style: "color:#fff;opacity:.9;font-size:13px;margin-top:6px;", text: "Reference: " + latestRequest.reference + ". We\u2019ll activate Premium once it\u2019s confirmed." })
+
+    if (latestRequest && latestRequest.status === 'pending') {
+      return el('div', { class: 'pf-premium' },
+        el('div', { class: 'pf-prem-title', text: '⏳ Payment under review' }),
+        el('p', { style: 'color:#fff;opacity:.9;font-size:13px;margin-top:6px;',
+          text: 'Reference: ' + latestRequest.reference + '. We’ll activate Premium once it’s confirmed.' })
       );
     }
-    const refInput = el("input", { class: "pf-input", type: "text", placeholder: "Transaction reference or the phone number you paid from" });
-    const submitBtn = el("button", {
-      class: "pf-prem-btn", type: "button", text: "I've sent the payment",
+
+    const refInput = el('input', {
+      class: 'pf-input', type: 'text',
+      placeholder: 'Transaction reference or the phone number you paid from',
+    });
+
+    const submitBtn = el('button', {
+      class: 'pf-prem-btn', type: 'button',
+      text: "I've sent the payment",
       onclick: async () => {
         const reference = refInput.value.trim();
-        if (!reference) { toast("Enter the transaction reference or phone number you paid from."); return; }
+        if (!reference) { toast('Enter the transaction reference or phone number you paid from.'); return; }
         submitBtn.disabled = true;
-        const { error } = await supabase.from("payment_requests").insert({ user_id: user.id, reference });
+        const { error } = await supabase.from('payment_requests').insert({ user_id: user.id, reference });
         submitBtn.disabled = false;
-        if (error) { toast("Could not submit: " + error.message); return; }
-        toast("Submitted! Premium activates once your payment is confirmed.");
+        if (error) { toast('Could not submit: ' + error.message); return; }
+        toast('Submitted! Premium activates once your payment is confirmed.');
         renderProfilePage();
       }
     });
-    return el("div", { class: "pf-premium" },
-      el("div", { class: "pf-prem-title", text: "\u{1F451} Premium \u2014 MK 1,500 / week" }),
-      el("ul", { class: "pf-prem-list" },
-        el("li", { text: "\u2022 Boosted profile at the top of employer searches" }),
-        el("li", { text: "\u2022 Priority gig alerts by SMS, even offline" }),
-        el("li", { text: "\u2022 Hand-picked high-paying gigs" }),
-        el("li", { text: "\u2022 Lower transaction fee on escrow payouts" })
+
+    return el('div', { class: 'pf-premium' },
+      el('div', { class: 'pf-prem-title', text: '👑 Premium — MK 1,500 / week' }),
+      el('ul', { class: 'pf-prem-list' },
+        el('li', { text: '• Boosted profile at the top of employer searches' }),
+        el('li', { text: '• Priority gig alerts by SMS, even offline' }),
+        el('li', { text: '• Hand-picked high-paying gigs' }),
+        el('li', { text: '• Lower transaction fee on escrow payouts' })
       ),
-      el("div", { style: "background:rgba(255,255,255,.14);border-radius:12px;padding:12px;margin:12px 0;color:#fff;font-size:13px;" },
-        el("div", { text: "Send MK 1,500 via Airtel Money to:" }),
-        el("div", { style: "font-weight:800;font-size:17px;margin-top:4px;letter-spacing:.03em;", text: AIRTEL_NUMBER })
+      el('div', { style: 'background:rgba(255,255,255,.14);border-radius:12px;padding:12px;margin:12px 0;color:#fff;font-size:13px;' },
+        el('div', { text: 'Send MK 1,500 via Airtel Money to:' }),
+        el('div', { style: 'font-weight:800;font-size:17px;margin-top:4px;letter-spacing:.03em;', text: AIRTEL_NUMBER })
       ),
       refInput,
       submitBtn
     );
   }
+
   function buildLeaderboardBox() {
-    return el("div", { class: "pf-card" },
-      el("h3", { text: "\u{1F3C6}  Community leaderboard" }),
-      el("div", { class: "pf-lb-list" },
-        ...WORKERS.map((w, i) => el("div", { class: "pf-lb-item" },
-          el("div", { class: "pf-lb-rank" + (i === 0 ? " top" : ""), text: String(i + 1) }),
-          el("div", { class: "pf-lb-name", text: w.name }),
-          el("div", { class: "pf-lb-meta", text: "\u2605 " + w.rating + " \xB7 " + tCat(w.skills[0]) })
+    return collapsibleCard('🏆  Community leaderboard',
+      el('div', { class: 'pf-lb-list' },
+        ...WORKERS.map((w, i) => el('div', { class: 'pf-lb-item' },
+          el('div', { class: 'pf-lb-rank' + (i === 0 ? ' top' : ''), text: String(i + 1) }),
+          el('div', { class: 'pf-lb-name', text: w.name }),
+          el('div', { class: 'pf-lb-meta', text: '★ ' + w.rating + ' · ' + tCat(w.skills[0]) })
         ))
       ),
-      el("div", { class: "pf-lb-footer", text: "Top workers featured every week" })
+      el('div', { class: 'pf-lb-footer', text: 'Top workers featured every week' })
     );
   }
+
   function buildRefBox(profile) {
-    return el("div", { class: "pf-card" },
-      el("h3", { text: "\u{1F381}  Referrals" }),
-      el("p", { class: "pf-ref-p", text: "Refer a friend and earn MK 500 when they complete their first gig." }),
-      el("div", { class: "pf-ref-box" },
-        el("span", { class: "pf-ref-code", text: (profile.full_name || "PICKAGIG").toUpperCase().replace(/\s+/g, "").slice(0, 8) + "500" }),
-        el("button", { class: "pf-ref-btn", type: "button", text: "Share code", onclick: () => toast("Sharing coming soon.") })
+    return collapsibleCard('🎁  Referrals',
+      el('p', { class: 'pf-ref-p', text: 'Refer a friend and earn MK 500 when they complete their first gig.' }),
+      el('div', { class: 'pf-ref-box' },
+        el('span', { class: 'pf-ref-code', text: (profile.full_name || 'PICKAGIG').toUpperCase().replace(/\s+/g, '').slice(0, 8) + '500' }),
+        el('button', { class: 'pf-ref-btn', type: 'button', text: 'Share code', onclick: () => toast('Sharing coming soon.') })
       )
     );
   }
-  function gearButton2() {
-    return el("button", {
-      class: "lang-pill pf-gear", type: "button", "aria-label": t("settingsOpen"), title: t("settingsOpen"),
-      onclick: () => navigate("settings"),
-      html: '<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.6 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.6a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9c.14.36.39.66.72.86.2.12.44.18.68.18H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>'
+
+  function gearButton() {
+    return el('button', {
+      class: 'lang-pill pf-gear',
+      type: 'button',
+      'aria-label': t('settingsOpen'),
+      title: t('settingsOpen'),
+      onclick: () => navigate('settings'),
+      html: '<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.6 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.6a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9c.14.36.39.66.72.86.2.12.44.18.68.18H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>',
     });
   }
-  function topBar2() {
-    return el("div", { class: "pf-topbar" }, el("h1", { text: t("profileTitle") || "Profile" }), el("div", { class: "panel-actions" }, gearButton2()));
+
+  function topBar() {
+    return el('div', { class: 'pf-topbar' },
+      el('h1', { text: t('profileTitle') || 'Profile' }),
+      el('div', { class: 'panel-actions' }, gearButton())
+    );
   }
-  function renderSignedOut2(container) {
-    container.appendChild(el("div", { class: "pf-container" },
-      topBar2(),
-      el("div", { class: "pf-card", style: "text-align:center;padding:30px 18px;" },
-        el("div", { style: "font-size:44px;line-height:1;", text: "\u{1F464}" }),
-        el("h3", { style: "justify-content:center;margin-top:12px;", text: "Sign in to view your profile" }),
-        el("p", { style: "margin:6px 0 18px;color:#6b7280;font-size:14px;line-height:1.5;", text: "Create an account or sign in to manage your profile, skills and settings." }),
-        el("button", { class: "pf-upload-btn", type: "button", text: "Sign in", onclick: () => openAuthModal("signin") }),
-        el("button", {
-          class: "pf-cancel", type: "button",
-          style: "width:100%;margin-top:10px;border:1px solid #dfe3ea;border-radius:11px;padding:11px;font-size:14px;font-weight:700;background:#fff;color:#4b5563;cursor:pointer;",
-          text: t("settingsTitle"), onclick: () => navigate("settings")
+
+  function renderSignedOut(container) {
+    container.appendChild(el('div', { class: 'pf-container' },
+      topBar(),
+      el('div', { class: 'pf-card', style: 'text-align:center;padding:30px 18px;' },
+        el('div', { style: 'font-size:44px;line-height:1;', text: '👤' }),
+        el('h3', { style: 'justify-content:center;margin-top:12px;', text: 'Sign in to view your profile' }),
+        el('p', { style: 'margin:6px 0 18px;color:#6b7280;font-size:14px;line-height:1.5;',
+          text: 'Create an account or sign in to manage your profile, skills and settings.' }),
+        el('button', { class: 'pf-upload-btn', type: 'button', text: 'Sign in', onclick: () => openAuthModal('signin') }),
+        el('button', {
+          class: 'pf-cancel', type: 'button',
+          style: 'width:100%;margin-top:10px;border:1px solid #dfe3ea;border-radius:11px;padding:11px;font-size:14px;font-weight:700;background:#fff;color:#4b5563;cursor:pointer;',
+          text: t('settingsTitle'), onclick: () => navigate('settings'),
         })
       )
     ));
   }
-  var profileEditMode = false;
+
+  /* ── Entry point ─────────────────────────────────────────── */
+
+  let editMode = false;
+
   async function renderProfilePage() {
     injectProfileStyles();
-    const profileContainer = document.getElementById("pageProfile");
+
+    const profileContainer = document.getElementById('pageProfile');
     if (!profileContainer) return;
-    profileContainer.textContent = "";
+    profileContainer.textContent = '';
+
     const user = getCurrentUser();
     if (!user) {
-      profileEditMode = false;
-      renderSignedOut2(profileContainer);
+      editMode = false;
+      renderSignedOut(profileContainer);
       return;
     }
-    profileContainer.appendChild(el("div", { class: "pf-container" }, topBar2(), el("div", { class: "pf-skeleton" })));
+
+    profileContainer.appendChild(el('div', { class: 'pf-container' },
+      topBar(),
+      el('div', { class: 'pf-skeleton' })
+    ));
+
     const [profile, credentials, history, pendingRatings, latestPaymentRequest] = await Promise.all([
       fetchProfile(user.id),
       fetchCredentials(user.id),
       fetchHistory(user.id),
       fetchPendingPosterRatings(user.id),
-      fetchLatestPaymentRequest(user.id)
+      fetchLatestPaymentRequest(user.id),
     ]);
-    profileContainer.textContent = "";
+    profileContainer.textContent = '';
+
     if (!profile) {
-      profileContainer.appendChild(el("div", { class: "pf-container" },
-        topBar2(),
-        el("div", { class: "pf-card", style: "text-align:center;" },
-          el("p", { style: "color:#6b7280;font-size:14px;", text: "Could not load your profile." }),
-          el("button", { class: "pf-upload-btn", type: "button", text: "Retry", onclick: renderProfilePage })
+      profileContainer.appendChild(el('div', { class: 'pf-container' },
+        topBar(),
+        el('div', { class: 'pf-card', style: 'text-align:center;' },
+          el('p', { style: 'color:#6b7280;font-size:14px;', text: 'Could not load your profile.' }),
+          el('button', { class: 'pf-upload-btn', type: 'button', text: 'Retry', onclick: renderProfilePage })
         )
       ));
       return;
     }
-    const openEdit = () => { profileEditMode = true; renderProfilePage(); };
-    const closeEdit = () => { profileEditMode = false; renderProfilePage(); };
-    const children = [topBar2(), buildHero(user, profile, openEdit), buildStats(profile)];
-    if (profileEditMode) children.push(buildEditCard(user, profile, closeEdit));
+
+    const rerender = () => renderProfilePage();
+    const openEdit  = () => { editMode = true;  rerender(); };
+    const closeEdit = () => { editMode = false; rerender(); };
+
+    const children = [
+      topBar(),
+      buildHero(user, profile, openEdit),
+      buildStats(profile),
+    ];
+
+    if (editMode) children.push(buildEditCard(user, profile, closeEdit));
+
     children.push(
       buildPendingRatingsBox(pendingRatings),
       buildSkillsBox(user, profile),
@@ -2029,300 +2206,336 @@
       buildLeaderboardBox(),
       buildRefBox(profile)
     );
-    profileEditMode = false;
-    profileContainer.appendChild(el("div", { class: "pf-container" }, ...children.filter(Boolean)));
+
+    // editMode resets after a successful save (renderProfilePage re-runs).
+    editMode = false;
+
+    profileContainer.appendChild(el('div', { class: 'pf-container' }, ...children.filter(Boolean)));
   }
 
+
   // js/settings.js
-  var S = 'fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"';
-  var svg = (body) => `<svg width="17" height="17" viewBox="0 0 24 24" ${S} aria-hidden="true">${body}</svg>`;
-  var ICON = {
-    pin: svg('<path d="M20 10.2c0 5.9-8 11.8-8 11.8s-8-5.9-8-11.8a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="2.7"/>'),
+  /* ============================================================
+     PickAGig — settings.js
+     Dedicated Settings page rendered as a grouped inset list: a
+     sticky frosted header, uppercase section labels, and rows with
+     tinted icons, inset hairline dividers and chevrons.
+     Device-local preferences (radius, home area, language) work
+     while signed out; notification toggles need a profile row.
+     ============================================================ */
+
+
+  const SETTINGS_CSS = `
+  .set-group{border:none;}
+  .set-summary{display:flex;align-items:center;justify-content:space-between;cursor:pointer;
+    list-style:none;padding:2px 2px 8px;user-select:none;}
+  .set-summary::-webkit-details-marker{display:none;}
+  .set-summary::marker{content:'';}
+  .set-summary-chev{display:inline-flex;color:#9ca3af;transition:transform .18s ease;flex:0 0 auto;}
+  .set-group[open] .set-summary-chev{transform:rotate(90deg);}
+  .set-group:not([open]) .set-list{display:none;}
+  `;
+
+  function injectSettingsStyles() {
+    if (document.getElementById('set-accordion-styles')) return;
+    const style = document.createElement('style');
+    style.id = 'set-accordion-styles';
+    style.textContent = SETTINGS_CSS;
+    document.head.appendChild(style);
+  }
+
+  const S = 'fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"';
+  const svg = (body) => `<svg width="17" height="17" viewBox="0 0 24 24" ${S} aria-hidden="true">${body}</svg>`;
+
+  const ICON = {
+    pin:       svg('<path d="M20 10.2c0 5.9-8 11.8-8 11.8s-8-5.9-8-11.8a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="2.7"/>'),
     crosshair: svg('<circle cx="12" cy="12" r="7.4"/><line x1="12" y1="1.6" x2="12" y2="5"/><line x1="12" y1="19" x2="12" y2="22.4"/><line x1="1.6" y1="12" x2="5" y2="12"/><line x1="19" y1="12" x2="22.4" y2="12"/>'),
-    locate: svg('<polygon points="3.2 11 21.6 2.6 13.2 21 11.2 13 3.2 11"/>'),
-    radius: svg('<circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="3.2"/><line x1="14.3" y1="9.7" x2="18.4" y2="5.6"/>'),
-    bell: svg('<path d="M18 8.6a6 6 0 1 0-12 0c0 5.9-2 7.4-2 7.4h16s-2-1.5-2-7.4Z"/><path d="M13.7 19.8a2 2 0 0 1-3.4 0"/>'),
-    globe: svg('<circle cx="12" cy="12" r="9"/><path d="M3.2 12h17.6"/><path d="M12 3a14.5 14.5 0 0 1 0 18A14.5 14.5 0 0 1 12 3Z"/>'),
-    data: svg('<ellipse cx="12" cy="5.6" rx="7.4" ry="2.9"/><path d="M4.6 5.6v12.8c0 1.6 3.3 2.9 7.4 2.9s7.4-1.3 7.4-2.9V5.6"/><path d="M4.6 12c0 1.6 3.3 2.9 7.4 2.9s7.4-1.3 7.4-2.9"/>'),
-    user: svg('<circle cx="12" cy="8.1" r="3.7"/><path d="M4.8 20.4a7.2 7.2 0 0 1 14.4 0"/>'),
-    info: svg('<circle cx="12" cy="12" r="9"/><line x1="12" y1="11.2" x2="12" y2="16.4"/><line x1="12" y1="7.7" x2="12" y2="7.8"/>'),
-    logout: svg('<path d="M9.6 21H6.2A2.2 2.2 0 0 1 4 18.8V5.2A2.2 2.2 0 0 1 6.2 3h3.4"/><polyline points="16.2 16.4 20.6 12 16.2 7.6"/><line x1="20.6" y1="12" x2="9.8" y2="12"/>'),
-    back: '<svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>',
-    chevron: '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="9.5 5.5 16 12 9.5 18.5"/></svg>'
+    locate:    svg('<polygon points="3.2 11 21.6 2.6 13.2 21 11.2 13 3.2 11"/>'),
+    radius:    svg('<circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="3.2"/><line x1="14.3" y1="9.7" x2="18.4" y2="5.6"/>'),
+    bell:      svg('<path d="M18 8.6a6 6 0 1 0-12 0c0 5.9-2 7.4-2 7.4h16s-2-1.5-2-7.4Z"/><path d="M13.7 19.8a2 2 0 0 1-3.4 0"/>'),
+    globe:     svg('<circle cx="12" cy="12" r="9"/><path d="M3.2 12h17.6"/><path d="M12 3a14.5 14.5 0 0 1 0 18A14.5 14.5 0 0 1 12 3Z"/>'),
+    data:      svg('<ellipse cx="12" cy="5.6" rx="7.4" ry="2.9"/><path d="M4.6 5.6v12.8c0 1.6 3.3 2.9 7.4 2.9s7.4-1.3 7.4-2.9V5.6"/><path d="M4.6 12c0 1.6 3.3 2.9 7.4 2.9s7.4-1.3 7.4-2.9"/>'),
+    user:      svg('<circle cx="12" cy="8.1" r="3.7"/><path d="M4.8 20.4a7.2 7.2 0 0 1 14.4 0"/>'),
+    info:      svg('<circle cx="12" cy="12" r="9"/><line x1="12" y1="11.2" x2="12" y2="16.4"/><line x1="12" y1="7.7" x2="12" y2="7.8"/>'),
+    logout:    svg('<path d="M9.6 21H6.2A2.2 2.2 0 0 1 4 18.8V5.2A2.2 2.2 0 0 1 6.2 3h3.4"/><polyline points="16.2 16.4 20.6 12 16.2 7.6"/><line x1="20.6" y1="12" x2="9.8" y2="12"/>'),
+    back:      '<svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>',
+    chevron:   '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="9.5 5.5 16 12 9.5 18.5"/></svg>',
   };
+
   async function fetchProfileRow(userId) {
-    const { data, error } = await supabase.from("profiles").select("*").eq("id", userId).maybeSingle();
-    if (error) {
-      console.error("settings fetchProfile error:", error);
-      return null;
-    }
+    const { data, error } = await supabase
+      .from('profiles').select('*').eq('id', userId).maybeSingle();
+    if (error) { console.error('settings fetchProfile error:', error); return null; }
     return data;
   }
+
   async function saveSetting(userId, patch) {
-    const { error } = await supabase.from("profiles").update(patch).eq("id", userId);
-    if (error) {
-      toast("Could not save: " + error.message);
-      return false;
-    }
-    toast(t("settingsSaved"));
+    const { error } = await supabase.from('profiles').update(patch).eq('id', userId);
+    if (error) { toast('Could not save: ' + error.message); return false; }
+    toast(t('settingsSaved'));
     return true;
   }
+
+  // ── Row primitives ───────────────────────────────────────────
+
   function ico(name, tone) {
-    return el("span", { class: "row-ico " + tone, html: ICON[name] });
+    return el('span', { class: 'row-ico ' + tone, html: ICON[name] });
   }
+
   function rowText(title, hint) {
-    return el(
-      "span",
-      { class: "row-text" },
-      el("strong", { text: title }),
-      hint ? el("span", { class: "row-hint", text: hint }) : null
+    return el('span', { class: 'row-text' },
+      el('strong', { text: title }),
+      hint ? el('span', { class: 'row-hint', text: hint }) : null
     );
   }
+
   function rowVal(text) {
-    return text ? el("span", { class: "row-val", text }) : null;
+    return text ? el('span', { class: 'row-val', text }) : null;
   }
+
   function chevron() {
-    return el("span", { class: "row-chev", html: ICON.chevron });
+    return el('span', { class: 'row-chev', html: ICON.chevron });
   }
+
   function staticRow({ icon, tone, title, hint, value }) {
-    return el("div", { class: "row" }, ico(icon, tone), rowText(title, hint), rowVal(value));
+    return el('div', { class: 'row' }, ico(icon, tone), rowText(title, hint), rowVal(value));
   }
+
   function actionRow({ icon, tone, title, hint, value, onclick }) {
-    return el(
-      "button",
-      { class: "row row-tap", type: "button", onclick },
-      ico(icon, tone),
-      rowText(title, hint),
-      rowVal(value),
-      chevron()
+    return el('button', { class: 'row row-tap', type: 'button', onclick },
+      ico(icon, tone), rowText(title, hint), rowVal(value), chevron()
     );
   }
+
   function toggleRow({ icon, tone, title, hint, checked, onChange }) {
-    const input = el("input", { type: "checkbox", class: "sw-input" });
+    const input = el('input', { type: 'checkbox', class: 'sw-input' });
     input.checked = !!checked;
-    input.addEventListener("change", () => onChange(input.checked));
-    return el(
-      "label",
-      { class: "row row-tap" },
-      ico(icon, tone),
-      rowText(title, hint),
-      el("span", { class: "sw" }, input, el("span", { class: "sw-knob" }))
+    input.addEventListener('change', () => onChange(input.checked));
+    return el('label', { class: 'row row-tap' },
+      ico(icon, tone), rowText(title, hint),
+      el('span', { class: 'sw' }, input, el('span', { class: 'sw-knob' }))
     );
   }
+
   function dangerRow({ icon, title, onclick }) {
-    return el(
-      "button",
-      { class: "row row-tap row-danger", type: "button", onclick },
-      ico(icon, "t-red"),
-      el("span", { class: "row-text center" }, el("strong", { text: title }))
+    return el('button', { class: 'row row-tap row-danger', type: 'button', onclick },
+      ico(icon, 't-red'), el('span', { class: 'row-text center' }, el('strong', { text: title }))
     );
   }
+
+  // A row whose content stacks: a label line above a full-width control.
+  // `line` is an array of nodes so callers can pass icon + text together;
+  // omit it for rows with no icon (their divider is not inset).
   function stackedRow(line, control) {
     const hasLine = !!(line && line.length);
-    return el(
-      "div",
-      { class: "row row-stack" + (hasLine ? "" : " row-plain") },
-      hasLine ? el("div", { class: "row-line" }, ...line) : null,
+    return el('div', { class: 'row row-stack' + (hasLine ? '' : ' row-plain') },
+      hasLine ? el('div', { class: 'row-line' }, ...line) : null,
       control
     );
   }
+
   function segmented(options, current, onPick) {
-    const seg = el("div", { class: "seg seg-fill", role: "group" });
-    options.forEach((o) => {
-      seg.appendChild(el("button", {
-        class: "seg-btn" + (o.value === current ? " active" : ""),
-        type: "button",
-        text: o.label,
-        "aria-pressed": o.value === current ? "true" : "false",
+    const seg = el('div', { class: 'seg seg-fill', role: 'group' });
+    options.forEach(o => {
+      seg.appendChild(el('button', {
+        class: 'seg-btn' + (o.value === current ? ' active' : ''),
+        type: 'button', text: o.label, 'aria-pressed': o.value === current ? 'true' : 'false',
         onclick: (ev) => {
-          seg.querySelectorAll(".seg-btn").forEach((b) => {
-            b.classList.remove("active");
-            b.setAttribute("aria-pressed", "false");
+          seg.querySelectorAll('.seg-btn').forEach(b => {
+            b.classList.remove('active');
+            b.setAttribute('aria-pressed', 'false');
           });
-          ev.currentTarget.classList.add("active");
-          ev.currentTarget.setAttribute("aria-pressed", "true");
+          ev.currentTarget.classList.add('active');
+          ev.currentTarget.setAttribute('aria-pressed', 'true');
           onPick(o.value);
-        }
+        },
       }));
     });
     return seg;
   }
+
   function group(label, ...rows) {
     const list = rows.filter(Boolean);
     if (!list.length) return null;
-    return el(
-      "section",
-      { class: "set-group" },
-      el("h2", { class: "set-label", text: label }),
-      el("div", { class: "set-list" }, ...list)
+    return el('details', { class: 'set-group' },
+      el('summary', { class: 'set-summary' },
+        el('span', { class: 'set-label', text: label }),
+        el('span', { class: 'set-summary-chev', html: ICON.chevron })
+      ),
+      el('div', { class: 'set-list' }, ...list)
     );
   }
+
   function signInBlock(hint) {
-    return stackedRow(null, el(
-      "div",
-      { class: "set-signin" },
-      el("p", { class: "set-hint-p", text: hint }),
-      el("button", { class: "primary", type: "button", text: t("settingsSignIn"), onclick: () => openAuthModal("signin") })
+    return stackedRow(null, el('div', { class: 'set-signin' },
+      el('p', { class: 'set-hint-p', text: hint }),
+      el('button', { class: 'primary', type: 'button', text: t('settingsSignIn'), onclick: () => openAuthModal('signin') })
     ));
   }
+
   function currentPositionText() {
     const loc = getUserLocation();
-    if (!locationIsKnown(loc)) return t("settingsPositionUnknown");
-    return loc.label ? shortLabel(loc.label) : `${loc.lat.toFixed(4)}, ${loc.lng.toFixed(4)}`;
+    if (!locationIsKnown(loc)) return t('settingsPositionUnknown');
+    return loc.label
+      ? shortLabel(loc.label)
+      : `${loc.lat.toFixed(4)}, ${loc.lng.toFixed(4)}`;
   }
+
+  // ── Page ─────────────────────────────────────────────────────
+
   async function renderSettingsPage() {
-    const container = document.getElementById("pageSettings");
+    injectSettingsStyles();
+    const container = document.getElementById('pageSettings');
     if (!container) return;
-    container.textContent = "";
+    container.textContent = '';
+
     const user = getCurrentUser();
-    container.appendChild(el("div", { class: "set-loading", text: "Loading\u2026" }));
+    container.appendChild(el('div', { class: 'set-loading', text: 'Loading…' }));
+
     const profile = user ? await fetchProfileRow(user.id) : null;
-    container.textContent = "";
-    function chooseArea2() {
+    container.textContent = '';
+
+    function chooseArea() {
       openLocationPicker({
-        title: t("mapAreaTitle"),
-        hint: t("mapAreaHint"),
-        confirmLabel: t("mapChooseArea"),
-        initial: getHomeLocation() || void 0,
+        title: t('mapAreaTitle'),
+        hint: t('mapAreaHint'),
+        confirmLabel: t('mapChooseArea'),
+        initial: getHomeLocation() || undefined,
         onConfirm: (picked) => {
           setHomeLocation(picked);
+          // Adopt it as the working position too, so the change is
+          // visible immediately even with location services off.
           state.userLocation = {
-            lat: picked.lat,
-            lng: picked.lng,
-            label: picked.label,
-            isFallback: true,
-            unknown: false
+            lat: picked.lat, lng: picked.lng, label: picked.label,
+            isFallback: true, unknown: false,
           };
           onLocationPrefsChanged();
           renderSettingsPage();
-          toast(t("mapNear", { place: shortLabel(picked.label) }));
-        }
+          toast(t('mapNear', { place: shortLabel(picked.label) }));
+        },
       });
     }
+
     async function useMyPosition(ev) {
       const btn = ev.currentTarget;
       btn.disabled = true;
-      btn.classList.add("is-busy");
-      toast(t("mapLocating"));
+      btn.classList.add('is-busy');
+      toast(t('mapLocating'));
       await requestUserLocation();
       if (!locationIsKnown()) {
         btn.disabled = false;
-        btn.classList.remove("is-busy");
-        toast(t("mapNoGps"));
+        btn.classList.remove('is-busy');
+        toast(t('mapNoGps'));
         return;
       }
       onLocationPrefsChanged();
       renderSettingsPage();
-      toast(t("mapLocated"));
+      toast(t('mapLocated'));
     }
-    const topbar = el(
-      "header",
-      { class: "set-topbar" },
-      el("button", {
-        class: "set-back",
-        type: "button",
-        "aria-label": t("navBack"),
-        title: t("navBack"),
-        onclick: () => navigate("profile"),
-        html: ICON.back
+
+    const topbar = el('header', { class: 'set-topbar' },
+      el('button', {
+        class: 'set-back', type: 'button',
+        'aria-label': t('navBack'), title: t('navBack'),
+        onclick: () => navigate('profile'), html: ICON.back,
       }),
-      el("h1", { class: "set-title", text: t("settingsTitle") })
+      el('h1', { class: 'set-title', text: t('settingsTitle') })
     );
+
     const home = getHomeLocation();
-    const locationGroup = group(
-      t("settingsLocation"),
+
+    // ── Location & radius ──────────────────────────────────────
+    const locationGroup = group(t('settingsLocation'),
       actionRow({
-        icon: "pin",
-        tone: "t-orange",
-        title: t("settingsHomeArea"),
-        hint: t("settingsHomeAreaHint"),
-        value: home ? shortLabel(home.label) : t("settingsHomeNone"),
-        onclick: chooseArea2
+        icon: 'pin', tone: 't-orange',
+        title: t('settingsHomeArea'),
+        hint: t('settingsHomeAreaHint'),
+        value: home ? shortLabel(home.label) : t('settingsHomeNone'),
+        onclick: chooseArea,
       }),
       staticRow({
-        icon: "crosshair",
-        tone: "t-blue",
-        title: t("settingsCurrentPosition"),
-        value: currentPositionText()
+        icon: 'crosshair', tone: 't-blue',
+        title: t('settingsCurrentPosition'),
+        value: currentPositionText(),
       }),
       actionRow({
-        icon: "locate",
-        tone: "t-green",
-        title: t("settingsUseCurrent"),
-        onclick: useMyPosition
+        icon: 'locate', tone: 't-green',
+        title: t('settingsUseCurrent'),
+        onclick: useMyPosition,
       }),
       stackedRow(
-        [ico("radius", "t-purple"), rowText(t("settingsRadius"), t("settingsRadiusHint"))],
+        [ico('radius', 't-purple'), rowText(t('settingsRadius'), t('settingsRadiusHint'))],
         segmented(
-          RADIUS_CHOICES_KM.map((km) => ({ value: km, label: km + "km" })),
+          RADIUS_CHOICES_KM.map(km => ({ value: km, label: km + 'km' })),
           getRadiusKm(),
-          (km) => {
-            setRadiusKm(km);
-            onLocationPrefsChanged();
-          }
+          (km) => { setRadiusKm(km); onLocationPrefsChanged(); }
         )
       )
     );
-    const notificationsGroup = group(
-      t("settingsNotifications"),
-      user && profile ? toggleRow({
-        icon: "bell",
-        tone: "t-orange",
-        title: t("smsAlertsLbl"),
-        hint: t("settingsSmsHint"),
-        checked: profile.sms_alerts,
-        onChange: (on) => saveSetting(user.id, { sms_alerts: on })
-      }) : signInBlock(t("settingsSignInHint"))
+
+    // ── Notifications ──────────────────────────────────────────
+    const notificationsGroup = group(t('settingsNotifications'),
+      user && profile
+        ? toggleRow({
+            icon: 'bell', tone: 't-orange',
+            title: t('smsAlertsLbl'),
+            hint: t('settingsSmsHint'),
+            checked: profile.sms_alerts,
+            onChange: (on) => saveSetting(user.id, { sms_alerts: on }),
+          })
+        : signInBlock(t('settingsSignInHint'))
     );
-    const languageGroup = group(
-      t("settingsLanguage"),
+
+    // ── Language ───────────────────────────────────────────────
+    const languageGroup = group(t('settingsLanguage'),
       stackedRow(null, segmented(
-        [{ value: "EN", label: "English" }, { value: "NY", label: "Chichewa" }],
+        [{ value: 'EN', label: 'English' }, { value: 'NY', label: 'Chichewa' }],
         lang,
         setLang
       ))
     );
-    const dataGroup = user && profile ? group(
-      t("settingsData"),
-      toggleRow({
-        icon: "data",
-        tone: "t-green",
-        title: t("dataSaverLbl"),
-        hint: t("settingsDataSaverHint"),
-        checked: profile.data_saver,
-        onChange: (on) => saveSetting(user.id, { data_saver: on })
-      })
-    ) : null;
-    const accountGroup = group(
-      t("settingsAccount"),
-      user ? staticRow({
-        icon: "user",
-        tone: "t-navy",
-        title: profile?.full_name || t("settingsAccount"),
-        value: user.email || ""
-      }) : signInBlock(t("settingsSignInHint")),
-      user ? dangerRow({
-        icon: "logout",
-        title: t("settingsSignOut"),
-        onclick: () => {
-          if (confirm("Sign out of PickAGig?")) signOut();
-        }
-      }) : null
+
+    // ── Data (needs a profile row) ─────────────────────────────
+    const dataGroup = user && profile
+      ? group(t('settingsData'),
+          toggleRow({
+            icon: 'data', tone: 't-green',
+            title: t('dataSaverLbl'),
+            hint: t('settingsDataSaverHint'),
+            checked: profile.data_saver,
+            onChange: (on) => saveSetting(user.id, { data_saver: on }),
+          })
+        )
+      : null;
+
+    // ── Account ────────────────────────────────────────────────
+    const accountGroup = group(t('settingsAccount'),
+      user
+        ? staticRow({
+            icon: 'user', tone: 't-navy',
+            title: profile?.full_name || t('settingsAccount'),
+            value: user.email || '',
+          })
+        : signInBlock(t('settingsSignInHint')),
+      user
+        ? dangerRow({
+            icon: 'logout', title: t('settingsSignOut'),
+            onclick: () => { if (confirm('Sign out of PickAGig?')) signOut(); },
+          })
+        : null
     );
-    const aboutGroup = group(
-      t("settingsAbout"),
+
+    const aboutGroup = group(t('settingsAbout'),
       staticRow({
-        icon: "info",
-        tone: "t-navy",
-        title: "PickAGig",
-        value: t("settingsVersion") + " " + APP_VERSION
+        icon: 'info', tone: 't-navy',
+        title: 'PickAGig',
+        value: t('settingsVersion') + ' ' + APP_VERSION,
       })
     );
+
     container.appendChild(topbar);
-    container.appendChild(el(
-      "div",
-      { class: "set-body" },
-      el("p", { class: "set-lead", text: t("settingsPageSub") }),
+    container.appendChild(el('div', { class: 'set-body' },
+      el('p', { class: 'set-lead', text: t('settingsPageSub') }),
       locationGroup,
       notificationsGroup,
       languageGroup,
@@ -2331,6 +2544,7 @@
       aboutGroup
     ));
   }
+
 
   // js/main.js
   function setLang(l) {
