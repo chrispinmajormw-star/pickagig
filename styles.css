@@ -932,41 +932,110 @@ button, input, select, textarea { font: inherit; }
 .pf-gear { display: inline-grid; place-items: center; width: 34px; height: 34px; padding: 0; }
 
 /* ══════════════════════════════════════════════════════════
-   SETTINGS PAGE
+   SETTINGS PAGE — grouped inset list
 ══════════════════════════════════════════════════════════ */
-.set-container { display: flex; flex-direction: column; gap: 14px; padding: 0 0 100px; }
-.set-loading { padding: 24px 16px; color: var(--muted); font-size: 14px; }
+.set-loading { padding: 48px 20px; text-align: center; color: var(--muted); font-size: 14px; }
 
-.set-header {
-  display: flex; align-items: center; gap: 12px;
-  background: linear-gradient(150deg, var(--grad-a) 0%, var(--grad-b) 55%, var(--grad-c) 100%);
-  color: white; padding: 20px 16px; border-radius: 0 0 24px 24px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.1); margin-bottom: 6px;
+/* Sticky frosted header — stays put while the groups scroll under it. */
+.set-topbar {
+  position: sticky; top: 0; z-index: 20;
+  display: flex; align-items: center; gap: 10px;
+  padding: 11px 16px;
+  background: rgba(245, 240, 234, 0.84);
+  -webkit-backdrop-filter: blur(16px) saturate(170%);
+  backdrop-filter: blur(16px) saturate(170%);
+  border-bottom: 1px solid rgba(26, 37, 80, 0.07);
 }
-.set-header h1 { margin: 0; font-size: 22px; font-weight: 800; letter-spacing: -0.5px; }
-.set-sub { margin: 3px 0 0; font-size: 12.5px; opacity: 0.85; }
+.set-title { margin: 0; font-size: 19px; font-weight: 800; letter-spacing: -0.4px; color: var(--navy); }
 .set-back {
   display: grid; place-items: center; flex-shrink: 0;
-  width: 36px; height: 36px; border-radius: 50%;
-  border: 1.8px solid rgba(255,255,255,0.45); background: transparent;
-  color: white; cursor: pointer; transition: var(--transition);
+  width: 34px; height: 34px; padding: 0; border: 0; border-radius: 50%;
+  background: rgba(26, 37, 80, 0.07); color: var(--navy);
+  cursor: pointer; transition: var(--transition);
 }
-.set-back:hover { background: rgba(255,255,255,0.14); }
+.set-back:hover { background: rgba(26, 37, 80, 0.13); }
+.set-back:active { transform: scale(0.92); }
 
-.set-card {
-  background: var(--card); border: 1px solid var(--line);
-  border-radius: var(--radius-card); padding: 16px; margin: 0 16px;
-  box-shadow: var(--shadow-card);
+.set-body { display: flex; flex-direction: column; gap: 20px; padding: 14px 16px 110px; }
+.set-lead { margin: 0; padding-left: 3px; font-size: 12.5px; line-height: 1.5; color: var(--muted); }
+
+/* Group: an uppercase label above one rounded container of rows. */
+.set-group { display: flex; flex-direction: column; gap: 7px; }
+.set-label {
+  margin: 0; padding-left: 4px;
+  font-size: 11px; font-weight: 800; letter-spacing: 0.09em;
+  text-transform: uppercase; color: var(--muted);
 }
-.set-card-title {
-  margin: 0 0 6px; font-size: 12px; font-weight: 800;
-  text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted);
+.set-list {
+  background: var(--card);
+  border: 1px solid rgba(26, 37, 80, 0.06);
+  border-radius: 16px;
+  box-shadow: 0 1px 2px rgba(26, 37, 80, 0.04), 0 6px 20px rgba(26, 37, 80, 0.045);
+  overflow: hidden;
 }
-.set-row { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 12px 0; border-bottom: 1px solid var(--line); }
-.set-row:last-child { border-bottom: 0; padding-bottom: 4px; }
-.set-value { font-size: 13px; color: var(--navy); font-weight: 600; margin-top: 3px; word-break: break-word; }
-.set-hint-p { font-size: 13px; color: var(--muted); line-height: 1.5; margin: 8px 0 12px; }
-.set-actions { display: flex; gap: 8px; flex-wrap: wrap; padding: 12px 0 4px; }
+
+/* ── Rows ─────────────────────────────────────────────────── */
+.row {
+  position: relative;
+  display: flex; align-items: center; gap: 12px;
+  width: 100%; min-height: 54px; margin: 0; padding: 11px 14px;
+  background: transparent; border: 0;
+  font: inherit; text-align: left; color: var(--navy);
+}
+/* Hairline divider, inset so it starts past the row icon. */
+.set-list > .row + .row::before {
+  content: ''; position: absolute; top: 0; right: 0; left: 52px;
+  height: 1px; background: rgba(26, 37, 80, 0.07);
+}
+.set-list > .row + .row.row-plain::before { left: 14px; }
+
+.row-tap { cursor: pointer; transition: background var(--transition); }
+.row-tap:hover { background: rgba(26, 37, 80, 0.028); }
+.row-tap:active { background: rgba(26, 37, 80, 0.06); }
+.row-tap:focus-visible { outline: 2px solid var(--orange); outline-offset: -2px; }
+.row-tap:disabled { cursor: default; opacity: 0.55; }
+.row-tap:disabled:hover { background: transparent; }
+
+.row-ico { display: grid; place-items: center; flex-shrink: 0; width: 26px; height: 26px; border-radius: 8px; }
+.t-orange { background: rgba(249, 115, 22, 0.13); color: #d95f05; }
+.t-blue   { background: rgba(37, 99, 235, 0.12);  color: #2563eb; }
+.t-green  { background: rgba(22, 163, 74, 0.13);  color: #15803d; }
+.t-purple { background: rgba(124, 58, 237, 0.12); color: #7c3aed; }
+.t-navy   { background: rgba(26, 37, 80, 0.09);   color: var(--navy); }
+.t-red    { background: rgba(220, 38, 38, 0.10);  color: #dc2626; }
+
+.row-text { display: flex; flex: 1 1 auto; min-width: 0; flex-direction: column; gap: 1px; }
+.row-text.center { align-items: center; text-align: center; }
+.row-text strong { font-size: 14px; font-weight: 650; letter-spacing: -0.1px; color: var(--navy); }
+.row-hint { font-size: 11.5px; line-height: 1.4; color: var(--muted); }
+/* Capped so a long value can never squeeze the title/hint column on
+   narrow phones — the text side of a row always wins the space. */
+.row-val {
+  flex: 0 1 auto; min-width: 0; max-width: 38%;
+  font-size: 12.5px; font-weight: 600; color: var(--muted);
+  text-align: right; overflow-wrap: anywhere;
+}
+.row-chev { display: grid; place-items: center; flex-shrink: 0; margin-left: -4px; color: rgba(26, 37, 80, 0.28); }
+
+.row-danger { justify-content: center; }
+/* Icon and label must centre as one unit, so the text can't absorb
+   the free space the way it does in every other row. */
+.row-danger .row-text { flex: 0 0 auto; }
+.row-danger strong { font-weight: 700; color: #dc2626; }
+.row-danger:hover { background: rgba(220, 38, 38, 0.05); }
+.row-danger:active { background: rgba(220, 38, 38, 0.09); }
+/* Symmetric divider: a centred row would look wrong behind an
+   icon-inset rule. */
+.set-list > .row + .row.row-danger::before { right: 14px; left: 14px; }
+
+/* Rows that stack a full-width control under a label line. */
+.row-stack { display: block; padding: 13px 14px; }
+.row-line { display: flex; align-items: center; gap: 12px; }
+.row-stack .seg, .set-signin { margin-top: 12px; }
+.set-signin { display: grid; gap: 10px; }
+.set-hint-p { margin: 0; font-size: 12.5px; line-height: 1.5; color: var(--muted); }
+
+/* Kept for the Settings button on the signed-out profile page. */
 .set-btn {
   flex: 1; min-width: 140px; padding: 11px 14px;
   background: var(--bg); border: 1.5px solid var(--line);
@@ -979,31 +1048,34 @@ button, input, select, textarea { font: inherit; }
 .set-btn.danger:hover { border-color: #dc2626; color: #b91c1c; }
 
 /* ── Toggle switch ───────────────────────────────────────── */
-.sw-row { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 13px 0; border-bottom: 1px solid var(--line); cursor: pointer; }
-.sw-row:last-child { border-bottom: 0; padding-bottom: 4px; }
-.sw-text { flex: 1; min-width: 0; }
-.sw-text strong { display: block; font-size: 14px; font-weight: 700; color: var(--navy); }
-.sw-hint { font-size: 12px; color: var(--muted); margin-top: 2px; line-height: 1.45; }
-.sw { position: relative; display: inline-block; width: 46px; height: 27px; flex-shrink: 0; }
+.sw { position: relative; display: inline-block; flex-shrink: 0; width: 48px; height: 29px; margin-left: 2px; }
 .sw-input { position: absolute; inset: 0; width: 100%; height: 100%; margin: 0; opacity: 0; cursor: pointer; z-index: 2; }
-.sw-knob { position: absolute; inset: 0; background: #d8d2cb; border-radius: var(--radius-pill); transition: var(--transition); pointer-events: none; }
+.sw-knob {
+  position: absolute; inset: 0; border-radius: var(--radius-pill);
+  background: #ded7ce; transition: background 0.22s ease; pointer-events: none;
+}
 .sw-knob::after {
   content: ''; position: absolute; top: 3px; left: 3px;
-  width: 21px; height: 21px; background: white; border-radius: 50%;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.28); transition: var(--transition);
+  width: 23px; height: 23px; background: white; border-radius: 50%;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.25), 0 0 0 0.5px rgba(0,0,0,0.04);
+  transition: transform 0.24s cubic-bezier(0.34, 1.4, 0.64, 1);
 }
 .sw-input:checked + .sw-knob { background: var(--green); }
 .sw-input:checked + .sw-knob::after { transform: translateX(19px); }
 .sw-input:focus-visible + .sw-knob { box-shadow: 0 0 0 3px rgba(249,115,22,0.35); }
 
 /* ── Segmented control (radius, language) ────────────────── */
-.seg { display: inline-flex; gap: 3px; background: var(--bg); padding: 4px; border-radius: var(--radius-pill); flex-wrap: wrap; }
+.seg { display: inline-flex; gap: 2px; padding: 3px; background: rgba(26, 37, 80, 0.055); border-radius: 11px; }
+.seg-fill { display: flex; width: 100%; }
 .seg-btn {
-  border: 0; background: transparent; padding: 7px 13px;
-  border-radius: var(--radius-pill); font-size: 13px; font-weight: 700;
-  color: var(--muted); cursor: pointer; transition: var(--transition); white-space: nowrap;
+  flex: 1; min-width: 0; padding: 8px 6px;
+  border: 0; border-radius: 9px; background: transparent;
+  font-size: 12.5px; font-weight: 700; white-space: nowrap;
+  color: var(--muted); cursor: pointer; transition: var(--transition);
 }
-.seg-btn.active { background: var(--card); color: var(--orange-dk); box-shadow: var(--shadow-card); }
+.seg-btn:hover { color: var(--navy); }
+.seg-btn.active { background: var(--card); color: var(--orange-dk); box-shadow: 0 1px 3px rgba(26, 37, 80, 0.14); }
+.seg-btn:focus-visible { outline: 2px solid var(--orange); outline-offset: 1px; }
 
 /* ══════════════════════════════════════════════════════════
    MAP CONTROLS

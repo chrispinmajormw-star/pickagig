@@ -140,7 +140,11 @@ export async function init() {
   await loadGigs();
   updateLocationText();
   renderAuthStatus(getCurrentUser());
-  navigate(state.page === 'post' || state.page === 'profile' || state.page === 'settings' ? 'gigs' : state.page);
+  // Keep the user on the page they are on. init() re-runs on a language
+  // change, and bouncing them from Settings or Profile back to the gigs
+  // list loses their place. 'post' is a sheet, not a page, so it still
+  // falls back to gigs.
+  navigate(state.page === 'post' ? 'gigs' : state.page);
 }
 
 export function onSearch(val) {
