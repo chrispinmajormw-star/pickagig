@@ -20,6 +20,25 @@ import {
   getUserLocation, locationIsKnown, requestUserLocation, shortLabel,
 } from './geo.js';
 
+const SETTINGS_CSS = `
+.set-group{border:none;}
+.set-summary{display:flex;align-items:center;justify-content:space-between;cursor:pointer;
+  list-style:none;padding:2px 2px 8px;user-select:none;}
+.set-summary::-webkit-details-marker{display:none;}
+.set-summary::marker{content:'';}
+.set-summary-chev{display:inline-flex;color:#9ca3af;transition:transform .18s ease;flex:0 0 auto;}
+.set-group[open] .set-summary-chev{transform:rotate(90deg);}
+.set-group:not([open]) .set-list{display:none;}
+`;
+
+function injectSettingsStyles() {
+  if (document.getElementById('set-accordion-styles')) return;
+  const style = document.createElement('style');
+  style.id = 'set-accordion-styles';
+  style.textContent = SETTINGS_CSS;
+  document.head.appendChild(style);
+}
+
 const S = 'fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"';
 const svg = (body) => `<svg width="17" height="17" viewBox="0 0 24 24" ${S} aria-hidden="true">${body}</svg>`;
 
@@ -133,8 +152,11 @@ function segmented(options, current, onPick) {
 function group(label, ...rows) {
   const list = rows.filter(Boolean);
   if (!list.length) return null;
-  return el('section', { class: 'set-group' },
-    el('h2', { class: 'set-label', text: label }),
+  return el('details', { class: 'set-group' },
+    el('summary', { class: 'set-summary' },
+      el('span', { class: 'set-label', text: label }),
+      el('span', { class: 'set-summary-chev', html: ICON.chevron })
+    ),
     el('div', { class: 'set-list' }, ...list)
   );
 }
@@ -157,6 +179,7 @@ function currentPositionText() {
 // ── Page ─────────────────────────────────────────────────────
 
 export async function renderSettingsPage() {
+  injectSettingsStyles();
   const container = document.getElementById('pageSettings');
   if (!container) return;
   container.textContent = '';
