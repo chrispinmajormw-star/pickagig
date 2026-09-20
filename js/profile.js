@@ -56,6 +56,15 @@ const PROFILE_CSS = `
 .pf-card{background:#fff;border:1px solid #eef0f4;border-radius:16px;padding:16px;margin-top:14px;
   box-shadow:0 2px 10px rgba(17,24,39,.05);}
 .pf-card h3{margin:0 0 12px;font-size:15px;font-weight:800;color:#111827;display:flex;align-items:center;gap:8px;}
+.pf-card-acc{padding:0;cursor:default;}
+.pf-card-summary{display:flex;align-items:center;justify-content:space-between;gap:8px;cursor:pointer;
+  list-style:none;padding:16px;user-select:none;}
+.pf-card-summary::-webkit-details-marker{display:none;}
+.pf-card-summary::marker{content:'';}
+.pf-card-summary h3{margin:0;}
+.pf-card-chev{display:inline-flex;color:#9ca3af;transition:transform .18s ease;flex:0 0 auto;}
+.pf-card-acc[open] .pf-card-chev{transform:rotate(90deg);}
+.pf-card-acc-body{padding:0 16px 16px;}
 .pf-empty{color:#9ca3af;font-size:13px;margin:0;}
 
 /* Edit form */
@@ -341,6 +350,20 @@ function buildStats(profile) {
   );
 }
 
+const CHEVRON_SVG = '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="9.5 5.5 16 12 9.5 18.5"/></svg>';
+
+// Collapsible variant of a .pf-card: header (with h3) is always
+// visible and tappable, body opens/closes on click.
+function collapsibleCard(titleHtml, ...bodyChildren) {
+  return el('details', { class: 'pf-card pf-card-acc' },
+    el('summary', { class: 'pf-card-summary' },
+      el('h3', { text: titleHtml }),
+      el('span', { class: 'pf-card-chev', html: CHEVRON_SVG })
+    ),
+    el('div', { class: 'pf-card-acc-body' }, ...bodyChildren)
+  );
+}
+
 function field(labelText, input) {
   return el('label', { class: 'pf-field' }, el('span', { text: labelText }), input);
 }
@@ -403,8 +426,7 @@ function buildPendingRatingsBox(pending) {
 
 function buildSkillsBox(user, profile) {
   const currentSkills = new Set(profile.skills || []);
-  return el('div', { class: 'pf-card' },
-    el('h3', { text: '🛠  ' + (t('skillsLabel') || 'Your skills') }),
+  return collapsibleCard('🛠  ' + (t('skillsLabel') || 'Your skills'),
     el('div', { class: 'pf-skills-list' },
       ...Object.keys(CAT_ICONS).slice(1).map(cat => {
         const pill = el('span', {
@@ -471,8 +493,7 @@ function buildCredBox(userId, credentials) {
     }
   });
 
-  return el('div', { class: 'pf-card' },
-    el('h3', { text: '🛡️  Credentials' }),
+  return collapsibleCard('🛡️  Credentials',
     el('ul', { class: 'pf-cred-list' }, ...listItems),
     el('div', { style: 'margin-top:14px;' },
       field('Label', labelInput),
@@ -483,8 +504,7 @@ function buildCredBox(userId, credentials) {
 }
 
 function buildHistoryBox(history) {
-  return el('div', { class: 'pf-card' },
-    el('h3', { text: '📋  Work history' }),
+  return collapsibleCard('📋  Work history',
     el('div', { class: 'pf-hist-list' },
       ...(history.length
         ? history.map(h => el('div', { class: 'pf-hist-item' },
@@ -559,8 +579,7 @@ function buildPremiumBox(user, profile, latestRequest) {
 }
 
 function buildLeaderboardBox() {
-  return el('div', { class: 'pf-card' },
-    el('h3', { text: '🏆  Community leaderboard' }),
+  return collapsibleCard('🏆  Community leaderboard',
     el('div', { class: 'pf-lb-list' },
       ...WORKERS.map((w, i) => el('div', { class: 'pf-lb-item' },
         el('div', { class: 'pf-lb-rank' + (i === 0 ? ' top' : ''), text: String(i + 1) }),
@@ -573,8 +592,7 @@ function buildLeaderboardBox() {
 }
 
 function buildRefBox(profile) {
-  return el('div', { class: 'pf-card' },
-    el('h3', { text: '🎁  Referrals' }),
+  return collapsibleCard('🎁  Referrals',
     el('p', { class: 'pf-ref-p', text: 'Refer a friend and earn MK 500 when they complete their first gig.' }),
     el('div', { class: 'pf-ref-box' },
       el('span', { class: 'pf-ref-code', text: (profile.full_name || 'PICKAGIG').toUpperCase().replace(/\s+/g, '').slice(0, 8) + '500' }),
