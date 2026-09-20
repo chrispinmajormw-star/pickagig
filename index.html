@@ -9,7 +9,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="">
-  <link rel="stylesheet" href="styles.css?v=5">
+  <link rel="stylesheet" href="styles.css?v=6">
 </head>
 <body>
 <div class="app">
@@ -82,6 +82,7 @@
   ════════════════════════════════════════════════════════════ -->
   <div id="pageMap" style="display:none">
     <div class="map-content">
+      <div class="map-controls" id="mapControls"></div>
       <div id="map"></div>
     </div>
   </div>
@@ -99,6 +100,11 @@
        PAGE: PROFILE
   ════════════════════════════════════════════════════════════ -->
   <div id="pageProfile" style="display:none"></div>
+
+  <!-- ═══════════════════════════════════════════════════════
+       PAGE: SETTINGS
+  ════════════════════════════════════════════════════════════ -->
+  <div id="pageSettings" style="display:none"></div>
 
   <!-- ═══════════════════════════════════════════════════════
        BOTTOM NAVIGATION
@@ -151,6 +157,6 @@
 
   <script defer src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
   <script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script defer src="app.js?v=5"></script>
+  <script defer src="app.js?v=6"></script>
 </body>
 </html>

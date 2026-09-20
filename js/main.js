@@ -11,11 +11,12 @@ import { t, lang, setLangValue } from './i18n.js';
 import { state } from './data.js';
 import { el, toast, closeModal } from './ui-helpers.js';
 import { renderFilters, renderGigs, openPost, loadGigs, refreshAppliedStatus } from './gigs.js';
-import { initMap } from './map.js';
+import { initMap, updateMapSubtitle } from './map.js';
 import { renderChatsList } from './chats.js';
 import { renderProfilePage } from './profile.js';
+import { renderSettingsPage } from './settings.js';
 import { initAuth, getCurrentUser, openAuthModal, signOut } from './auth.js';
-import { requestUserLocation } from './geo.js';
+import { requestUserLocation, getRadiusKm, locationIsKnown } from './geo.js';
 
 export function setLang(l) {
   setLangValue(l);
@@ -64,6 +65,7 @@ export function navigate(page) {
   const pageMap = document.getElementById('pageMap');
   const pageChats = document.getElementById('pageChats');
   const pageProfile = document.getElementById('pageProfile');
+  const pageSettings = document.getElementById('pageSettings');
 
   panelBrand.style.display = 'none';
   panelPageHeader.style.display = 'none';
@@ -73,6 +75,7 @@ export function navigate(page) {
   pageMap.style.display = 'none';
   pageChats.style.display = 'none';
   if (pageProfile) pageProfile.style.display = 'none';
+  if (pageSettings) pageSettings.style.display = 'none';
   panel.style.display = 'block';
 
   if (page === 'gigs') {
@@ -85,7 +88,7 @@ export function navigate(page) {
   } else if (page === 'map') {
     panelPageHeader.style.display = 'block';
     document.getElementById('panelPageTitle').textContent = t('mapTitle');
-    document.getElementById('panelPageSub').textContent = t('mapSubtitle');
+    updateMapSubtitle();
     pageMap.style.display = 'block';
     setTimeout(initMap, 60);
   } else if (page === 'chats') {
@@ -98,7 +101,24 @@ export function navigate(page) {
     panel.style.display = 'none';
     if (pageProfile) pageProfile.style.display = 'block';
     renderProfilePage();
+  } else if (page === 'settings') {
+    panel.style.display = 'none';
+    if (pageSettings) pageSettings.style.display = 'block';
+    renderSettingsPage();
   }
+}
+
+const PIN_SVG = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right:2px"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>';
+
+// The gigs-panel location chip: shows the search radius, or invites
+// the user to choose an area when we don't know where they are.
+export function updateLocationText() {
+  const node = document.getElementById('locationText');
+  if (!node) return;
+  const known = locationIsKnown();
+  node.innerHTML = PIN_SVG + (known ? t('withinRadius', { km: getRadiusKm() }) : t('locationUnknown'));
+  node.classList.toggle('tap-to-set', !known);
+  node.onclick = known ? null : () => navigate('settings');
 }
 
 export async function init() {
@@ -106,7 +126,7 @@ export async function init() {
     btn.classList.toggle('active', btn.dataset.lang === lang);
   });
 
-  document.getElementById('locationText').innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right:2px"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>' + t('withinRadius');
+  updateLocationText();
   document.getElementById('heroSubtitle').textContent = t('tagline');
   document.getElementById('searchInput').placeholder = t('searchPlaceholder');
   document.getElementById('gigsHeading').textContent = t('gigsNearYou');
@@ -118,8 +138,9 @@ export async function init() {
 
   await requestUserLocation();
   await loadGigs();
+  updateLocationText();
   renderAuthStatus(getCurrentUser());
-  navigate(state.page === 'post' || state.page === 'profile' ? 'gigs' : state.page);
+  navigate(state.page === 'post' || state.page === 'profile' || state.page === 'settings' ? 'gigs' : state.page);
 }
 
 export function onSearch(val) {

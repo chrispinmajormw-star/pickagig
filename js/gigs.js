@@ -7,13 +7,17 @@
 
 import { el, toast, openModal, closeModal } from './ui-helpers.js';
 import { t, tCat, CAT_ICONS } from './i18n.js';
-import { state, BLANTYRE_CENTER } from './data.js';
+import { state } from './data.js';
 import { supabase } from './supabaseClient.js';
 import { getCurrentUser, openAuthModal } from './auth.js';
 import { refreshMapMarkers } from './map.js';
 import { navigate } from './main.js';
 import { createOrGetChat } from './chats.js';
-import { distanceKm, getUserLocation } from './geo.js';
+import { openLocationPicker } from './location-picker.js';
+import {
+  distanceKm, getUserLocation, locationIsKnown, getRadiusKm,
+  requestUserLocation, reverseGeocode, shortLabel,
+} from './geo.js';
 
 let appliedGigIds = new Set();
 
@@ -95,15 +99,34 @@ export function renderFilters() {
   });
 }
 
+// Filters by category, search text and the user's chosen radius.
+// When no location is known every gig is shown (sorted by urgency
+// only) — hiding them all would leave a brand-new user staring at
+// an empty screen. Gigs with no coordinates can't be ranged, so
+// they are kept but sorted last.
 export function getFilteredGigs() {
   const q = state.query.toLowerCase();
+  const loc = getUserLocation();
+  const known = locationIsKnown(loc);
+  const radius = getRadiusKm();
+
   return state.gigsCache
-    .filter(g => {
+    .map(g => ({ g, km: known ? distanceKm(loc.lat, loc.lng, g.lat, g.lng) : null }))
+    .filter(({ g, km }) => {
       const catMatch    = state.selectedCat === 'All' || g.cat === state.selectedCat;
       const searchMatch = !q || (g.title + ' ' + g.cat + ' ' + g.place).toLowerCase().includes(q);
-      return catMatch && searchMatch;
+      const inRange     = !known || km == null || km <= radius;
+      return catMatch && searchMatch && inRange;
     })
-    .sort((a, b) => (b.urgent ? 1 : 0) - (a.urgent ? 1 : 0));
+    .sort((a, b) => {
+      const byUrgent = (b.g.urgent ? 1 : 0) - (a.g.urgent ? 1 : 0);
+      if (byUrgent) return byUrgent;
+      if (a.km == null && b.km == null) return 0;
+      if (a.km == null) return 1;
+      if (b.km == null) return -1;
+      return a.km - b.km;
+    })
+    .map(({ g }) => g);
 }
 
 function buildGigCard(gig) {
@@ -297,8 +320,12 @@ export function renderGigs() {
   grid.textContent = '';
   const list = getFilteredGigs();
   list.forEach(g => grid.appendChild(buildGigCard(g)));
-  empty.style.display   = list.length ? 'none' : 'block';
-  empty.textContent     = t('noGigs');
+  empty.style.display = list.length ? 'none' : 'block';
+  // Distinguish "nothing is posted" from "nothing inside your radius"
+  // so the user knows which control to adjust.
+  const radiusBlocked = !list.length && state.gigsCache.length > 0 && !state.query
+                     && state.selectedCat === 'All' && locationIsKnown();
+  empty.textContent = radiusBlocked ? t('noGigsInRadius', { km: getRadiusKm() }) : t('noGigs');
 }
 
 export async function applyToGig(gig) {
@@ -334,29 +361,91 @@ export async function applyToGig(gig) {
   renderGigs();
 }
 
-export function openPost() {
+// `prefill` carries the form values (and the chosen map pin) across
+// re-renders: opening the location picker replaces the sheet, so the
+// form is rebuilt afterwards with everything the poster had typed.
+export function openPost(prefill = {}) {
   if (!getCurrentUser()) {
     toast('Please sign in to post a gig.');
     openAuthModal('signin');
     return;
   }
 
-  const titleInput   = el('input', { id: 'pt', type: 'text', placeholder: t('gigTitleLabel') });
+  const titleInput   = el('input', { id: 'pt', type: 'text', placeholder: t('gigTitleLabel'), value: prefill.title || '' });
   const catSelect    = el('select', { id: 'pc' });
-  const placeInput   = el('input', { id: 'pp', type: 'text', placeholder: t('locationLabel') });
-  const payInput     = el('input', { id: 'pw', type: 'text', placeholder: t('payLabel') });
-  const detailsInput = el('textarea', { id: 'pd', placeholder: t('detailsLabel') });
+  const placeInput   = el('input', { id: 'pp', type: 'text', placeholder: t('locationLabel'), value: prefill.place || '' });
+  const payInput     = el('input', { id: 'pw', type: 'text', placeholder: t('payLabel'), value: prefill.pay || '' });
+  const detailsInput = el('textarea', { id: 'pd', placeholder: t('detailsLabel'), value: prefill.details || '' });
 
   Object.keys(CAT_ICONS).slice(1).forEach(cat => catSelect.appendChild(el('option', { value: cat, text: tCat(cat) })));
+  if (prefill.cat) catSelect.value = prefill.cat;
+  if (!catSelect.value && catSelect.options.length) catSelect.value = catSelect.options[0].value;
 
-  const publishBtn = el('button', { class: 'primary', text: t('publishBtn'), onclick: () => publishGig(publishBtn) });
+  const readForm = () => ({
+    title:   titleInput.value,
+    cat:     catSelect.value,
+    place:   placeInput.value,
+    pay:     payInput.value,
+    details: detailsInput.value,
+  });
+
+  const spot = prefill.spot || null;
+
+  function pickSpot() {
+    // Snapshot before the picker takes over the sheet.
+    const snapshot = readForm();
+    openLocationPicker({
+      title: t('postPickSpot'),
+      hint: t('mapAreaHint'),
+      confirmLabel: t('postPickSpot'),
+      initial: spot || undefined,
+      onConfirm: (picked) => openPost({ ...snapshot, spot: picked }),
+    });
+  }
+
+  async function useMyLocation() {
+    toast(t('mapLocating'));
+    await requestUserLocation();
+    const loc = getUserLocation();
+    if (!locationIsKnown(loc)) {
+      toast(t('mapNoGps'));
+      return;
+    }
+    // A raw GPS fix has no place name, so look one up for display.
+    const label = loc.label || shortLabel(await reverseGeocode(loc.lat, loc.lng));
+    openPost({ ...readForm(), spot: { lat: loc.lat, lng: loc.lng, label } });
+  }
+
+  // Never leave the status line blank: fall back to coordinates when
+  // there is no place name (e.g. a GPS fix that failed to geocode).
+  const spotLabel = spot
+    ? (shortLabel(spot.label) || `${spot.lat.toFixed(4)}, ${spot.lng.toFixed(4)}`)
+    : null;
+
+  const spotStatus = el('div', {
+    class: 'post-spot-status' + (spot ? ' set' : ''),
+    text: spot ? t('postSpotSet', { place: spotLabel }) : t('postNeedSpot'),
+  });
+
+  const publishBtn = el('button', {
+    class: 'primary', text: t('publishBtn'),
+    onclick: () => publishGig(publishBtn, readForm, spot),
+  });
 
   const form = el('div', { class: 'form' },
     el('label', { text: t('gigTitleLabel') }, titleInput),
     el('label', { text: t('categoryLabel') }, catSelect),
-    el('label', { text: t('locationLabel') }, placeInput),
     el('label', { text: t('payLabel') }, payInput),
     el('label', { text: t('detailsLabel') }, detailsInput),
+    el('div', { class: 'post-spot' },
+      el('div', { class: 'post-spot-head', text: t('locationLabel') }),
+      spotStatus,
+      placeInput,
+      el('div', { class: 'post-spot-btns' },
+        el('button', { class: 'pf-upload-btn', type: 'button', text: t('postUseMyLocation'), onclick: useMyLocation }),
+        el('button', { class: 'pf-upload-btn', type: 'button', text: t('postPickSpot'), onclick: pickSpot })
+      )
+    ),
     publishBtn
   );
 
@@ -366,7 +455,7 @@ export function openPost() {
   ));
 }
 
-async function publishGig(publishBtn) {
+async function publishGig(publishBtn, readForm, spot) {
   const user = getCurrentUser();
   if (!user) {
     toast('Please sign in to post a gig.');
@@ -374,26 +463,38 @@ async function publishGig(publishBtn) {
     return;
   }
 
-  const title = document.getElementById('pt')?.value.trim();
+  const form  = readForm();
+  const title = (form.title || '').trim();
   if (!title) { toast(t('noTitle')); return; }
+
+  // The pin the poster chose wins; otherwise use their live GPS fix.
+  // Never a hardcoded city — the gig has to appear where it is.
+  const loc = spot || (locationIsKnown() ? getUserLocation() : null);
+  if (!loc || loc.lat == null || loc.lng == null) { toast(t('postNeedSpot')); return; }
 
   publishBtn.disabled = true;
   publishBtn.textContent = 'Publishing…';
 
+  let place = (form.place || '').trim();
+  if (!place) {
+    place = shortLabel(await reverseGeocode(loc.lat, loc.lng))
+         || `${loc.lat.toFixed(4)}, ${loc.lng.toFixed(4)}`;
+  }
+
   const { error } = await supabase.from('gigs').insert({
     poster_id:     user.id,
-    category:      document.getElementById('pc').value,
+    category:      form.cat,
     title,
-    place:         document.getElementById('pp').value.trim() || 'Blantyre',
+    place,
     time_label:    'New gig',
     duration:      'Flexible',
-    pay:           document.getElementById('pw').value.trim() || 'Negotiable',
+    pay:           (form.pay || '').trim() || 'Negotiable',
     pay_type:      'total',
     people:        1,
     urgent:        false,
-    description:   document.getElementById('pd')?.value.trim() || '',
-    location_lat:  BLANTYRE_CENTER[0] + (Math.random() - 0.5) * 0.04,
-    location_lng:  BLANTYRE_CENTER[1] + (Math.random() - 0.5) * 0.04,
+    description:   (form.details || '').trim(),
+    location_lat:  loc.lat,
+    location_lng:  loc.lng,
   });
 
   publishBtn.disabled = false;
@@ -407,5 +508,6 @@ async function publishGig(publishBtn) {
   closeModal();
   await loadGigs(true);
   renderGigs();
+  if (state.page === 'map') refreshMapMarkers();
   toast(t('gigPosted'));
 }

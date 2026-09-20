@@ -9,7 +9,8 @@
     EN: {
       tagline: "Pick your next gig. Nearby.",
       searchPlaceholder: "Search gigs, e.g. plumbing",
-      withinRadius: "Within 5km of you",
+      withinRadius: "Within {km}km of you",
+      locationUnknown: "Tap to choose your area",
       gigsNearYou: "Gigs near you",
       mapLink: "Map \u2192",
       urgent: "Urgent",
@@ -49,8 +50,47 @@
       navPost: "Post",
       navChats: "Chats",
       navProfile: "Profile",
+      navBack: "Back",
       mapTitle: "Gig Map",
-      mapSubtitle: "Gigs within 5km \xB7 Tap a pin to view.",
+      mapSubtitle: "Gigs within {km}km \xB7 Tap a pin to view.",
+      mapSubtitleUnknown: "Choose your area to see gigs nearby.",
+      mapUseMyLocation: "Use my location",
+      mapChooseArea: "Choose area",
+      mapLocating: "Finding your location\u2026",
+      mapLocated: "Map centred on your location.",
+      mapNoGps: "Location unavailable \u2014 pick your area on the map.",
+      mapAreaTitle: "Where are you looking for work?",
+      mapAreaHint: "Search any city, or drag the pin to your exact spot.",
+      mapNear: "Near {place}",
+      settingsOpen: "Settings",
+      settingsPageSub: "Notifications, location and account",
+      settingsNotifications: "Notifications",
+      settingsSmsHint: "Get gig alerts by SMS when data is off",
+      settingsLocation: "Location & search radius",
+      settingsRadius: "Search radius",
+      settingsRadiusHint: "How far from you to look for gigs",
+      settingsHomeArea: "Home area",
+      settingsHomeAreaHint: "Used when location services are off",
+      settingsHomeNone: "Not set \u2014 tap to choose",
+      settingsCurrentPosition: "Current position",
+      settingsPositionUnknown: "Location unavailable",
+      settingsUseCurrent: "Use my current location",
+      settingsLanguage: "Language",
+      settingsData: "Data",
+      dataSaverLbl: "Data Saver",
+      settingsDataSaverHint: "Cache gigs and sync later",
+      settingsAccount: "Account",
+      settingsSignOut: "Sign out",
+      settingsSignIn: "Sign in",
+      settingsSignInHint: "Sign in to sync your profile and applications",
+      settingsAbout: "About",
+      settingsVersion: "Version",
+      settingsSaved: "Saved",
+      postPickSpot: "Pick exact spot on map",
+      postSpotSet: "Location set \u2014 {place}",
+      postUseMyLocation: "Use my location",
+      postNeedSpot: "Choose where this gig is on the map.",
+      noGigsInRadius: "No gigs within {km}km. Widen your search radius in Settings.",
       All: "All",
       Construction: "Construction",
       Gardening: "Gardening",
@@ -70,7 +110,8 @@
     NY: {
       tagline: "Sankhani ntchito yanu. Pafupi.",
       searchPlaceholder: "Sakani ntchito, mwachitsanzo mapaipi",
-      withinRadius: "Mkati mwa 5km kuchokera pamene muli",
+      withinRadius: "Mkati mwa {km}km kuchokera pamene muli",
+      locationUnknown: "Dinani kuti musankhe dera lanu",
       gigsNearYou: "Ntchito pafupi ndi inu",
       mapLink: "Mapu \u2192",
       urgent: "Mwachangu",
@@ -110,8 +151,47 @@
       navPost: "Ikani",
       navChats: "Kukambirana",
       navProfile: "Mbiri",
+      navBack: "Bwerera",
       mapTitle: "Mapu a Ntchito",
-      mapSubtitle: "Ntchito mkati mwa 5km \xB7 Dotani chizindikiro.",
+      mapSubtitle: "Ntchito mkati mwa {km}km \xB7 Dotani chizindikiro.",
+      mapSubtitleUnknown: "Sankhani dera lanu kuti muone ntchito zapafupi.",
+      mapUseMyLocation: "Gwiritsani ntchito malo anga",
+      mapChooseArea: "Sankhani dera",
+      mapLocating: "Tikufufuza malo anu\u2026",
+      mapLocated: "Mapu akuonetsa malo anu.",
+      mapNoGps: "Malo sapezeka \u2014 sankhani dera lanu pa mapu.",
+      mapAreaTitle: "Mukufuna ntchito kuti?",
+      mapAreaHint: "Sakani mzinda uliwonse, kapena kokera chizindikiro.",
+      mapNear: "Pafupi ndi {place}",
+      settingsOpen: "Zokonda",
+      settingsPageSub: "Zidziwitso, malo ndi akaunti",
+      settingsNotifications: "Zidziwitso",
+      settingsSmsHint: "Landirani uthenga wa SMS ngati data ilibe",
+      settingsLocation: "Malo ndi mtunda",
+      settingsRadius: "Mtunda wosakira",
+      settingsRadiusHint: "Kutalika bwanji kuyang'ana ntchito",
+      settingsHomeArea: "Dera lanu",
+      settingsHomeAreaHint: "Limagwiritsidwa ntchito ngati GPS ili yozimitsidwa",
+      settingsHomeNone: "Palibe \u2014 dinani kuti musankhe",
+      settingsCurrentPosition: "Malo aposachedwa",
+      settingsPositionUnknown: "Malo sapezeka",
+      settingsUseCurrent: "Gwiritsani ntchito malo anga aposachedwa",
+      settingsLanguage: "Chinenero",
+      settingsData: "Data",
+      dataSaverLbl: "Kusunga Data",
+      settingsDataSaverHint: "Sungani ntchito ndi kuzigwirizanitsa mtsogolo",
+      settingsAccount: "Akaunti",
+      settingsSignOut: "Tulukani",
+      settingsSignIn: "Lowani",
+      settingsSignInHint: "Lowani kuti musunge mbiri yanu",
+      settingsAbout: "Za ife",
+      settingsVersion: "Mtundu",
+      settingsSaved: "Zasungidwa",
+      postPickSpot: "Sankhani malo enieni pa mapu",
+      postSpotSet: "Malo asankhidwa \u2014 {place}",
+      postUseMyLocation: "Gwiritsani ntchito malo anga",
+      postNeedSpot: "Sankhani malo a ntchito ili pa mapu.",
+      noGigsInRadius: "Palibe ntchito mkati mwa {km}km. Wonjezerani mtunda mu Zokonda.",
       All: "Zonse",
       Construction: "Zimbutu",
       Gardening: "Ulimi wa Munda",
@@ -147,21 +227,136 @@
     lang = l;
     localStorage.setItem("pg_lang", l);
   }
-  function t(key) {
-    return STRINGS[lang]?.[key] ?? STRINGS.EN[key] ?? key;
+  function t(key, vars) {
+    let s = STRINGS[lang]?.[key] ?? STRINGS.EN[key] ?? key;
+    if (vars) {
+      for (const [k, v] of Object.entries(vars)) s = s.split("{" + k + "}").join(v);
+    }
+    return s;
   }
   function tCat(cat) {
     return t(cat);
   }
 
   // js/data.js
-  var BLANTYRE_CENTER = [-15.7861, 35.0058];
-  var RADIUS_KM = 5;
+  var DEFAULT_CENTER = [20, 0];
+  var DEFAULT_ZOOM = 2;
+  var KNOWN_ZOOM = 13;
+  var DEFAULT_RADIUS_KM = 5;
+  var RADIUS_CHOICES_KM = [2, 5, 10, 25, 50];
+  var APP_VERSION = "1.1.0";
+  var SEED_GIGS = [
+    {
+      id: 1,
+      cat: "Plumbing",
+      title: "Toilet leaking - urgent plumber needed",
+      place: "Namiwawa, Blantyre",
+      time: "Today, 14:00",
+      duration: "3 hours",
+      pay: "MK 20,000",
+      payType: "total",
+      people: 1,
+      applied: 3,
+      km: 0.8,
+      urgent: true,
+      lat: -15.8,
+      lng: 35.009,
+      posterInitials: "PM",
+      posterName: "Peter Mwale"
+    },
+    {
+      id: 2,
+      cat: "Farm Labour",
+      title: "Need 2 people to clear a field tomorrow",
+      place: "Chilomoni, Blantyre",
+      time: "Tomorrow, 06:30",
+      duration: "1 day",
+      pay: "MK 12,000",
+      payType: "per person",
+      people: 2,
+      applied: 5,
+      km: 1.2,
+      urgent: true,
+      lat: -15.823,
+      lng: 35.018,
+      posterInitials: "GB",
+      posterName: "Grace Banda"
+    },
+    {
+      id: 3,
+      cat: "Gardening",
+      title: "Lawn mowing and hedge trimming",
+      place: "Sunnyside",
+      time: "Today, 15:30",
+      duration: "3 hours",
+      pay: "MK 7,000",
+      payType: "total",
+      people: 1,
+      applied: 6,
+      km: 1.9,
+      urgent: false,
+      lat: -15.786,
+      lng: 35.006,
+      posterInitials: "ZT",
+      posterName: "Zikomo Traders"
+    }
+  ];
   var WORKERS = [
     { id: "w1", name: "James M.", rating: 4.9, skills: ["Plumbing"] },
     { id: "w2", name: "Alice K.", rating: 4.8, skills: ["Cleaning"] },
     { id: "w3", name: "John B.", rating: 4.7, skills: ["Construction"] }
   ];
+  var LS = {
+    getGigs() {
+      return JSON.parse(localStorage.getItem("pg_gigs")) ?? [...SEED_GIGS];
+    },
+    setGigs(v) {
+      localStorage.setItem("pg_gigs", JSON.stringify(v));
+    },
+    getProfile() {
+      return JSON.parse(localStorage.getItem("pg_profile")) ?? {
+        name: "Thoko Phiri",
+        headline: "Professional painter and cleaner",
+        phone: "0991234567",
+        location: "Ndirande",
+        rating: "4.8",
+        jobsDone: 14,
+        rateMK: "MK 12,000/day",
+        credentials: ["TEVETA Grade 1 Painter"],
+        skills: ["Painting", "Cleaning"],
+        smsAlerts: true,
+        pushAlerts: true,
+        dataSaver: true
+      };
+    },
+    setProfile(v) {
+      localStorage.setItem("pg_profile", JSON.stringify(v));
+    },
+    getChats() {
+      return JSON.parse(localStorage.getItem("pg_chats")) ?? [];
+    },
+    setChats(v) {
+      localStorage.setItem("pg_chats", JSON.stringify(v));
+    },
+    getApplied() {
+      return JSON.parse(localStorage.getItem("pg_applied")) ?? [];
+    },
+    setApplied(v) {
+      localStorage.setItem("pg_applied", JSON.stringify(v));
+    },
+    // Device-local preferences: search radius and the area the user
+    // chose as "home" ({ lat, lng, label }). Lives on the device rather
+    // than in Supabase so the app works before anyone signs in.
+    getPrefs() {
+      return JSON.parse(localStorage.getItem("pg_prefs")) ?? {
+        radiusKm: DEFAULT_RADIUS_KM,
+        home: null
+      };
+    },
+    setPrefs(v) {
+      localStorage.setItem("pg_prefs", JSON.stringify(v));
+    }
+  };
   var state = {
     selectedCat: "All",
     query: "",
@@ -308,61 +503,373 @@
     const a = Math.sin(dLat / 2) ** 2 + Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * Math.sin(dLng / 2) ** 2;
     return Math.round(R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a)) * 10) / 10;
   }
+  function getRadiusKm() {
+    const km = Number(LS.getPrefs().radiusKm);
+    return Number.isFinite(km) && km > 0 ? km : DEFAULT_RADIUS_KM;
+  }
+  function setRadiusKm(km) {
+    LS.setPrefs({ ...LS.getPrefs(), radiusKm: Number(km) });
+  }
+  function getHomeLocation() {
+    return LS.getPrefs().home || null;
+  }
+  function setHomeLocation(home) {
+    LS.setPrefs({ ...LS.getPrefs(), home });
+  }
   function requestUserLocation() {
     return new Promise((resolve) => {
       if (!navigator.geolocation) {
-        state.userLocation = { lat: BLANTYRE_CENTER[0], lng: BLANTYRE_CENTER[1], isFallback: true };
+        state.userLocation = fromHome();
         resolve(state.userLocation);
         return;
       }
       navigator.geolocation.getCurrentPosition(
         (pos) => {
-          state.userLocation = { lat: pos.coords.latitude, lng: pos.coords.longitude, isFallback: false };
+          state.userLocation = {
+            lat: pos.coords.latitude,
+            lng: pos.coords.longitude,
+            isFallback: false,
+            unknown: false
+          };
           resolve(state.userLocation);
         },
         () => {
-          state.userLocation = { lat: BLANTYRE_CENTER[0], lng: BLANTYRE_CENTER[1], isFallback: true };
-          toast("Could not get your location \u2014 showing gigs near Blantyre instead.");
+          state.userLocation = fromHome();
+          if (!state.userLocation.unknown) {
+            toast("Using your saved area \u2014 turn on location for gig distances.");
+          }
           resolve(state.userLocation);
         },
         { enableHighAccuracy: true, timeout: 8e3, maximumAge: 6e4 }
       );
     });
   }
+  function fromHome() {
+    const home = getHomeLocation();
+    if (home) {
+      return { lat: home.lat, lng: home.lng, label: home.label, isFallback: true, unknown: false };
+    }
+    return { lat: null, lng: null, label: null, isFallback: true, unknown: true };
+  }
   function getUserLocation() {
-    return state.userLocation || { lat: BLANTYRE_CENTER[0], lng: BLANTYRE_CENTER[1], isFallback: true };
+    if (state.userLocation) return state.userLocation;
+    state.userLocation = fromHome();
+    return state.userLocation;
+  }
+  function locationIsKnown(loc = getUserLocation()) {
+    return !loc.unknown && loc.lat != null && loc.lng != null;
+  }
+  var NOMINATIM = "https://nominatim.openstreetmap.org";
+  var lastCall = 0;
+  var chain = Promise.resolve();
+  function throttledFetch(url) {
+    const run = chain.then(async () => {
+      const wait = Math.max(0, 1100 - (Date.now() - lastCall));
+      if (wait) await new Promise((r) => setTimeout(r, wait));
+      lastCall = Date.now();
+      const res = await fetch(url, { headers: { Accept: "application/json" } });
+      if (!res.ok) throw new Error("HTTP " + res.status);
+      return res.json();
+    });
+    chain = run.catch(() => {
+    });
+    return run;
+  }
+  async function searchPlaces(query) {
+    const q = (query || "").trim();
+    if (q.length < 3) return [];
+    try {
+      const data = await throttledFetch(
+        `${NOMINATIM}/search?format=jsonv2&limit=6&addressdetails=1&q=${encodeURIComponent(q)}`
+      );
+      return (data || []).filter((r) => r.lat != null && r.lon != null).map((r) => ({ label: r.display_name, lat: Number(r.lat), lng: Number(r.lon) }));
+    } catch {
+      return [];
+    }
+  }
+  async function reverseGeocode(lat, lng) {
+    if (lat == null || lng == null) return null;
+    try {
+      const data = await throttledFetch(
+        `${NOMINATIM}/reverse?format=jsonv2&zoom=14&lat=${encodeURIComponent(lat)}&lon=${encodeURIComponent(lng)}`
+      );
+      return data?.display_name || null;
+    } catch {
+      return null;
+    }
+  }
+  function shortLabel(full) {
+    if (!full) return "";
+    const parts = full.split(",").map((s) => s.trim()).filter(Boolean);
+    return parts.slice(0, 3).join(", ");
+  }
+
+  // js/location-picker.js
+  var pickerSeq = 0;
+  function pinIcon(colour = "#f97316") {
+    return L.divIcon({
+      className: "",
+      html: `<div style="width:34px;height:34px;background:${colour};border:3px solid white;border-radius:50% 50% 50% 0;transform:rotate(-45deg);box-shadow:0 2px 8px rgba(0,0,0,.3);"></div>`,
+      iconSize: [34, 34],
+      iconAnchor: [17, 34]
+    });
+  }
+  function openLocationPicker(opts = {}) {
+    const {
+      title = "Choose location",
+      hint = "Search for a place, or drag the pin to the exact spot.",
+      initial = null,
+      confirmLabel = "Confirm",
+      onConfirm = () => {
+      }
+    } = opts;
+    if (!window.L) {
+      toast("The map is still loading \u2014 try again in a moment.");
+      return;
+    }
+    const mapId = "pickMap" + ++pickerSeq;
+    const known = locationIsKnown();
+    const start = initial || (known ? getUserLocation() : null);
+    let marker = null;
+    const searchInput = el("input", {
+      class: "picker-search",
+      type: "search",
+      autocomplete: "off",
+      placeholder: "Search any city or area\u2026"
+    });
+    const results = el("div", { class: "picker-results" });
+    const mapNode = el("div", { class: "picker-map", id: mapId });
+    const chosenLabel = el("div", {
+      class: "picker-chosen",
+      text: start?.label || (start ? `${start.lat.toFixed(4)}, ${start.lng.toFixed(4)}` : "Drag the pin to choose")
+    });
+    const confirmBtn = el("button", {
+      class: "primary",
+      text: confirmLabel,
+      onclick: async () => {
+        const ll = marker.getLatLng();
+        confirmBtn.disabled = true;
+        confirmBtn.textContent = "Locating\u2026";
+        const label = shortLabel(await reverseGeocode(ll.lat, ll.lng)) || `${ll.lat.toFixed(4)}, ${ll.lng.toFixed(4)}`;
+        confirmBtn.disabled = false;
+        confirmBtn.textContent = confirmLabel;
+        closeModal();
+        onConfirm({ lat: ll.lat, lng: ll.lng, label });
+      }
+    });
+    let searchTimer = null;
+    searchInput.addEventListener("input", () => {
+      clearTimeout(searchTimer);
+      const q = searchInput.value.trim();
+      if (q.length < 3) {
+        results.textContent = "";
+        return;
+      }
+      searchTimer = setTimeout(async () => {
+        const places = await searchPlaces(q);
+        results.textContent = "";
+        if (!places.length) {
+          results.appendChild(el("div", { class: "picker-empty", text: "No matches \u2014 drag the pin instead." }));
+          return;
+        }
+        places.forEach((p) => results.appendChild(el("button", {
+          class: "picker-result",
+          type: "button",
+          onclick: () => {
+            map.setView([p.lat, p.lng], KNOWN_ZOOM);
+            marker.setLatLng([p.lat, p.lng]);
+            chosenLabel.textContent = shortLabel(p.label);
+            results.textContent = "";
+            searchInput.value = "";
+          }
+        }, shortLabel(p.label))));
+      }, 450);
+    });
+    openModal(el(
+      "div",
+      { class: "picker" },
+      el("h2", { text: title }),
+      el("p", { class: "picker-hint", text: hint }),
+      searchInput,
+      results,
+      mapNode,
+      chosenLabel,
+      el(
+        "div",
+        { class: "picker-actions" },
+        el("button", { class: "picker-cancel", type: "button", text: "Cancel", onclick: () => closeModal() }),
+        confirmBtn
+      )
+    ));
+    const center = start ? [start.lat, start.lng] : DEFAULT_CENTER;
+    const map = L.map(mapId).setView(center, start ? KNOWN_ZOOM : DEFAULT_ZOOM);
+    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+      attribution: "\xA9 OpenStreetMap contributors",
+      maxZoom: 19
+    }).addTo(map);
+    marker = L.marker(center, { icon: pinIcon(), draggable: true }).addTo(map);
+    marker.on("dragend", () => {
+      const ll = marker.getLatLng();
+      chosenLabel.textContent = `${ll.lat.toFixed(4)}, ${ll.lng.toFixed(4)}`;
+    });
+    map.on("click", (e) => {
+      marker.setLatLng(e.latlng);
+      chosenLabel.textContent = `${e.latlng.lat.toFixed(4)}, ${e.latlng.lng.toFixed(4)}`;
+    });
+    setTimeout(() => map.invalidateSize(), 150);
   }
 
   // js/map.js
+  var youMarker = null;
+  var radiusCircle = null;
   function initMap() {
     if (!window.L) return;
-    const loc = getUserLocation();
-    const center = [loc.lat, loc.lng];
+    renderControls();
+    updateMapSubtitle();
     if (state.leafletMap) {
       state.leafletMap.invalidateSize();
+      updateLocationLayer();
       refreshMapMarkers();
       return;
     }
-    state.leafletMap = L.map("map").setView(center, 13);
+    const loc = getUserLocation();
+    const known = locationIsKnown(loc);
+    state.leafletMap = L.map("map").setView(
+      known ? [loc.lat, loc.lng] : DEFAULT_CENTER,
+      known ? KNOWN_ZOOM : DEFAULT_ZOOM
+    );
     L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
       attribution: "\xA9 OpenStreetMap contributors",
-      maxZoom: 18
+      maxZoom: 19
     }).addTo(state.leafletMap);
-    L.circle(center, {
-      radius: RADIUS_KM * 1e3,
+    updateLocationLayer();
+    refreshMapMarkers();
+  }
+  function updateLocationLayer() {
+    const map = state.leafletMap;
+    if (!map) return;
+    if (youMarker) {
+      youMarker.remove();
+      youMarker = null;
+    }
+    if (radiusCircle) {
+      radiusCircle.remove();
+      radiusCircle = null;
+    }
+    const loc = getUserLocation();
+    if (!locationIsKnown(loc)) return;
+    const center = [loc.lat, loc.lng];
+    radiusCircle = L.circle(center, {
+      radius: getRadiusKm() * 1e3,
       color: "#f97316",
       fillColor: "#f97316",
       fillOpacity: 0.05,
       weight: 1.5
-    }).addTo(state.leafletMap);
+    }).addTo(map);
     const youIcon = L.divIcon({
       className: "",
       html: `<div style="width:16px;height:16px;background:#2563eb;border:3px solid white;border-radius:50%;box-shadow:0 2px 6px rgba(0,0,0,.3);"></div>`,
       iconSize: [16, 16],
       iconAnchor: [8, 8]
     });
-    L.marker(center, { icon: youIcon }).addTo(state.leafletMap).bindPopup(loc.isFallback ? "Approximate location" : "You are here");
+    youMarker = L.marker(center, { icon: youIcon }).addTo(map).bindPopup(loc.isFallback ? "Approximate location" : "You are here");
+  }
+  function placeLabel(loc) {
+    return loc.label || `${loc.lat.toFixed(3)}, ${loc.lng.toFixed(3)}`;
+  }
+  function renderControls() {
+    const bar = document.getElementById("mapControls");
+    if (!bar) return;
+    bar.textContent = "";
+    const loc = getUserLocation();
+    const known = locationIsKnown(loc);
+    if (!known) {
+      bar.appendChild(el(
+        "div",
+        { class: "map-prompt" },
+        el("span", { text: t("mapSubtitleUnknown") }),
+        el("button", { class: "primary map-prompt-btn", text: t("mapChooseArea"), onclick: chooseArea })
+      ));
+    }
+    bar.appendChild(el(
+      "div",
+      { class: "map-ctl-row" },
+      el(
+        "button",
+        { class: "map-ctl", type: "button", onclick: centerOnMyLocation },
+        el("span", { class: "map-ctl-ico", text: "\u25CE" }),
+        document.createTextNode(t("mapUseMyLocation"))
+      ),
+      el(
+        "button",
+        { class: "map-ctl", type: "button", onclick: chooseArea },
+        el("span", { class: "map-ctl-ico", text: "\u2316" }),
+        document.createTextNode(t("mapChooseArea"))
+      ),
+      known ? el("span", { class: "map-ctl-label", text: t("mapNear", { place: placeLabel(loc) }) }) : null
+    ));
+  }
+  function updateMapSubtitle() {
+    const sub = document.getElementById("panelPageSub");
+    if (!sub) return;
+    sub.textContent = locationIsKnown() ? t("mapSubtitle", { km: getRadiusKm() }) : t("mapSubtitleUnknown");
+  }
+  function onLocationPrefsChanged() {
+    if (state.page === "map") {
+      const loc = getUserLocation();
+      if (state.leafletMap && locationIsKnown(loc)) {
+        state.leafletMap.setView([loc.lat, loc.lng], KNOWN_ZOOM);
+      }
+      updateLocationLayer();
+      refreshMapMarkers();
+      renderControls();
+      updateMapSubtitle();
+    }
+    updateLocationText();
+    renderGigs();
+  }
+  async function centerOnMyLocation() {
+    toast(t("mapLocating"));
+    await requestUserLocation();
+    const loc = getUserLocation();
+    if (!locationIsKnown(loc)) {
+      toast(t("mapNoGps"));
+      chooseArea();
+      return;
+    }
+    if (state.leafletMap) state.leafletMap.setView([loc.lat, loc.lng], KNOWN_ZOOM);
+    updateLocationLayer();
     refreshMapMarkers();
+    renderControls();
+    updateMapSubtitle();
+    updateLocationText();
+    renderGigs();
+    toast(t("mapLocated"));
+  }
+  function chooseArea() {
+    openLocationPicker({
+      title: t("mapAreaTitle"),
+      hint: t("mapAreaHint"),
+      confirmLabel: t("mapChooseArea"),
+      onConfirm: (picked) => {
+        setHomeLocation(picked);
+        state.userLocation = {
+          lat: picked.lat,
+          lng: picked.lng,
+          label: picked.label,
+          isFallback: true,
+          unknown: false
+        };
+        if (state.leafletMap) state.leafletMap.setView([picked.lat, picked.lng], KNOWN_ZOOM);
+        updateLocationLayer();
+        refreshMapMarkers();
+        renderControls();
+        updateMapSubtitle();
+        updateLocationText();
+        renderGigs();
+        toast(t("mapNear", { place: picked.label }));
+      }
+    });
   }
   function refreshMapMarkers() {
     if (!state.leafletMap) return;
@@ -597,11 +1104,22 @@
   }
   function getFilteredGigs() {
     const q = state.query.toLowerCase();
-    return state.gigsCache.filter((g) => {
+    const loc = getUserLocation();
+    const known = locationIsKnown(loc);
+    const radius = getRadiusKm();
+    return state.gigsCache.map((g) => ({ g, km: known ? distanceKm(loc.lat, loc.lng, g.lat, g.lng) : null })).filter(({ g, km }) => {
       const catMatch = state.selectedCat === "All" || g.cat === state.selectedCat;
       const searchMatch = !q || (g.title + " " + g.cat + " " + g.place).toLowerCase().includes(q);
-      return catMatch && searchMatch;
-    }).sort((a, b) => (b.urgent ? 1 : 0) - (a.urgent ? 1 : 0));
+      const inRange = !known || km == null || km <= radius;
+      return catMatch && searchMatch && inRange;
+    }).sort((a, b) => {
+      const byUrgent = (b.g.urgent ? 1 : 0) - (a.g.urgent ? 1 : 0);
+      if (byUrgent) return byUrgent;
+      if (a.km == null && b.km == null) return 0;
+      if (a.km == null) return 1;
+      if (b.km == null) return -1;
+      return a.km - b.km;
+    }).map(({ g }) => g);
   }
   function buildGigCard(gig) {
     const isApplied = appliedGigIds.has(gig.id);
@@ -830,7 +1348,8 @@
     const list = getFilteredGigs();
     list.forEach((g) => grid.appendChild(buildGigCard(g)));
     empty.style.display = list.length ? "none" : "block";
-    empty.textContent = t("noGigs");
+    const radiusBlocked = !list.length && state.gigsCache.length > 0 && !state.query && state.selectedCat === "All" && locationIsKnown();
+    empty.textContent = radiusBlocked ? t("noGigsInRadius", { km: getRadiusKm() }) : t("noGigs");
   }
   async function applyToGig(gig) {
     const user = getCurrentUser();
@@ -856,27 +1375,79 @@
     toast(t("applicationSent"));
     renderGigs();
   }
-  function openPost() {
+  function openPost(prefill = {}) {
     if (!getCurrentUser()) {
       toast("Please sign in to post a gig.");
       openAuthModal("signin");
       return;
     }
-    const titleInput = el("input", { id: "pt", type: "text", placeholder: t("gigTitleLabel") });
+    const titleInput = el("input", { id: "pt", type: "text", placeholder: t("gigTitleLabel"), value: prefill.title || "" });
     const catSelect = el("select", { id: "pc" });
-    const placeInput = el("input", { id: "pp", type: "text", placeholder: t("locationLabel") });
-    const payInput = el("input", { id: "pw", type: "text", placeholder: t("payLabel") });
-    const detailsInput = el("textarea", { id: "pd", placeholder: t("detailsLabel") });
+    const placeInput = el("input", { id: "pp", type: "text", placeholder: t("locationLabel"), value: prefill.place || "" });
+    const payInput = el("input", { id: "pw", type: "text", placeholder: t("payLabel"), value: prefill.pay || "" });
+    const detailsInput = el("textarea", { id: "pd", placeholder: t("detailsLabel"), value: prefill.details || "" });
     Object.keys(CAT_ICONS).slice(1).forEach((cat) => catSelect.appendChild(el("option", { value: cat, text: tCat(cat) })));
-    const publishBtn = el("button", { class: "primary", text: t("publishBtn"), onclick: () => publishGig(publishBtn) });
+    if (prefill.cat) catSelect.value = prefill.cat;
+    if (!catSelect.value && catSelect.options.length) catSelect.value = catSelect.options[0].value;
+    const readForm = () => ({
+      title: titleInput.value,
+      cat: catSelect.value,
+      place: placeInput.value,
+      pay: payInput.value,
+      details: detailsInput.value
+    });
+    const spot = prefill.spot || null;
+    function pickSpot() {
+      const snapshot = readForm();
+      openLocationPicker({
+        title: t("postPickSpot"),
+        hint: t("mapAreaHint"),
+        confirmLabel: t("postPickSpot"),
+        initial: spot || void 0,
+        onConfirm: (picked) => openPost({ ...snapshot, spot: picked })
+      });
+    }
+    async function useMyLocation() {
+      toast(t("mapLocating"));
+      await requestUserLocation();
+      const loc = getUserLocation();
+      if (!locationIsKnown(loc)) {
+        toast(t("mapNoGps"));
+        return;
+      }
+      const label = loc.label || shortLabel(await reverseGeocode(loc.lat, loc.lng));
+      openPost({ ...readForm(), spot: { lat: loc.lat, lng: loc.lng, label } });
+    }
+    const spotLabel = spot ? shortLabel(spot.label) || `${spot.lat.toFixed(4)}, ${spot.lng.toFixed(4)}` : null;
+    const spotStatus = el("div", {
+      class: "post-spot-status" + (spot ? " set" : ""),
+      text: spot ? t("postSpotSet", { place: spotLabel }) : t("postNeedSpot")
+    });
+    const publishBtn = el("button", {
+      class: "primary",
+      text: t("publishBtn"),
+      onclick: () => publishGig(publishBtn, readForm, spot)
+    });
     const form = el(
       "div",
       { class: "form" },
       el("label", { text: t("gigTitleLabel") }, titleInput),
       el("label", { text: t("categoryLabel") }, catSelect),
-      el("label", { text: t("locationLabel") }, placeInput),
       el("label", { text: t("payLabel") }, payInput),
       el("label", { text: t("detailsLabel") }, detailsInput),
+      el(
+        "div",
+        { class: "post-spot" },
+        el("div", { class: "post-spot-head", text: t("locationLabel") }),
+        spotStatus,
+        placeInput,
+        el(
+          "div",
+          { class: "post-spot-btns" },
+          el("button", { class: "pf-upload-btn", type: "button", text: t("postUseMyLocation"), onclick: useMyLocation }),
+          el("button", { class: "pf-upload-btn", type: "button", text: t("postPickSpot"), onclick: pickSpot })
+        )
+      ),
       publishBtn
     );
     openModal(el(
@@ -886,34 +1457,44 @@
       form
     ));
   }
-  async function publishGig(publishBtn) {
+  async function publishGig(publishBtn, readForm, spot) {
     const user = getCurrentUser();
     if (!user) {
       toast("Please sign in to post a gig.");
       openAuthModal("signin");
       return;
     }
-    const title = document.getElementById("pt")?.value.trim();
+    const form = readForm();
+    const title = (form.title || "").trim();
     if (!title) {
       toast(t("noTitle"));
       return;
     }
+    const loc = spot || (locationIsKnown() ? getUserLocation() : null);
+    if (!loc || loc.lat == null || loc.lng == null) {
+      toast(t("postNeedSpot"));
+      return;
+    }
     publishBtn.disabled = true;
     publishBtn.textContent = "Publishing\u2026";
+    let place = (form.place || "").trim();
+    if (!place) {
+      place = shortLabel(await reverseGeocode(loc.lat, loc.lng)) || `${loc.lat.toFixed(4)}, ${loc.lng.toFixed(4)}`;
+    }
     const { error } = await supabase.from("gigs").insert({
       poster_id: user.id,
-      category: document.getElementById("pc").value,
+      category: form.cat,
       title,
-      place: document.getElementById("pp").value.trim() || "Blantyre",
+      place,
       time_label: "New gig",
       duration: "Flexible",
-      pay: document.getElementById("pw").value.trim() || "Negotiable",
+      pay: (form.pay || "").trim() || "Negotiable",
       pay_type: "total",
       people: 1,
       urgent: false,
-      description: document.getElementById("pd")?.value.trim() || "",
-      location_lat: BLANTYRE_CENTER[0] + (Math.random() - 0.5) * 0.04,
-      location_lng: BLANTYRE_CENTER[1] + (Math.random() - 0.5) * 0.04
+      description: (form.details || "").trim(),
+      location_lat: loc.lat,
+      location_lng: loc.lng
     });
     publishBtn.disabled = false;
     publishBtn.textContent = t("publishBtn");
@@ -924,6 +1505,7 @@
     closeModal();
     await loadGigs(true);
     renderGigs();
+    if (state.page === "map") refreshMapMarkers();
     toast(t("gigPosted"));
   }
 
@@ -1172,16 +1754,42 @@
       submitBtn
     );
   }
+  function gearButton() {
+    return el("button", {
+      class: "lang-pill pf-gear",
+      type: "button",
+      "aria-label": t("settingsOpen"),
+      title: t("settingsOpen"),
+      onclick: () => navigate("settings"),
+      html: '<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.6 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.6a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9c.14.36.39.66.72.86.2.12.44.18.68.18H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>'
+    });
+  }
   function renderSignedOut(container) {
     container.appendChild(el(
       "div",
       { class: "pf-container" },
       el(
         "div",
+        { class: "pf-header" },
+        el(
+          "div",
+          { style: "display:flex; justify-content:space-between; align-items:center;" },
+          el("h1", { style: "font-size:22px; font-weight:800; margin:0;", text: t("profileTitle") }),
+          el("div", { class: "panel-actions" }, gearButton())
+        )
+      ),
+      el(
+        "div",
         { class: "pf-card", style: "text-align:center;" },
         el("h3", { text: "Sign in to view your profile" }),
-        el("p", { style: "margin:10px 0;color:#666;", text: "Create an account or sign in to manage your profile, skills, and settings." }),
-        el("button", { class: "primary", text: "Sign in", onclick: () => openAuthModal("signin") })
+        el("p", { style: "margin:10px 0 16px;color:#666;", text: "Create an account or sign in to manage your profile, skills, and settings." }),
+        el("button", { class: "primary", text: "Sign in", onclick: () => openAuthModal("signin") }),
+        el("button", {
+          class: "set-btn",
+          style: "width:100%;margin-top:10px;",
+          text: t("settingsTitle"),
+          onclick: () => navigate("settings")
+        })
       )
     ));
   }
@@ -1241,12 +1849,7 @@
         "div",
         { style: "display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;" },
         el("h1", { style: "font-size:22px; font-weight:800; margin:0;", text: t("profileTitle") || "Profile" }),
-        el(
-          "div",
-          { class: "panel-actions" },
-          el("button", { class: "lang-pill" + (lang === "EN" ? " active" : ""), text: "EN", onclick: () => setLang("EN") }),
-          el("button", { class: "lang-pill" + (lang === "NY" ? " active" : ""), text: "NY", onclick: () => setLang("NY") })
-        )
+        el("div", { class: "panel-actions" }, gearButton())
       ),
       el(
         "div",
@@ -1336,27 +1939,6 @@
       ),
       el("div", { class: "pf-lb-footer", text: "\u{1F3C6} Top workers featured every week" })
     );
-    const smsToggle = el("input", { type: "checkbox", checked: profile.sms_alerts });
-    smsToggle.addEventListener("change", () => saveProfile(user.id, { sms_alerts: smsToggle.checked }));
-    const dataSaverToggle = el("input", { type: "checkbox", checked: profile.data_saver });
-    dataSaverToggle.addEventListener("change", () => saveProfile(user.id, { data_saver: dataSaverToggle.checked }));
-    const settingsBox = el(
-      "div",
-      { class: "pf-card" },
-      el("h3", { text: "Settings" }),
-      el(
-        "label",
-        { class: "pf-toggle" },
-        el("div", {}, el("strong", { text: "SMS Alerts" }), el("div", { class: "pf-toggle-hint", text: "Get gig alerts by SMS when data is off" })),
-        smsToggle
-      ),
-      el(
-        "label",
-        { class: "pf-toggle" },
-        el("div", {}, el("strong", { text: "Data Saver" }), el("div", { class: "pf-toggle-hint", text: "Cache gigs and sync later" })),
-        dataSaverToggle
-      )
-    );
     const refBox = el(
       "div",
       { class: "pf-card" },
@@ -1380,8 +1962,248 @@
       histBox,
       premiumBox,
       leaderboardBox,
-      settingsBox,
       refBox
+    ));
+  }
+
+  // js/settings.js
+  async function fetchProfileRow(userId) {
+    const { data, error } = await supabase.from("profiles").select("*").eq("id", userId).maybeSingle();
+    if (error) {
+      console.error("settings fetchProfile error:", error);
+      return null;
+    }
+    return data;
+  }
+  async function saveSetting(userId, patch) {
+    const { error } = await supabase.from("profiles").update(patch).eq("id", userId);
+    if (error) {
+      toast("Could not save: " + error.message);
+      return false;
+    }
+    toast(t("settingsSaved"));
+    return true;
+  }
+  function switchRow({ title, hint, checked, onChange }) {
+    const input = el("input", { type: "checkbox", class: "sw-input" });
+    input.checked = !!checked;
+    input.addEventListener("change", () => onChange(input.checked));
+    return el(
+      "label",
+      { class: "sw-row" },
+      el(
+        "div",
+        { class: "sw-text" },
+        el("strong", { text: title }),
+        hint ? el("div", { class: "sw-hint", text: hint }) : null
+      ),
+      el("span", { class: "sw" }, input, el("span", { class: "sw-knob" }))
+    );
+  }
+  function infoRow(title, valueText, hint) {
+    return el(
+      "div",
+      { class: "set-row" },
+      el(
+        "div",
+        { class: "sw-text" },
+        el("strong", { text: title }),
+        valueText ? el("div", { class: "set-value", text: valueText }) : null,
+        hint ? el("div", { class: "sw-hint", text: hint }) : null
+      )
+    );
+  }
+  function card(title, ...children) {
+    return el(
+      "section",
+      { class: "set-card" },
+      el("h3", { class: "set-card-title", text: title }),
+      ...children.filter(Boolean)
+    );
+  }
+  function currentPositionText() {
+    const loc = getUserLocation();
+    if (!locationIsKnown(loc)) return t("settingsPositionUnknown");
+    const where = loc.label ? shortLabel(loc.label) : `${loc.lat.toFixed(4)}, ${loc.lng.toFixed(4)}`;
+    return (loc.isFallback ? "\u2248 " : "\u25CF ") + where;
+  }
+  async function renderSettingsPage() {
+    const container = document.getElementById("pageSettings");
+    if (!container) return;
+    container.textContent = "";
+    const user = getCurrentUser();
+    container.appendChild(el("div", { class: "set-loading", text: "Loading\u2026" }));
+    const profile = user ? await fetchProfileRow(user.id) : null;
+    container.textContent = "";
+    const header = el(
+      "div",
+      { class: "set-header" },
+      el("button", {
+        class: "set-back",
+        type: "button",
+        "aria-label": t("navBack"),
+        onclick: () => navigate("profile"),
+        html: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>'
+      }),
+      el(
+        "div",
+        {},
+        el("h1", { text: t("settingsTitle") }),
+        el("p", { class: "set-sub", text: t("settingsPageSub") })
+      )
+    );
+    const radiusRow = el(
+      "div",
+      { class: "seg" },
+      ...RADIUS_CHOICES_KM.map((km) => el("button", {
+        class: "seg-btn" + (km === getRadiusKm() ? " active" : ""),
+        type: "button",
+        text: km + "km",
+        onclick: () => {
+          setRadiusKm(km);
+          onLocationPrefsChanged();
+          renderSettingsPage();
+        }
+      }))
+    );
+    const home = getHomeLocation();
+    const locationCard = card(
+      t("settingsLocation"),
+      el(
+        "div",
+        { class: "set-row" },
+        el(
+          "div",
+          { class: "sw-text" },
+          el("strong", { text: t("settingsRadius") }),
+          el("div", { class: "sw-hint", text: t("settingsRadiusHint") })
+        ),
+        radiusRow
+      ),
+      infoRow(t("settingsCurrentPosition"), currentPositionText()),
+      el(
+        "div",
+        { class: "set-actions" },
+        el("button", {
+          class: "set-btn",
+          type: "button",
+          text: t("settingsUseCurrent"),
+          onclick: async (ev) => {
+            ev.target.disabled = true;
+            toast(t("mapLocating"));
+            await requestUserLocation();
+            ev.target.disabled = false;
+            if (!locationIsKnown()) {
+              toast(t("mapNoGps"));
+              return;
+            }
+            onLocationPrefsChanged();
+            renderSettingsPage();
+            toast(t("mapLocated"));
+          }
+        }),
+        el("button", {
+          class: "set-btn",
+          type: "button",
+          text: t("mapChooseArea"),
+          onclick: () => openLocationPicker({
+            title: t("mapAreaTitle"),
+            hint: t("mapAreaHint"),
+            confirmLabel: t("mapChooseArea"),
+            initial: home || void 0,
+            onConfirm: (picked) => {
+              setHomeLocation(picked);
+              state.userLocation = {
+                lat: picked.lat,
+                lng: picked.lng,
+                label: picked.label,
+                isFallback: true,
+                unknown: false
+              };
+              onLocationPrefsChanged();
+              renderSettingsPage();
+              toast(t("mapNear", { place: shortLabel(picked.label) }));
+            }
+          })
+        })
+      ),
+      infoRow(t("settingsHomeArea"), home ? shortLabel(home.label) : t("settingsHomeNone"), t("settingsHomeAreaHint"))
+    );
+    const languageCard = card(
+      t("settingsLanguage"),
+      el(
+        "div",
+        { class: "seg" },
+        ...["EN", "NY"].map((code) => el("button", {
+          class: "seg-btn" + (lang === code ? " active" : ""),
+          type: "button",
+          text: code === "EN" ? "English" : "Chichewa",
+          onclick: () => setLang(code)
+        }))
+      )
+    );
+    let notificationsCard;
+    let dataCard;
+    if (user && profile) {
+      notificationsCard = card(
+        t("settingsNotifications"),
+        switchRow({
+          title: t("smsAlertsLbl"),
+          hint: t("settingsSmsHint"),
+          checked: profile.sms_alerts,
+          onChange: (on) => saveSetting(user.id, { sms_alerts: on })
+        })
+      );
+      dataCard = card(
+        t("settingsData"),
+        switchRow({
+          title: t("dataSaverLbl"),
+          hint: t("settingsDataSaverHint"),
+          checked: profile.data_saver,
+          onChange: (on) => saveSetting(user.id, { data_saver: on })
+        })
+      );
+    } else {
+      notificationsCard = card(
+        t("settingsNotifications"),
+        el("p", { class: "set-hint-p", text: t("settingsSignInHint") }),
+        el("button", { class: "primary", text: t("settingsSignIn"), onclick: () => openAuthModal("signin") })
+      );
+    }
+    const accountCard = card(
+      t("settingsAccount"),
+      user ? el(
+        "div",
+        {},
+        infoRow(user.email || t("settingsAccount"), profile?.full_name || ""),
+        el(
+          "div",
+          { class: "set-actions" },
+          el("button", {
+            class: "set-btn danger",
+            type: "button",
+            text: t("settingsSignOut"),
+            onclick: () => {
+              if (confirm("Sign out of PickAGig?")) signOut();
+            }
+          })
+        )
+      ) : el("button", { class: "primary", text: t("settingsSignIn"), onclick: () => openAuthModal("signin") })
+    );
+    const aboutCard = card(
+      t("settingsAbout"),
+      infoRow("PickAGig", t("settingsVersion") + " " + APP_VERSION)
+    );
+    container.appendChild(el(
+      "div",
+      { class: "set-container" },
+      header,
+      locationCard,
+      notificationsCard,
+      languageCard,
+      dataCard,
+      accountCard,
+      aboutCard
     ));
   }
 
@@ -1428,6 +2250,7 @@
     const pageMap = document.getElementById("pageMap");
     const pageChats = document.getElementById("pageChats");
     const pageProfile = document.getElementById("pageProfile");
+    const pageSettings = document.getElementById("pageSettings");
     panelBrand.style.display = "none";
     panelPageHeader.style.display = "none";
     panelGigsBody.style.display = "none";
@@ -1436,6 +2259,7 @@
     pageMap.style.display = "none";
     pageChats.style.display = "none";
     if (pageProfile) pageProfile.style.display = "none";
+    if (pageSettings) pageSettings.style.display = "none";
     panel.style.display = "block";
     if (page === "gigs") {
       panelBrand.style.display = "block";
@@ -1447,7 +2271,7 @@
     } else if (page === "map") {
       panelPageHeader.style.display = "block";
       document.getElementById("panelPageTitle").textContent = t("mapTitle");
-      document.getElementById("panelPageSub").textContent = t("mapSubtitle");
+      updateMapSubtitle();
       pageMap.style.display = "block";
       setTimeout(initMap, 60);
     } else if (page === "chats") {
@@ -1460,13 +2284,26 @@
       panel.style.display = "none";
       if (pageProfile) pageProfile.style.display = "block";
       renderProfilePage();
+    } else if (page === "settings") {
+      panel.style.display = "none";
+      if (pageSettings) pageSettings.style.display = "block";
+      renderSettingsPage();
     }
+  }
+  var PIN_SVG = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right:2px"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>';
+  function updateLocationText() {
+    const node = document.getElementById("locationText");
+    if (!node) return;
+    const known = locationIsKnown();
+    node.innerHTML = PIN_SVG + (known ? t("withinRadius", { km: getRadiusKm() }) : t("locationUnknown"));
+    node.classList.toggle("tap-to-set", !known);
+    node.onclick = known ? null : () => navigate("settings");
   }
   async function init() {
     document.querySelectorAll(".lang-pill[data-lang]").forEach((btn) => {
       btn.classList.toggle("active", btn.dataset.lang === lang);
     });
-    document.getElementById("locationText").innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right:2px"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>' + t("withinRadius");
+    updateLocationText();
     document.getElementById("heroSubtitle").textContent = t("tagline");
     document.getElementById("searchInput").placeholder = t("searchPlaceholder");
     document.getElementById("gigsHeading").textContent = t("gigsNearYou");
@@ -1476,8 +2313,9 @@
     });
     await requestUserLocation();
     await loadGigs();
+    updateLocationText();
     renderAuthStatus(getCurrentUser());
-    navigate(state.page === "post" || state.page === "profile" ? "gigs" : state.page);
+    navigate(state.page === "post" || state.page === "profile" || state.page === "settings" ? "gigs" : state.page);
   }
   function onSearch(val) {
     state.query = val;

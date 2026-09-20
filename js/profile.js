@@ -7,9 +7,9 @@
    ============================================================ */
 
 import { el, toast } from './ui-helpers.js';
-import { t, tCat, CAT_ICONS, lang } from './i18n.js';
+import { t, tCat, CAT_ICONS } from './i18n.js';
 import { WORKERS } from './data.js';
-import { setLang } from './main.js';
+import { navigate } from './main.js';
 import { supabase } from './supabaseClient.js';
 import { getCurrentUser, openAuthModal } from './auth.js';
 import { openRatingModal } from './gigs.js';
@@ -265,12 +265,35 @@ function buildPremiumBox(user, profile, latestRequest) {
     submitBtn
   );
 }
+// Shared by the signed-in and signed-out profile headers, so Settings
+// is reachable whether or not you have an account.
+function gearButton() {
+  return el('button', {
+    class: 'lang-pill pf-gear',
+    type: 'button',
+    'aria-label': t('settingsOpen'),
+    title: t('settingsOpen'),
+    onclick: () => navigate('settings'),
+    html: '<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.6 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.6a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9c.14.36.39.66.72.86.2.12.44.18.68.18H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>',
+  });
+}
+
 function renderSignedOut(container) {
   container.appendChild(el('div', { class: 'pf-container' },
+    el('div', { class: 'pf-header' },
+      el('div', { style: 'display:flex; justify-content:space-between; align-items:center;' },
+        el('h1', { style: 'font-size:22px; font-weight:800; margin:0;', text: t('profileTitle') }),
+        el('div', { class: 'panel-actions' }, gearButton())
+      )
+    ),
     el('div', { class: 'pf-card', style: 'text-align:center;' },
       el('h3', { text: 'Sign in to view your profile' }),
-      el('p', { style: 'margin:10px 0;color:#666;', text: 'Create an account or sign in to manage your profile, skills, and settings.' }),
-      el('button', { class: 'primary', text: 'Sign in', onclick: () => openAuthModal('signin') })
+      el('p', { style: 'margin:10px 0 16px;color:#666;', text: 'Create an account or sign in to manage your profile, skills, and settings.' }),
+      el('button', { class: 'primary', text: 'Sign in', onclick: () => openAuthModal('signin') }),
+      el('button', {
+        class: 'set-btn', style: 'width:100%;margin-top:10px;',
+        text: t('settingsTitle'), onclick: () => navigate('settings'),
+      })
     )
   ));
 }
@@ -333,10 +356,7 @@ export async function renderProfilePage() {
   const header = el('div', { class: 'pf-header' },
     el('div', { style: 'display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;' },
       el('h1', { style: 'font-size:22px; font-weight:800; margin:0;', text: t('profileTitle') || 'Profile' }),
-      el('div', { class: 'panel-actions' },
-        el('button', { class: 'lang-pill' + (lang==='EN'?' active':''), text: 'EN', onclick: () => setLang('EN') }),
-        el('button', { class: 'lang-pill' + (lang==='NY'?' active':''), text: 'NY', onclick: () => setLang('NY') })
-      )
+      el('div', { class: 'panel-actions' }, gearButton())
     ),
     el('div', { class: 'pf-header-top' },
       el('div', { class: 'pf-avatar' }, initial),
@@ -411,24 +431,7 @@ export async function renderProfilePage() {
     el('div', { class: 'pf-lb-footer', text: '🏆 Top workers featured every week' })
   );
 
-  // ── Settings (each toggle saves immediately) ────────────────
-  const smsToggle = el('input', { type: 'checkbox', checked: profile.sms_alerts });
-  smsToggle.addEventListener('change', () => saveProfile(user.id, { sms_alerts: smsToggle.checked }));
-
-  const dataSaverToggle = el('input', { type: 'checkbox', checked: profile.data_saver });
-  dataSaverToggle.addEventListener('change', () => saveProfile(user.id, { data_saver: dataSaverToggle.checked }));
-
-  const settingsBox = el('div', { class: 'pf-card' },
-    el('h3', { text: 'Settings' }),
-    el('label', { class: 'pf-toggle' },
-      el('div', {}, el('strong', { text: 'SMS Alerts' }), el('div', { class: 'pf-toggle-hint', text: 'Get gig alerts by SMS when data is off' })),
-      smsToggle
-    ),
-    el('label', { class: 'pf-toggle' },
-      el('div', {}, el('strong', { text: 'Data Saver' }), el('div', { class: 'pf-toggle-hint', text: 'Cache gigs and sync later' })),
-      dataSaverToggle
-    )
-  );
+  // ── Settings live on their own page now (gear icon above) ───
 
   const refBox = el('div', { class: 'pf-card' },
     el('h3', { text: 'Referrals' }),
@@ -449,7 +452,6 @@ export async function renderProfilePage() {
     histBox,
     premiumBox,
     leaderboardBox,
-    settingsBox,
     refBox
   ));
 }

@@ -4,8 +4,19 @@
    single shared app `state` object.
    ============================================================ */
 
-export const BLANTYRE_CENTER = [-15.7861, 35.0058];
-export const RADIUS_KM = 5;
+// Last-resort view used only when there is no GPS fix AND no saved
+// home area yet — a world view rather than any one city, so the app
+// never silently assumes where the user is.
+export const DEFAULT_CENTER = [20, 0];
+export const DEFAULT_ZOOM   = 2;
+export const KNOWN_ZOOM     = 13;
+
+export const DEFAULT_RADIUS_KM = 5;
+export const RADIUS_CHOICES_KM = [2, 5, 10, 25, 50];
+
+// Shown on the Settings page; kept in step with the ?v= cache-buster
+// in index.html.
+export const APP_VERSION = '1.1.0';
 
 export const SEED_GIGS = [
   {
@@ -62,6 +73,16 @@ export const LS = {
   setChats(v)  { localStorage.setItem('pg_chats',   JSON.stringify(v)); },
   getApplied() { return JSON.parse(localStorage.getItem('pg_applied')) ?? []; },
   setApplied(v){ localStorage.setItem('pg_applied', JSON.stringify(v)); },
+  // Device-local preferences: search radius and the area the user
+  // chose as "home" ({ lat, lng, label }). Lives on the device rather
+  // than in Supabase so the app works before anyone signs in.
+  getPrefs() {
+    return JSON.parse(localStorage.getItem('pg_prefs')) ?? {
+      radiusKm: DEFAULT_RADIUS_KM,
+      home: null,
+    };
+  },
+  setPrefs(v)  { localStorage.setItem('pg_prefs', JSON.stringify(v)); },
 };
 
 // Shared, mutable app state. Import this same object anywhere it's
