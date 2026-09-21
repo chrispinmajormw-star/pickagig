@@ -244,7 +244,8 @@
     "Moving": "\u{1F4E6}",
     "Farm Labour": "\u{1F33E}",
     "Catering": "\u{1F372}",
-    "Domestic": "\u{1F9F9}"
+    "Domestic": "\u{1F9F9}",
+    "Others": "\u{1F5C2}\uFE0F"
   };
   var lang = localStorage.getItem("pg_lang") || "EN";
   function setLangValue(l) {
