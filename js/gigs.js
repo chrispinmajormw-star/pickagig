@@ -7,7 +7,7 @@
 
 import { el, toast, openModal, closeModal } from './ui-helpers.js';
 import { t, tCat, CAT_ICONS } from './i18n.js';
-import { state } from './data.js';
+import { state, RADIUS_CHOICES_KM } from './data.js';
 import { supabase } from './supabaseClient.js';
 import { getCurrentUser, openAuthModal } from './auth.js';
 import { refreshMapMarkers } from './map.js';
@@ -20,6 +20,37 @@ import {
 } from './geo.js';
 
 let appliedGigIds = new Set();
+
+// Advanced filters (session-only, not persisted): sort order, an
+// optional pay range, an urgent-only toggle, and an optional radius
+// that overrides the saved Settings radius just for this browsing
+// session. Reset in openAdvancedFilters().
+state.filters = state.filters || {
+  sort: 'distance',      // 'distance' | 'newest' | 'pay_high'
+  payMin: '',
+  payMax: '',
+  urgentOnly: false,
+  radiusOverride: null,  // km, or null to use the saved Settings radius
+};
+
+function filtersAreActive() {
+  const f = state.filters;
+  return f.sort !== 'distance' || f.payMin || f.payMax || f.urgentOnly || f.radiusOverride != null;
+}
+
+function updateFilterIconState() {
+  const btn = document.getElementById('advFilterIcon');
+  if (btn) btn.classList.toggle('filters-active', filtersAreActive());
+}
+
+// Pulls the first number out of a free-text pay string like
+// "MK 20,000" or "MK 5,000/day" — returns null for things like
+// "Negotiable" that have no number in them.
+function parsePayAmount(payStr) {
+  if (!payStr) return null;
+  const match = String(payStr).replace(/,/g, '').match(/\d+/);
+  return match ? parseInt(match[0], 10) : null;
+}
 
 async function loadAppliedGigIds() {
   const user = getCurrentUser();
@@ -99,26 +130,44 @@ export function renderFilters() {
   });
 }
 
-// Filters by category, search text and the user's chosen radius.
-// When no location is known every gig is shown (sorted by urgency
-// only) — hiding them all would leave a brand-new user staring at
-// an empty screen. Gigs with no coordinates can't be ranged, so
-// they are kept but sorted last.
+// Filters by category, search text, the user's chosen radius, and
+// whatever's set in the Advanced Filters modal (sort order, pay
+// range, urgent-only, and an optional radius override). When no
+// location is known every gig is shown. Gigs with no coordinates
+// can't be ranged, so they are kept but sorted last.
 export function getFilteredGigs() {
   const q = state.query.toLowerCase();
   const loc = getUserLocation();
   const known = locationIsKnown(loc);
-  const radius = getRadiusKm();
+  const radius = state.filters.radiusOverride ?? getRadiusKm();
+  const { sort, urgentOnly } = state.filters;
+  const payMin = parsePayAmount(state.filters.payMin);
+  const payMax = parsePayAmount(state.filters.payMax);
 
   return state.gigsCache
-    .map(g => ({ g, km: known ? distanceKm(loc.lat, loc.lng, g.lat, g.lng) : null }))
-    .filter(({ g, km }) => {
+    .map((g, idx) => ({
+      g, idx,
+      km: known ? distanceKm(loc.lat, loc.lng, g.lat, g.lng) : null,
+      payAmount: parsePayAmount(g.pay),
+    }))
+    .filter(({ g, km, payAmount }) => {
       const catMatch    = state.selectedCat === 'All' || g.cat === state.selectedCat;
       const searchMatch = !q || (g.title + ' ' + g.cat + ' ' + g.place).toLowerCase().includes(q);
-      const inRange     = !known || km == null || km <= radius;
-      return catMatch && searchMatch && inRange;
+      const inRange      = !known || km == null || km <= radius;
+      const urgentMatch   = !urgentOnly || g.urgent;
+      const payMinMatch   = payMin == null || payAmount == null || payAmount >= payMin;
+      const payMaxMatch   = payMax == null || payAmount == null || payAmount <= payMax;
+      return catMatch && searchMatch && inRange && urgentMatch && payMinMatch && payMaxMatch;
     })
     .sort((a, b) => {
+      if (sort === 'newest') return a.idx - b.idx; // gigsCache already arrives newest-first
+      if (sort === 'pay_high') {
+        if (a.payAmount == null && b.payAmount == null) return 0;
+        if (a.payAmount == null) return 1;
+        if (b.payAmount == null) return -1;
+        return b.payAmount - a.payAmount;
+      }
+      // default: 'distance' — urgent first, then nearest
       const byUrgent = (b.g.urgent ? 1 : 0) - (a.g.urgent ? 1 : 0);
       if (byUrgent) return byUrgent;
       if (a.km == null && b.km == null) return 0;
@@ -127,6 +176,188 @@ export function getFilteredGigs() {
       return a.km - b.km;
     })
     .map(({ g }) => g);
+}
+
+function buildSegmented(options, current, onPick) {
+  const seg = el('div', { class: 'seg seg-fill', role: 'group' });
+  options.forEach(o => {
+    seg.appendChild(el('button', {
+      class: 'seg-btn' + (o.value === current ? ' active' : ''),
+      type: 'button', text: o.label,
+      onclick: (ev) => {
+        seg.querySelectorAll('.seg-btn').forEach(b => b.classList.remove('active'));
+        ev.currentTarget.classList.add('active');
+        onPick(o.value);
+      },
+    }));
+  });
+  return seg;
+}
+
+export function openAdvancedFilters() {
+  const f = state.filters;
+  let pickedSort = f.sort;
+  let pickedRadius = f.radiusOverride;
+
+  const sortSeg = buildSegmented(
+    [
+      { value: 'distance', label: 'Nearest' },
+      { value: 'newest', label: 'Newest' },
+      { value: 'pay_high', label: 'Highest pay' },
+    ],
+    f.sort,
+    (v) => { pickedSort = v; }
+  );
+
+  const radiusSeg = buildSegmented(
+    RADIUS_CHOICES_KM.map(km => ({ value: km, label: km + 'km' })),
+    f.radiusOverride ?? getRadiusKm(),
+    (v) => { pickedRadius = v; }
+  );
+
+  const payMinInput = el('input', { type: 'number', inputmode: 'numeric', placeholder: 'e.g. 5000', value: f.payMin || '' });
+  const payMaxInput = el('input', { type: 'number', inputmode: 'numeric', placeholder: 'e.g. 50000', value: f.payMax || '' });
+
+  const urgentToggleInput = el('input', { type: 'checkbox', class: 'sw-input' });
+  urgentToggleInput.checked = f.urgentOnly;
+  const urgentToggle = el('label', { class: 'row row-tap', style: 'padding:12px 0;' },
+    el('span', { class: 'row-text' }, el('strong', { text: 'Urgent gigs only' })),
+    el('span', { class: 'sw' }, urgentToggleInput, el('span', { class: 'sw-knob' }))
+  );
+
+  const applyBtn = el('button', {
+    class: 'primary', type: 'button', text: 'Apply filters',
+    onclick: () => {
+      f.sort = pickedSort;
+      f.radiusOverride = pickedRadius;
+      f.payMin = payMinInput.value;
+      f.payMax = payMaxInput.value;
+      f.urgentOnly = urgentToggleInput.checked;
+      closeModal();
+      renderGigs();
+      if (state.page === 'map') refreshMapMarkers();
+      updateFilterIconState();
+      toast('Filters applied.');
+    }
+  });
+
+  const resetBtn = el('button', {
+    type: 'button', text: 'Reset filters',
+    style: 'background:none;border:0;color:var(--muted);font-size:13px;font-weight:700;cursor:pointer;width:100%;padding:10px;text-align:center;',
+    onclick: () => {
+      state.filters = { sort: 'distance', payMin: '', payMax: '', urgentOnly: false, radiusOverride: null };
+      closeModal();
+      renderGigs();
+      if (state.page === 'map') refreshMapMarkers();
+      updateFilterIconState();
+    }
+  });
+
+  openModal(el('div', {},
+    el('h2', { text: 'Filters', style: 'margin-bottom:16px;' }),
+    el('div', { class: 'form' },
+      el('label', { text: 'Sort by' }, sortSeg),
+      el('label', { text: 'Search radius' }, radiusSeg),
+      el('div', { class: 'form-row' },
+        el('label', { text: 'Min pay (MK)' }, payMinInput),
+        el('label', { text: 'Max pay (MK)' }, payMaxInput)
+      )
+    ),
+    urgentToggle,
+    el('div', { style: 'display:flex;flex-direction:column;gap:10px;margin-top:16px;' },
+      applyBtn,
+      resetBtn
+    )
+  ));
+}
+
+// ── Notifications ────────────────────────────────────────────
+// A lightweight activity feed built from data the app already has:
+// applicants on gigs you posted, and completed gigs where you (as
+// the worker) still owe the poster a rating. There's no separate
+// notifications table or push delivery yet — see the note in chat.
+
+async function fetchPendingWorkerRatings(userId) {
+  const { data, error } = await supabase
+    .from('gig_applications')
+    .select('gig_id, gigs(id, title, poster_id, status, profiles(full_name))')
+    .eq('applicant_id', userId)
+    .eq('accepted', true);
+  if (error) { console.error('fetchPendingWorkerRatings error:', error); return []; }
+
+  const completed = (data || []).filter(r => r.gigs && r.gigs.status === 'completed');
+  if (!completed.length) return [];
+
+  const gigIds = completed.map(r => r.gig_id);
+  const { data: myRatings } = await supabase
+    .from('ratings')
+    .select('gig_id')
+    .eq('rater_id', userId)
+    .in('gig_id', gigIds);
+  const alreadyRated = new Set((myRatings || []).map(r => r.gig_id));
+
+  return completed
+    .filter(r => !alreadyRated.has(r.gig_id))
+    .map(r => ({
+      gigId: r.gig_id,
+      gigTitle: r.gigs.title,
+      posterId: r.gigs.poster_id,
+      posterName: r.gigs.profiles?.full_name || 'Unknown',
+    }));
+}
+
+export async function openNotifications() {
+  const user = getCurrentUser();
+  if (!user) {
+    openModal(el('div', {},
+      el('h2', { text: 'Activity', style: 'margin-bottom:10px;' }),
+      el('p', { style: 'color:var(--muted);font-size:14px;', text: 'Sign in to see applicants on your gigs and gigs you still need to rate.' })
+    ));
+    return;
+  }
+
+  openModal(el('div', {}, el('div', { class: 'set-loading', text: 'Loading…' })));
+
+  const myOpenGigsWithApplicants = state.gigsCache.filter(g => g.posterId === user.id && g.applied > 0);
+  const pendingRatings = await fetchPendingWorkerRatings(user.id);
+
+  const applicantRows = myOpenGigsWithApplicants.map(g => el('button', {
+    class: 'row row-tap', type: 'button',
+    onclick: () => { closeModal(); openGigDetail(g); },
+  },
+    el('span', { class: 'row-text' },
+      el('strong', { text: g.title }),
+      el('span', { class: 'row-hint', text: g.applied + (g.applied === 1 ? ' applicant' : ' applicants') })
+    )
+  ));
+
+  const ratingRows = pendingRatings.map(p => el('button', {
+    class: 'row row-tap', type: 'button',
+    onclick: () => { closeModal(); openRatingModal(p.gigId, p.posterId, p.posterName); },
+  },
+    el('span', { class: 'row-text' },
+      el('strong', { text: 'Rate ' + p.posterName }),
+      el('span', { class: 'row-hint', text: 'For "' + p.gigTitle + '"' })
+    )
+  ));
+
+  const sections = [];
+  if (applicantRows.length) {
+    sections.push(el('h3', { style: 'font-size:11px;font-weight:800;letter-spacing:0.08em;text-transform:uppercase;color:var(--muted);margin:14px 0 6px;', text: 'Applicants on your gigs' }));
+    sections.push(el('div', { class: 'set-list' }, ...applicantRows));
+  }
+  if (ratingRows.length) {
+    sections.push(el('h3', { style: 'font-size:11px;font-weight:800;letter-spacing:0.08em;text-transform:uppercase;color:var(--muted);margin:14px 0 6px;', text: 'Gigs to rate' }));
+    sections.push(el('div', { class: 'set-list' }, ...ratingRows));
+  }
+  if (!sections.length) {
+    sections.push(el('p', { style: 'color:var(--muted);font-size:14px;', text: 'Nothing new right now.' }));
+  }
+
+  openModal(el('div', {},
+    el('h2', { text: 'Activity' }),
+    ...sections
+  ));
 }
 
 function buildGigCard(gig) {
@@ -339,6 +570,7 @@ export function renderGigs() {
   const empty = document.getElementById('gigsEmpty');
   if (!grid) return;
   grid.textContent = '';
+  updateFilterIconState();
   const list = getFilteredGigs();
   list.forEach(g => grid.appendChild(buildGigCard(g)));
   empty.style.display = list.length ? 'none' : 'block';
