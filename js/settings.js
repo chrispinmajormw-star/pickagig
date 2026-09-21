@@ -7,7 +7,7 @@
    while signed out; notification toggles need a profile row.
    ============================================================ */
 
-import { el, toast } from './ui-helpers.js';
+import { el, toast, openModal, closeModal } from './ui-helpers.js';
 import { t, lang } from './i18n.js';
 import { state, RADIUS_CHOICES_KM, APP_VERSION } from './data.js';
 import { setLang, navigate } from './main.js';
@@ -197,6 +197,75 @@ function currentPositionText() {
     : `${loc.lat.toFixed(4)}, ${loc.lng.toFixed(4)}`;
 }
 
+// ── Change password, Help & FAQ, Contact Us ─────────────────
+
+function openChangePassword() {
+  const newPassInput = el('input', { type: 'password', placeholder: 'New password (min 6 characters)', autocomplete: 'new-password' });
+  const confirmInput = el('input', { type: 'password', placeholder: 'Confirm new password', autocomplete: 'new-password' });
+
+  const saveBtn = el('button', {
+    class: 'primary', type: 'button', text: 'Update password',
+    onclick: async () => {
+      const pass = newPassInput.value;
+      if (pass.length < 6) { toast('Password must be at least 6 characters.'); return; }
+      if (pass !== confirmInput.value) { toast('Passwords don\u2019t match.'); return; }
+      saveBtn.disabled = true;
+      saveBtn.textContent = 'Updating\u2026';
+      const { error } = await supabase.auth.updateUser({ password: pass });
+      saveBtn.disabled = false;
+      saveBtn.textContent = 'Update password';
+      if (error) { toast('Could not update password: ' + error.message); return; }
+      toast('Password updated.');
+      closeModal();
+    }
+  });
+
+  openModal(el('div', {},
+    el('h2', { text: 'Change password', style: 'margin-bottom:14px;' }),
+    el('div', { class: 'form' },
+      el('label', { text: 'New password' }, newPassInput),
+      el('label', { text: 'Confirm password' }, confirmInput)
+    ),
+    el('div', { style: 'margin-top:16px;' }, saveBtn)
+  ));
+}
+
+const FAQ_ITEMS = [
+  { q: 'How do I get paid for a gig?', a: 'Once the poster marks the gig complete, you agree on payment directly with them (cash or mobile money). PickAGig doesn\u2019t hold funds on your behalf yet.' },
+  { q: 'How does Premium work?', a: 'Premium boosts your profile in employer searches and sends priority gig alerts. Pay via Airtel Money from the Profile page \u2014 activation happens once your payment is confirmed, usually within a day.' },
+  { q: 'How are ratings calculated?', a: 'After a gig is marked complete, both sides can leave a star rating. Your average shows on your profile and helps you stand out to employers.' },
+  { q: 'Can I edit or cancel a gig I posted?', a: 'You can cancel an open gig from its detail page. Editing isn\u2019t available yet \u2014 for now, cancel and repost with the changes.' },
+  { q: 'Is my location shared with everyone?', a: 'Only your approximate area is used to match you with nearby gigs. Your exact location is never shown to other users.' },
+];
+
+function openHelpFaq() {
+  openModal(el('div', {},
+    el('h2', { text: 'Help & FAQ', style: 'margin-bottom:10px;' }),
+    el('div', { class: 'set-list' },
+      ...FAQ_ITEMS.map(item => el('details', { class: 'faq-item' },
+        el('summary', { class: 'faq-q', text: item.q }),
+        el('p', { class: 'faq-a', text: item.a })
+      ))
+    )
+  ));
+}
+
+function openContactUs() {
+  openModal(el('div', {},
+    el('h2', { text: 'Contact us', style: 'margin-bottom:10px;' }),
+    el('p', { style: 'color:var(--muted);font-size:14px;margin-bottom:16px;', text: 'Reach the PickAGig team through any of these \u2014 we usually reply within a day.' }),
+    el('div', { class: 'set-list' },
+      el('a', { class: 'row row-tap', href: 'mailto:support@pickagig.mw' },
+        ico('info', 't-navy'), rowText('Email', 'support@pickagig.mw'), chevron()
+      ),
+      el('a', { class: 'row row-tap', href: 'https://wa.me/265991234567', target: '_blank', rel: 'noopener' },
+        ico('bell', 't-green'), rowText('WhatsApp', '+265 991 234 567'), chevron()
+      )
+    ),
+    el('p', { style: 'color:var(--muted);font-size:11.5px;margin-top:12px;', text: 'Update these with your real support contacts.' })
+  ));
+}
+
 // ── Page ─────────────────────────────────────────────────────
 
 export async function renderSettingsPage() {
@@ -307,7 +376,7 @@ export async function renderSettingsPage() {
     ? group(t('settingsOther') || 'Other settings', signInBlock(t('settingsSignInHint')))
     : null;
 
-  // ── More (language, data, account, about) ───────────────────
+  // ── More (language, data, account, support, about) ──────────
   const moreGroup = group(null,
     stackedRow(
       [ico('globe', 't-blue'), rowText(t('settingsLanguage'))],
@@ -326,6 +395,11 @@ export async function renderSettingsPage() {
           onChange: (on) => saveSetting(user.id, { data_saver: on }),
         })
       : null,
+    user
+      ? actionRow({ icon: 'user', tone: 't-navy', title: 'Change password', onclick: openChangePassword })
+      : null,
+    actionRow({ icon: 'info', tone: 't-blue', title: 'Help & FAQ', onclick: openHelpFaq }),
+    actionRow({ icon: 'bell', tone: 't-green', title: 'Contact us', onclick: openContactUs }),
     staticRow({
       icon: 'info', tone: 't-navy',
       title: 'PickAGig',
