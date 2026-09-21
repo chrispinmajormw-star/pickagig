@@ -142,6 +142,17 @@ async function fetchLatestPaymentRequest(userId) {
   return data;
 }
 
+// Deletes the profile row and signs the user out. Note: this removes
+// their PickAGig profile data, but the underlying Supabase Auth user
+// record can only be fully removed with the service-role key from a
+// server-side function — see the note in the chat for details.
+async function deleteAccount(user) {
+  const { error } = await supabase.from('profiles').delete().eq('id', user.id);
+  if (error) { toast('Could not delete account: ' + error.message); return false; }
+  await supabase.auth.signOut();
+  return true;
+}
+
 /* ── Hero ────────────────────────────────────────────────── */
 
 function buildAvatar(user, profile) {
@@ -511,6 +522,20 @@ function renderSignedOut(container) {
   ));
 }
 
+function buildDeleteAccountRow(user) {
+  return el('button', {
+    class: 'pf-delete-account', type: 'button', text: 'Delete my account',
+    onclick: async () => {
+      if (!confirm('This permanently deletes your PickAGig profile and signs you out. This cannot be undone. Continue?')) return;
+      const ok = await deleteAccount(user);
+      if (ok) {
+        toast('Your account has been deleted.');
+        navigate('gigs');
+      }
+    }
+  });
+}
+
 /* ── Entry point ─────────────────────────────────────────── */
 
 let editMode = false;
@@ -571,7 +596,8 @@ export async function renderProfilePage() {
     buildHistoryBox(history),
     buildPremiumBox(user, profile, latestPaymentRequest),
     buildLeaderboardBox(),
-    buildRefBox(profile)
+    buildRefBox(profile),
+    buildDeleteAccountRow(user)
   );
 
   // editMode resets after a successful save (renderProfilePage re-runs).
